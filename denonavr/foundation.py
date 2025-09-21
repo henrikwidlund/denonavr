@@ -9,6 +9,7 @@ This module implements the foundation classes for Denon AVR receivers.
 
 import asyncio
 import logging
+import time
 import xml.etree.ElementTree as ET
 from collections.abc import Hashable
 from copy import deepcopy
@@ -275,17 +276,23 @@ class DenonAVRDeviceInfo:
 
     def _power_callback(self, zone: str, event: str, parameter: str) -> None:
         """Handle a power change event."""
+        method_start_time = time.time()
         if self.zone == zone and parameter in POWER_STATES:
             self._power = parameter
+        _LOGGER.info("Power callback processed - %s", time.time() - method_start_time)
 
     def _settings_menu_callback(self, zone: str, event: str, parameter: str) -> None:
         """Handle a settings menu event."""
+        method_start_time = time.time()
         if (
             event == "MN"
             and parameter.startswith("MEN")
             and (value := parameter[4:]) in SETTINGS_MENU_STATES
         ):
             self._settings_menu = value
+        _LOGGER.info(
+            "Settings menu callback processed - %s", time.time() - method_start_time
+        )
 
     def _dimmer_callback(self, zone: str, event: str, parameter: str) -> None:
         """Handle a dimmer change event."""
@@ -294,15 +301,23 @@ class DenonAVRDeviceInfo:
 
     def _auto_standby_callback(self, zone: str, event: str, parameter: str) -> None:
         """Handle an auto standby change event."""
+        method_start_time = time.time()
         if zone == "Main":
             self._auto_standby = parameter
+        _LOGGER.info(
+            "Auto standby callback processed - %s", time.time() - method_start_time
+        )
 
     def _auto_sleep_callback(self, zone: str, event: str, parameter: str) -> None:
         """Handle a sleep change event."""
+        method_start_time = time.time()
         if parameter == "OFF":
             self._sleep = parameter
         else:
             self._sleep = int(parameter)
+        _LOGGER.info(
+            "Auto sleep callback processed - %s", time.time() - method_start_time
+        )
 
     def _room_size_callback(self, parameter: str) -> None:
         """Handle a room size change event."""
@@ -310,6 +325,7 @@ class DenonAVRDeviceInfo:
 
     def _trigger_callback(self, zone: str, event: str, parameter: str) -> None:
         """Handle a trigger change event."""
+        method_start_time = time.time()
         values = parameter.split()
         if len(values) != 2:
             return
@@ -318,19 +334,33 @@ class DenonAVRDeviceInfo:
             self._triggers = {}
 
         self._triggers[int(values[0])] = values[1]
+        _LOGGER.info("Trigger callback processed - %s", time.time() - method_start_time)
 
     def _vs_callback(self, zone: str, event: str, parameter: str) -> None:
         """Handle a VS change event."""
+        method_start_time = time.time()
         for prefix, handler in self._vs_handlers.items():
             if parameter.startswith(prefix):
                 handler(parameter)
+                _LOGGER.info(
+                    "VS %s callback processed - %s",
+                    parameter,
+                    time.time() - method_start_time,
+                )
                 return
+        _LOGGER.info("VS callback processed - %s", time.time() - method_start_time)
 
     def _ps_callback(self, zone: str, event: str, parameter: str) -> None:
         """Handle a PS change event."""
+        method_start_time = time.time()
         for prefix, handler in self._ps_handlers.items():
             if parameter.startswith(prefix):
                 handler(parameter)
+                _LOGGER.info(
+                    "PS %s callback processed - %s",
+                    parameter,
+                    time.time() - method_start_time,
+                )
                 return
 
     def _delay_callback(self, parameter: str) -> None:
@@ -340,8 +370,12 @@ class DenonAVRDeviceInfo:
 
     def _eco_mode_callback(self, zone: str, event: str, parameter: str) -> None:
         """Handle an Eco-mode change event."""
+        method_start_time = time.time()
         if parameter in ECO_MODE_MAP_LABELS:
             self._eco_mode = ECO_MODE_MAP_LABELS[parameter]
+        _LOGGER.info(
+            "Eco-mode callback processed - %s", time.time() - method_start_time
+        )
 
     def _hdmi_output_callback(self, parameter: str) -> None:
         """Handle a HDMI output change event."""
@@ -357,10 +391,17 @@ class DenonAVRDeviceInfo:
 
     def _ss_callback(self, zone: str, event: str, parameter: str) -> None:
         """Handle a SS change event."""
+        method_start_time = time.time()
         for prefix, handler in self._ss_handlers.items():
             if parameter.startswith(prefix):
                 handler(parameter)
+                _LOGGER.info(
+                    "SS %s callback processed - %s",
+                    parameter,
+                    time.time() - method_start_time,
+                )
                 return
+        _LOGGER.info("SS callback processed - %s", time.time() - method_start_time)
 
     def _tactile_transducer_callback(self, parameter: str) -> None:
         """Handle a tactile transducer change event."""
@@ -387,18 +428,24 @@ class DenonAVRDeviceInfo:
 
     def _bt_callback(self, zone: str, event: str, parameter: str) -> None:
         """Handle a Bluetooth change event."""
-        key_value = parameter.split()
-        if len(key_value) != 2:
-            return
+        method_start_time = time.time()
+        try:
+            key_value = parameter.split()
+            if len(key_value) != 2:
+                return
 
-        if key_value[0] != "TX":
-            return
+            if key_value[0] != "TX":
+                return
 
-        value = key_value[1]
-        if value in ("ON", "OFF"):
-            self._bt_transmitter = value
-        else:
-            self._bt_output_mode = BLUETOOTH_OUTPUT_MAP_LABELS[value]
+            value = key_value[1]
+            if value in ("ON", "OFF"):
+                self._bt_transmitter = value
+            else:
+                self._bt_output_mode = BLUETOOTH_OUTPUT_MAP_LABELS[value]
+        finally:
+            _LOGGER.info(
+                "Bluetooth callback processed - %s", time.time() - method_start_time
+            )
 
     def _delay_time_callback(self, parameter: str) -> None:
         """Handle a delay time change event."""
@@ -501,12 +548,14 @@ class DenonAVRDeviceInfo:
     ) -> None:
         """Update status asynchronously."""
         _LOGGER.debug("Starting device update")
+        method_start_time = time.time()
         # Ensure instance is setup before updating
         if not self._is_setup:
             await self.async_setup()
 
         # Update power status
         await self.async_update_power(global_update=global_update, cache_id=cache_id)
+        _LOGGER.info("Finished device update - %s", time.time() - method_start_time)
         _LOGGER.debug("Finished device update")
 
     async def async_identify_receiver(self) -> None:

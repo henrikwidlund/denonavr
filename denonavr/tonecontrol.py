@@ -57,6 +57,7 @@ class DenonAVRToneControl(DenonAVRFoundation):
     async def async_setup(self) -> None:
         """Ensure that the instance is initialized."""
         async with self._setup_lock:
+            method_start_time = time.time()
             _LOGGER.debug("Starting tone control setup")
 
             # The first update determines if tone control is supported
@@ -71,6 +72,9 @@ class DenonAVRToneControl(DenonAVRFoundation):
 
             self._is_setup = True
             _LOGGER.debug("Finished tone control setup")
+            _LOGGER.info(
+                "Finished tone control setup - %s", time.time() - method_start_time
+            )
 
     def _ps_callback(self, zone: str, event: str, parameter: str) -> None:
         """Handle a PS change event."""
@@ -98,7 +102,7 @@ class DenonAVRToneControl(DenonAVRFoundation):
         self, global_update: bool = False, cache_id: Optional[Hashable] = None
     ) -> None:
         """Update volume asynchronously."""
-        _LOGGER.debug("Starting tone control update")
+        method_start_time = time.time()
         # Ensure instance is setup before updating
         if not self._is_setup:
             await self.async_setup()
@@ -107,7 +111,9 @@ class DenonAVRToneControl(DenonAVRFoundation):
         await self.async_update_tone_control(
             global_update=global_update, cache_id=cache_id
         )
-        _LOGGER.debug("Finished tone control update")
+        _LOGGER.info(
+            "Finished tone control update - %s", time.time() - method_start_time
+        )
 
     async def async_update_tone_control(
         self, global_update: bool = False, cache_id: Optional[Hashable] = None

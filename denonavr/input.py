@@ -9,6 +9,7 @@ This module implements the handler for input functions of Denon AVR receivers.
 
 import asyncio
 import logging
+import time
 from collections.abc import Hashable
 from copy import deepcopy
 from typing import Dict, List, Optional, Set, Tuple
@@ -215,25 +216,32 @@ class DenonAVRInput(DenonAVRFoundation):
 
     def _input_callback(self, zone: str, event: str, parameter: str) -> None:
         """Handle an input change event."""
-        if self._device.zone != zone:
-            return
+        method_start_time = time.time()
+        try:
+            if self._device.zone != zone:
+                return
 
-        self._input_func = TELNET_MAPPING.get(parameter, parameter)
+            self._input_func = TELNET_MAPPING.get(parameter, parameter)
 
-        if self._device.power != POWER_ON:
-            return
+            if self._device.power != POWER_ON:
+                return
 
-        if self._schedule_media_updates():
-            self._state = STATE_PLAYING
-        else:
-            self._unset_media_state()
-            self._state = STATE_ON
+            if self._schedule_media_updates():
+                self._state = STATE_PLAYING
+            else:
+                self._unset_media_state()
+                self._state = STATE_ON
+        finally:
+            _LOGGER.info(
+                "Input callback processed - %s", time.time() - method_start_time
+            )
 
     def _power_callback(self, zone: str, event: str, parameter: str) -> None:
         """Handle a power change event."""
         if self._device.zone != zone:
             return
 
+        method_start_time = time.time()
         if parameter != POWER_ON:
             self._stop_media_update()
             self._unset_media_state()
@@ -243,6 +251,7 @@ class DenonAVRInput(DenonAVRFoundation):
         else:
             self._unset_media_state()
             self._state = STATE_ON
+        _LOGGER.info("Power callback processed - %s", time.time() - method_start_time)
 
     def _schedule_media_updates(self) -> bool:
         """Schedule media state updates in telnet callbacks."""
@@ -288,28 +297,34 @@ class DenonAVRInput(DenonAVRFoundation):
         self, zone: str, event: str, parameter: str
     ) -> None:
         """Handle a netaudio update event."""
-        if self._device.power != POWER_ON:
-            return
-        if self._input_func not in self._netaudio_func_list:
-            return
+        method_start_time = time.time()
+        try:
+            if self._device.power != POWER_ON:
+                return
+            if self._input_func not in self._netaudio_func_list:
+                return
 
-        if parameter.startswith("1"):
-            self._title = parameter[1:]
-        elif parameter.startswith("2"):
-            self._artist = parameter[1:]
-        elif parameter.startswith("4"):
-            self._album = parameter[1:]
-        self._band = None
-        self._frequency = None
-        self._station = None
+            if parameter.startswith("1"):
+                self._title = parameter[1:]
+            elif parameter.startswith("2"):
+                self._artist = parameter[1:]
+            elif parameter.startswith("4"):
+                self._album = parameter[1:]
+            self._band = None
+            self._frequency = None
+            self._station = None
 
-        # Refresh cover with a hash for media URL when track is changing
-        self._image_url = ALBUM_COVERS_URL.format(
-            host=self._device.api.host,
-            port=self._device.api.port,
-            hash=hash((self._title, self._artist, self._album)),
-        )
-        await self._async_test_image_accessible()
+            # Refresh cover with a hash for media URL when track is changing
+            self._image_url = ALBUM_COVERS_URL.format(
+                host=self._device.api.host,
+                port=self._device.api.port,
+                hash=hash((self._title, self._artist, self._album)),
+            )
+            await self._async_test_image_accessible()
+        finally:
+            _LOGGER.info(
+                "Netaudio callback processed - %s", time.time() - method_start_time
+            )
 
     def _schedule_tuner_update(self) -> None:
         """Schedule a tuner update task."""
@@ -333,29 +348,35 @@ class DenonAVRInput(DenonAVRFoundation):
         self, zone: str, event: str, parameter: str
     ) -> None:
         """Handle a tuner update event."""
-        if self._device.power != POWER_ON:
-            return
-        if self._input_func not in ["Tuner", "TUNER"]:
-            return
+        method_start_time = time.time()
+        try:
+            if self._device.power != POWER_ON:
+                return
+            if self._input_func not in ["Tuner", "TUNER"]:
+                return
 
-        if parameter.startswith("ANNAME"):
-            self._station = parameter[6:]
-        elif len(parameter) == 8:
-            self._frequency = f"{parameter[2:6]}.{parameter[6:]}".strip("0")
-            if parameter[2:] > "050000":
-                self._band = "AM"
-            else:
-                self._band = "FM"
+            if parameter.startswith("ANNAME"):
+                self._station = parameter[6:]
+            elif len(parameter) == 8:
+                self._frequency = f"{parameter[2:6]}.{parameter[6:]}".strip("0")
+                if parameter[2:] > "050000":
+                    self._band = "AM"
+                else:
+                    self._band = "FM"
 
-        self._title = None
-        self._artist = None
-        self._album = None
+            self._title = None
+            self._artist = None
+            self._album = None
 
-        # No special cover, using a static one
-        self._image_url = STATIC_ALBUM_URL.format(
-            host=self._device.api.host, port=self._device.api.port
-        )
-        await self._async_test_image_accessible()
+            # No special cover, using a static one
+            self._image_url = STATIC_ALBUM_URL.format(
+                host=self._device.api.host, port=self._device.api.port
+            )
+            await self._async_test_image_accessible()
+        finally:
+            _LOGGER.info(
+                "Tuner callback processed - %s", time.time() - method_start_time
+            )
 
     def _schedule_hdtuner_update(self) -> None:
         """Schedule a HD tuner update task."""
@@ -377,59 +398,73 @@ class DenonAVRInput(DenonAVRFoundation):
         self, zone: str, event: str, parameter: str
     ) -> None:
         """Handle an HD tuner update event."""
-        if self._device.power != POWER_ON:
-            return
-        if self._input_func not in ["HD Radio", "HDRADIO"]:
-            return
+        method_start_time = time.time()
+        try:
+            if self._device.power != POWER_ON:
+                return
+            if self._input_func not in ["HD Radio", "HDRADIO"]:
+                return
 
-        if parameter.startswith("ARTIST"):
-            self._artist = parameter[6:]
-        elif parameter.startswith("TITLE"):
-            self._title = parameter[5:]
-        elif parameter.startswith("ALBUM"):
-            self._album = parameter[5:]
-        elif parameter.startswith("ST NAME"):
-            self._station = parameter[7:]
+            if parameter.startswith("ARTIST"):
+                self._artist = parameter[6:]
+            elif parameter.startswith("TITLE"):
+                self._title = parameter[5:]
+            elif parameter.startswith("ALBUM"):
+                self._album = parameter[5:]
+            elif parameter.startswith("ST NAME"):
+                self._station = parameter[7:]
 
-        self._band = None
-        self._frequency = None
+            self._band = None
+            self._frequency = None
 
-        # No special cover, using a static one
-        self._image_url = STATIC_ALBUM_URL.format(
-            host=self._device.api.host, port=self._device.api.port
-        )
-        await self._async_test_image_accessible()
+            # No special cover, using a static one
+            self._image_url = STATIC_ALBUM_URL.format(
+                host=self._device.api.host, port=self._device.api.port
+            )
+            await self._async_test_image_accessible()
+        finally:
+            _LOGGER.info("HD callback processed - %s", time.time() - method_start_time)
 
     async def _async_input_func_update_callback(
         self, zone: str, event: str, parameter: str
     ) -> None:
         """Handle input func update events."""
-        if self._input_func_update_lock.locked():
-            return
-        async with self._input_func_update_lock:
-            await self.async_update_inputfuncs()
+        method_start_time = time.time()
+        try:
+            if self._input_func_update_lock.locked():
+                return
+            async with self._input_func_update_lock:
+                await self.async_update_inputfuncs()
+        finally:
+            _LOGGER.info(
+                "Input func update callback processed - %s",
+                time.time() - method_start_time,
+            )
 
     async def async_update(
         self, global_update: bool = False, cache_id: Optional[Hashable] = None
     ) -> None:
         """Update input functions asynchronously."""
-        _LOGGER.debug("Starting input update")
+        method_start_time = time.time()
         # Ensure instance is setup before updating
         if not self._is_setup:
             self.setup()
 
         # Update input functions
-        _LOGGER.debug("Updating input functions")
+        measure_start = time.time()
         await self.async_update_inputfuncs(
             global_update=global_update, cache_id=cache_id
         )
         # Update state
-        _LOGGER.debug("Updating input state")
+        _LOGGER.info("Updated input funcs - %s", time.time() - measure_start)
+        measure_start = time.time()
         await self.async_update_state(global_update=global_update, cache_id=cache_id)
+        _LOGGER.info("Updated state - %s", time.time() - measure_start)
         # Update media state
-        _LOGGER.debug("Updating media state")
+        measure_start = time.time()
         await self.async_update_media_state(cache_id=cache_id)
-        _LOGGER.debug("Finished input update")
+        _LOGGER.info("Updated media state - %s", time.time() - measure_start)
+        _LOGGER.info("Finished input update - %s", time.time() - method_start_time)
 
     async def async_get_sources_deviceinfo(self) -> Dict[str, str]:
         """Get sources from Deviceinfo.xml."""

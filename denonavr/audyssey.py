@@ -8,6 +8,7 @@ This module implements the Audyssey settings of Denon AVR receivers.
 """
 
 import logging
+import time
 from collections.abc import Hashable
 from typing import List, Optional
 
@@ -83,29 +84,33 @@ class DenonAVRAudyssey(DenonAVRFoundation):
 
     def _ps_callback(self, zone: str, event: str, parameter: str) -> None:
         """Handle a sound detail change event."""
-        if self._device.zone != zone:
-            return
+        method_start_time = time.time()
+        try:
+            if self._device.zone != zone:
+                return
 
-        if parameter.startswith("MULTEQ:"):
-            self._multeq = parameter[7:]
-            return
+            if parameter.startswith("MULTEQ:"):
+                self._multeq = parameter[7:]
+                return
 
-        key_value = parameter.split()
-        if len(key_value) != 2:
-            return
-        key = key_value[0]
-        value = key_value[1]
-        match key:
-            case "REFLEV":
-                self._reflevoffset = value
-            case "DYNVOL":
-                self._dynamicvol = value
-            case "DYNEQ":
-                self._dynamiceq = "1" if value == "ON" else "0"
-            case "LFC":
-                self._lfc = "1" if value == "ON" else "0"
-            case "CNTAMT":
-                self._containment_amount = int(value)
+            key_value = parameter.split()
+            if len(key_value) != 2:
+                return
+            key = key_value[0]
+            value = key_value[1]
+            match key:
+                case "REFLEV":
+                    self._reflevoffset = value
+                case "DYNVOL":
+                    self._dynamicvol = value
+                case "DYNEQ":
+                    self._dynamiceq = "1" if value == "ON" else "0"
+                case "LFC":
+                    self._lfc = "1" if value == "ON" else "0"
+                case "CNTAMT":
+                    self._containment_amount = int(value)
+        finally:
+            _LOGGER.info("PS callback %s", time.time() - method_start_time)
 
     async def async_update(
         self, global_update: bool = False, cache_id: Optional[Hashable] = None
@@ -113,11 +118,13 @@ class DenonAVRAudyssey(DenonAVRFoundation):
         """Update Audyssey asynchronously."""
         _LOGGER.debug("Starting Audyssey update")
         # Ensure instance is setup before updating
+        method_start_time = time.time()
         if not self._is_setup:
             self.setup()
 
         # Update state
         await self.async_update_audyssey(global_update=global_update, cache_id=cache_id)
+        _LOGGER.info("Finished Audyssey update %s", time.time() - method_start_time)
         _LOGGER.debug("Finished Audyssey update")
 
     async def async_update_audyssey(

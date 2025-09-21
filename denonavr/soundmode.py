@@ -9,6 +9,7 @@ This module implements the handler for sound mode of Denon AVR receivers.
 
 import asyncio
 import logging
+import time
 from collections.abc import Hashable
 from copy import deepcopy
 from typing import Callable, Dict, List, Literal, Optional, get_args
@@ -212,6 +213,7 @@ class DenonAVRSoundMode(DenonAVRFoundation):
         """Ensure that the instance is initialized."""
         async with self._setup_lock:
             _LOGGER.debug("Starting sound mode setup")
+            method_start_time = time.time()
 
             # The first update determines if sound mode is supported
             await self.async_update_sound_mode()
@@ -227,6 +229,9 @@ class DenonAVRSoundMode(DenonAVRFoundation):
             self._device.telnet_api.register_sync_callback("PS", self._ps_callback)
 
             self._is_setup = True
+            _LOGGER.info(
+                "Finished sound mode setup - %s", time.time() - method_start_time
+            )
 
     def _soundmode_callback(self, zone: str, event: str, parameter: str) -> None:
         """Handle a sound mode change event."""
@@ -241,10 +246,17 @@ class DenonAVRSoundMode(DenonAVRFoundation):
 
     def _ps_callback(self, zone: str, event: str, parameter: str) -> None:
         """Handle a PS change event."""
+        method_start_time = time.time()
         for prefix, handler in self._ps_handlers.items():
             if parameter.startswith(prefix):
                 handler(parameter)
+                _LOGGER.info(
+                    "PS %s callback processed - %s",
+                    parameter,
+                    time.time() - method_start_time,
+                )
                 return
+        _LOGGER.info("PS callback processed - %s", time.time() - method_start_time)
 
     def _neural_x_callback(self, parameter: str) -> None:
         """Handle a Neural X:change event."""
@@ -352,7 +364,7 @@ class DenonAVRSoundMode(DenonAVRFoundation):
         self, global_update: bool = False, cache_id: Optional[Hashable] = None
     ) -> None:
         """Update sound mode asynchronously."""
-        _LOGGER.debug("Starting sound mode update")
+        method_start_time = time.time()
         # Ensure instance is setup before updating
         if not self._is_setup:
             await self.async_setup()
@@ -361,7 +373,7 @@ class DenonAVRSoundMode(DenonAVRFoundation):
         await self.async_update_sound_mode(
             global_update=global_update, cache_id=cache_id
         )
-        _LOGGER.debug("Finished sound mode update")
+        _LOGGER.info("Finished sound mode update - %s", time.time() - method_start_time)
 
     async def async_update_sound_mode(
         self, global_update: bool = False, cache_id: Optional[Hashable] = None

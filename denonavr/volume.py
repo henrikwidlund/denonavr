@@ -8,6 +8,7 @@ This module implements the handler for volume of Denon AVR receivers.
 """
 
 import logging
+import time
 from collections.abc import Hashable
 from typing import Callable, Dict, Optional, Union, get_args
 
@@ -106,12 +107,16 @@ class DenonAVRVolume(DenonAVRFoundation):
         if self._device.zone != zone:
             return
 
+        method_start_time = time.time()
         if len(parameter) < 3:
             self._volume = -80.0 + float(parameter)
         else:
             whole_number = float(parameter[0:2])
             fraction = 0.1 * float(parameter[2])
             self._volume = -80.0 + whole_number + fraction
+        _LOGGER.info(
+            "Volume callback processing time: %s", time.time() - method_start_time
+        )
 
     def _mute_callback(self, zone: str, event: str, parameter: str) -> None:
         """Handle a muting change event."""
@@ -163,10 +168,17 @@ class DenonAVRVolume(DenonAVRFoundation):
 
     def _ps_callback(self, zone: str, event: str, parameter: str) -> None:
         """Handle a PS change event."""
+        method_start_time = time.time()
         for prefix, handler in self._ps_handlers.items():
             if parameter.startswith(prefix):
                 handler(parameter)
+                _LOGGER.info(
+                    "PS %s callback processing time: %s",
+                    parameter,
+                    time.time() - method_start_time,
+                )
                 return
+        _LOGGER.info("PS callback processing time: %s", time.time() - method_start_time)
 
     def _lfe_callback(self, parameter: str) -> None:
         """Handle a LFE change event."""
@@ -180,14 +192,14 @@ class DenonAVRVolume(DenonAVRFoundation):
         self, global_update: bool = False, cache_id: Optional[Hashable] = None
     ) -> None:
         """Update volume asynchronously."""
-        _LOGGER.debug("Starting volume update")
+        method_start_time = time.time()
         # Ensure instance is setup before updating
         if not self._is_setup:
             self.setup()
 
         # Update state
         await self.async_update_volume(global_update=global_update, cache_id=cache_id)
-        _LOGGER.debug("Finished volume update")
+        _LOGGER.info("Finished volume update - %s", time.time() - method_start_time)
 
     async def async_update_volume(
         self, global_update: bool = False, cache_id: Optional[Hashable] = None

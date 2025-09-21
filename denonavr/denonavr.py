@@ -186,20 +186,27 @@ class DenonAVR(DenonAVRFoundation):
 
         Method executes the update method for the current receiver type.
         """
-        _LOGGER.debug("Starting denonavr update")
+        method_start_time = time.time()
         # Ensure that the device is setup
         if not self._is_setup:
+            measure_start = time.time()
             await self.async_setup()
+            _LOGGER.info("Finished denonavr setup - %s", time.time() - measure_start)
 
         # Create a cache id for this global update
         cache_id = time.time()
 
         # Verify update method
-        _LOGGER.debug("Verifying update method")
+        measure_start = time.time()
         await self._device.async_verify_avr_2016_update_method(cache_id=cache_id)
+        _LOGGER.info(
+            "Finished verifying update method - %s", time.time() - measure_start
+        )
 
         # Update device (component_tasks depend on the result from this one)
+        measure_start = time.time()
         await self._device.async_update(global_update=True, cache_id=cache_id)
+        _LOGGER.info("Finished updating device - %s", time.time() - measure_start)
 
         # Update other functions
         component_tasks = [
@@ -215,7 +222,7 @@ class DenonAVR(DenonAVRFoundation):
         # into main update
         # await self.audyssey.async_update(
         #     global_update=True, cache_id=cache_id)
-        _LOGGER.debug("Finished denonavr update")
+        _LOGGER.info("Finished denonavr update - %s", time.time() - method_start_time)
 
     async def async_update_tonecontrol(self):
         """Get Tonecontrol settings."""
@@ -251,7 +258,9 @@ class DenonAVR(DenonAVRFoundation):
 
     async def async_telnet_connect(self):
         """Connect to the telnet interface of the receiver."""
+        _LOGGER.info("Starting denonavr telnet connection - %s", time.time())
         await self._device.telnet_api.async_connect()
+        _LOGGER.info("Finished denonavr telnet connection - %s", time.time())
 
     async def async_telnet_disconnect(self):
         """Disconnect from the telnet interface of the receiver."""
