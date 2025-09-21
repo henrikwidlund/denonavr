@@ -258,9 +258,9 @@ class DenonAVR(DenonAVRFoundation):
 
     async def async_telnet_connect(self):
         """Connect to the telnet interface of the receiver."""
-        _LOGGER.info("Starting denonavr telnet connection - %s", time.time())
+        method_start_time = time.time()
         await self._device.telnet_api.async_connect()
-        _LOGGER.info("Finished denonavr telnet connection - %s", time.time())
+        _LOGGER.info("Finished denonavr telnet connection - %s", time.time() - method_start_time)
 
     async def async_telnet_disconnect(self):
         """Disconnect from the telnet interface of the receiver."""

@@ -362,6 +362,7 @@ class DenonAVRDeviceInfo:
                     time.time() - method_start_time,
                 )
                 return
+        _LOGGER.info("PS callback processed - %s", time.time() - method_start_time)
 
     def _delay_callback(self, parameter: str) -> None:
         """Handle a delay change event."""
