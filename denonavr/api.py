@@ -112,12 +112,14 @@ class HTTPXAsyncClient:
     ) -> httpx.Response:
         """Call GET endpoint of Denon AVR receiver asynchronously."""
         client = self._get_client()
+        _LOGGER.info("Requesting GET %s", url)
         async with client.stream(
             "GET", url, timeout=httpx.Timeout(timeout, read=read_timeout)
         ) as res:
             res.raise_for_status()
             await res.aread()
 
+        _LOGGER.info("Requested GET %s", url)
         return res
 
     @cache_result
@@ -229,7 +231,6 @@ class DenonAVRApi:
     async def async_get_command(self, request: str) -> str:
         """Send HTTP GET command to Denon AVR receiver asynchronously."""
         # HTTP GET to endpoint
-        _LOGGER.info("Requesting GET %s", request)
         res = await self.async_get(request)
         # Return text
         return res.text
@@ -903,7 +904,9 @@ class DenonAVRTelnetApi:
                     f"Error sending command {command}. Telnet connected: "
                     f"{self.connected}, Connection healthy: {self.healthy}"
                 )
+            _LOGGER.info("Sending command: %s", command)
             self._protocol.write(f"{command}\r")
+            _LOGGER.info("Sent command: %s", command)
             if not skip_confirmation:
                 try:
                     await asyncio.wait_for(
@@ -925,7 +928,6 @@ class DenonAVRTelnetApi:
     ) -> None:
         """Send telnet commands to the receiver."""
         for command in commands:
-            _LOGGER.info('Sending command: %s', command)
             await self._async_send_command(
                 command,
                 skip_confirmation=skip_confirmation,
