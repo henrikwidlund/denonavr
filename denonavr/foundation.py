@@ -125,112 +125,50 @@ class DenonAVRDeviceInfo:
         validator=attr.validators.optional(attr.validators.in_(VALID_RECEIVER_TYPES)),
         default=None,
     )
-    telnet_commands: TelnetCommands = attr.ib(
-        validator=attr.validators.instance_of(TelnetCommands), init=False
-    )
-    urls: ReceiverURLs = attr.ib(
-        validator=attr.validators.instance_of(ReceiverURLs), init=False
-    )
-    zone: str = attr.ib(
-        validator=attr.validators.in_(VALID_ZONES), default=MAIN_ZONE, kw_only=True
-    )
-    friendly_name: Optional[str] = attr.ib(
-        converter=attr.converters.optional(str), default=None
-    )
-    manufacturer: Optional[str] = attr.ib(
-        converter=attr.converters.optional(str), default=None
-    )
-    model_name: Optional[str] = attr.ib(
-        converter=attr.converters.optional(str), default=None
-    )
-    serial_number: Optional[str] = attr.ib(
-        converter=attr.converters.optional(str), default=None
-    )
-    use_avr_2016_update: Optional[bool] = attr.ib(
-        converter=attr.converters.optional(bool), default=None
-    )
-    _power: Optional[str] = attr.ib(
-        converter=attr.converters.optional(str), default=None
-    )
-    _settings_menu: Optional[bool] = attr.ib(
-        converter=attr.converters.optional(convert_on_off_bool), default=None
-    )
-    _dimmer: Optional[str] = attr.ib(
-        converter=attr.converters.optional(str), default=None
-    )
+    telnet_commands: TelnetCommands = attr.ib(validator=attr.validators.instance_of(TelnetCommands), init=False)
+    urls: ReceiverURLs = attr.ib(validator=attr.validators.instance_of(ReceiverURLs), init=False)
+    zone: str = attr.ib(validator=attr.validators.in_(VALID_ZONES), default=MAIN_ZONE, kw_only=True)
+    friendly_name: Optional[str] = attr.ib(converter=attr.converters.optional(str), default=None)
+    manufacturer: Optional[str] = attr.ib(converter=attr.converters.optional(str), default=None)
+    model_name: Optional[str] = attr.ib(converter=attr.converters.optional(str), default=None)
+    serial_number: Optional[str] = attr.ib(converter=attr.converters.optional(str), default=None)
+    use_avr_2016_update: Optional[bool] = attr.ib(converter=attr.converters.optional(bool), default=None)
+    _power: Optional[str] = attr.ib(converter=attr.converters.optional(str), default=None)
+    _settings_menu: Optional[bool] = attr.ib(converter=attr.converters.optional(convert_on_off_bool), default=None)
+    _dimmer: Optional[str] = attr.ib(converter=attr.converters.optional(str), default=None)
     _dimmer_modes = get_args(DimmerModes)
-    _auto_standby: Optional[str] = attr.ib(
-        converter=attr.converters.optional(str), default=None
-    )
+    _auto_standby: Optional[str] = attr.ib(converter=attr.converters.optional(str), default=None)
     _auto_standbys = get_args(AutoStandbys)
-    _sleep: Optional[Union[str, int]] = attr.ib(
-        converter=attr.converters.optional(str), default=None
-    )
-    _delay: Optional[int] = attr.ib(
-        converter=attr.converters.optional(int), default=None
-    )
-    _eco_mode: Optional[str] = attr.ib(
-        converter=attr.converters.optional(str), default=None
-    )
+    _sleep: Optional[Union[str, int]] = attr.ib(converter=attr.converters.optional(str), default=None)
+    _delay: Optional[int] = attr.ib(converter=attr.converters.optional(int), default=None)
+    _eco_mode: Optional[str] = attr.ib(converter=attr.converters.optional(str), default=None)
     _eco_modes = get_args(EcoModes)
-    _hdmi_output: Optional[str] = attr.ib(
-        converter=attr.converters.optional(str), default=None
-    )
+    _hdmi_output: Optional[str] = attr.ib(converter=attr.converters.optional(str), default=None)
     _hdmi_outputs = get_args(HDMIOutputs)
-    _hdmi_audio_decode: Optional[str] = attr.ib(
-        converter=attr.converters.optional(str), default=None
-    )
+    _hdmi_audio_decode: Optional[str] = attr.ib(converter=attr.converters.optional(str), default=None)
     _hdmi_audio_decodes = get_args(HDMIAudioDecodes)
-    _video_processing_mode: Optional[str] = attr.ib(
-        converter=attr.converters.optional(str), default=None
-    )
+    _video_processing_mode: Optional[str] = attr.ib(converter=attr.converters.optional(str), default=None)
     _video_processing_modes = get_args(VideoProcessingModes)
-    _tactile_transducer: Optional[str] = attr.ib(
-        converter=attr.converters.optional(str), default=None
-    )
-    _tactile_transducer_level: Optional[float] = attr.ib(
-        converter=attr.converters.optional(float), default=None
-    )
-    _tactile_transducer_lpf: Optional[str] = attr.ib(
-        converter=attr.converters.optional(str), default=None
-    )
+    _tactile_transducer: Optional[str] = attr.ib(converter=attr.converters.optional(str), default=None)
+    _tactile_transducer_level: Optional[float] = attr.ib(converter=attr.converters.optional(float), default=None)
+    _tactile_transducer_lpf: Optional[str] = attr.ib(converter=attr.converters.optional(str), default=None)
     _tactile_transducer_lpfs = get_args(TransducerLPFs)
-    _room_size: Optional[str] = attr.ib(
-        converter=attr.converters.optional(str), default=None
-    )
+    _room_size: Optional[str] = attr.ib(converter=attr.converters.optional(str), default=None)
     _room_sizes = get_args(RoomSizes)
     _triggers: Optional[Dict[int, str]] = attr.ib(default=None)
-    _speaker_preset: Optional[int] = attr.ib(
-        converter=attr.converters.optional(str), default=None
-    )
-    _bt_transmitter: Optional[bool] = attr.ib(
-        converter=attr.converters.optional(convert_on_off_bool), default=None
-    )
-    _bt_output_mode: Optional[str] = attr.ib(
-        converter=attr.converters.optional(str), default=None
-    )
+    _speaker_preset: Optional[int] = attr.ib(converter=attr.converters.optional(str), default=None)
+    _bt_transmitter: Optional[bool] = attr.ib(converter=attr.converters.optional(convert_on_off_bool), default=None)
+    _bt_output_mode: Optional[str] = attr.ib(converter=attr.converters.optional(str), default=None)
     _bt_output_modes = get_args(BluetoothOutputModes)
-    _delay_time: Optional[int] = attr.ib(
-        converter=attr.converters.optional(int), default=None
-    )
-    _audio_restorer: Optional[str] = attr.ib(
-        converter=attr.converters.optional(str), default=None
-    )
+    _delay_time: Optional[int] = attr.ib(converter=attr.converters.optional(int), default=None)
+    _audio_restorer: Optional[str] = attr.ib(converter=attr.converters.optional(str), default=None)
     _audio_restorers = get_args(AudioRestorers)
     _panel_locks = get_args(PanelLocks)
-    _graphic_eq: Optional[bool] = attr.ib(
-        converter=attr.converters.optional(convert_on_off_bool), default=None
-    )
-    _headphone_eq: Optional[bool] = attr.ib(
-        converter=attr.converters.optional(convert_on_off_bool), default=None
-    )
-    _illumination: Optional[str] = attr.ib(
-        converter=attr.converters.optional(str), default=None
-    )
+    _graphic_eq: Optional[bool] = attr.ib(converter=attr.converters.optional(convert_on_off_bool), default=None)
+    _headphone_eq: Optional[bool] = attr.ib(converter=attr.converters.optional(convert_on_off_bool), default=None)
+    _illumination: Optional[str] = attr.ib(converter=attr.converters.optional(str), default=None)
     _illuminations = get_args(Illuminations)
-    _auto_lip_sync: Optional[bool] = attr.ib(
-        converter=attr.converters.optional(convert_on_off_bool), default=None
-    )
+    _auto_lip_sync: Optional[bool] = attr.ib(converter=attr.converters.optional(convert_on_off_bool), default=None)
     _input_modes = get_args(InputModes)
     _is_setup: bool = attr.ib(converter=bool, default=False, init=False)
     _allow_recovery: bool = attr.ib(converter=bool, default=True, init=True)
@@ -282,11 +220,7 @@ class DenonAVRDeviceInfo:
 
     def _settings_menu_callback(self, zone: str, event: str, parameter: str) -> None:
         """Handle a settings menu event."""
-        if (
-            event == "MN"
-            and parameter.startswith("MEN")
-            and (value := parameter[4:]) in SETTINGS_MENU_STATES
-        ):
+        if event == "MN" and parameter.startswith("MEN") and (value := parameter[4:]) in SETTINGS_MENU_STATES:
             self._settings_menu = value
 
     def _dimmer_callback(self, zone: str, event: str, parameter: str) -> None:
