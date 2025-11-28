@@ -229,6 +229,7 @@ class DenonAVRApi:
     async def async_get_command(self, request: str) -> str:
         """Send HTTP GET command to Denon AVR receiver asynchronously."""
         # HTTP GET to endpoint
+        print(f'Requesting GET {request}')
         res = await self.async_get(request)
         # Return text
         return res.text
@@ -924,6 +925,7 @@ class DenonAVRTelnetApi:
     ) -> None:
         """Send telnet commands to the receiver."""
         for command in commands:
+            print(f'Sending command: {command}')
             await self._async_send_command(
                 command,
                 skip_confirmation=skip_confirmation,
