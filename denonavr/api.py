@@ -112,11 +112,13 @@ class HTTPXAsyncClient:
     ) -> httpx.Response:
         """Call GET endpoint of Denon AVR receiver asynchronously."""
         client = self._get_client()
+        start_time = time.monotonic()
         async with client.stream(
             "GET", url, timeout=httpx.Timeout(timeout, read=read_timeout)
         ) as res:
             res.raise_for_status()
             await res.aread()
+        _LOGGER.debug("GET to %s took %.3f seconds", url, time.time() - start_time)
 
         return res
 
@@ -134,6 +136,7 @@ class HTTPXAsyncClient:
     ) -> httpx.Response:
         """Call GET endpoint of Denon AVR receiver asynchronously."""
         client = self._get_client()
+        start_time = time.monotonic()
         async with client.stream(
             "POST",
             url,
@@ -144,6 +147,7 @@ class HTTPXAsyncClient:
             res.raise_for_status()
             await res.aread()
 
+        _LOGGER.debug("POST to %s took %.3f seconds", url, time.monotonic() - start_time)
         return res
 
     async def aclose(self):
