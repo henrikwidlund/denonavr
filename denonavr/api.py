@@ -118,7 +118,7 @@ class HTTPXAsyncClient:
         ) as res:
             res.raise_for_status()
             await res.aread()
-        _LOGGER.debug("GET to %s took %.3f seconds", url, time.time() - start_time)
+        _LOGGER.debug("GET to %s took %.3f seconds", url, time.monotonic() - start_time)
 
         return res
 
