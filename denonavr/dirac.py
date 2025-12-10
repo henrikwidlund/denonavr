@@ -67,6 +67,9 @@ class DenonAVRDirac(DenonAVRFoundation):
         if dirac_filter not in self._dirac_filters:
             raise AvrCommandError("Invalid Dirac filter")
 
+        if self._dirac_filter == dirac_filter:
+            return
+
         mapped_filter = DIRAC_FILTER_MAP[dirac_filter]
         if self._device.telnet_available:
             await self._device.telnet_api.async_send_commands(

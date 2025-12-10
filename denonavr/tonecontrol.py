@@ -233,6 +233,10 @@ class DenonAVRToneControl(DenonAVRFoundation):
         """
         if value < 0 or value > 12:
             raise AvrCommandError("Invalid value for bass")
+
+        if self._bass == value:
+            return
+
         if self._device.telnet_available:
             if not self.tone_control_adjust:
                 await self.async_enable_tone_control()
@@ -291,6 +295,10 @@ class DenonAVRToneControl(DenonAVRFoundation):
         """
         if value < 0 or value > 12:
             raise AvrCommandError("Invalid value for treble")
+
+        if self._treble == value:
+            return
+
         if self._device.telnet_available:
             if not self.tone_control_adjust:
                 await self.async_enable_tone_control()

@@ -1074,6 +1074,10 @@ class DenonAVRInput(DenonAVRFoundation):
                 raise AvrCommandError(
                     f"No mapping for input source {input_func}"
                 ) from err
+
+        if self._input_func == input_func:
+            return
+
         # Create command URL and send command via HTTP GET
         if linp in self._favorite_func_list:
             command_url = self._device.urls.command_fav_src + linp
