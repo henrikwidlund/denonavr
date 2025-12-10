@@ -1577,7 +1577,7 @@ class DenonAVRDeviceInfo:
 
         if self.telnet_available:
             await self.telnet_api.async_send_commands(
-                self.telnet_commands.command_delay_down
+                self.telnet_commands.command_delay.format(delay=delay)
             )
         else:
             await self.api.async_get_command(self.urls.command_delay_down)
