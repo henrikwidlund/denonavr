@@ -20,6 +20,9 @@ __title__ = "denonavr"
 __version__ = "1.3.0-dev"
 
 
+__all__ = ["DenonAVR", "async_discover", "async_init_all_receivers"]
+
+
 async def async_discover():
     """
     Discover all Denon AVR devices in LAN zone.

@@ -34,6 +34,9 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         if [ -f test-requirements.txt ]; then pip install -r test-requirements.txt; fi
         pip install -e .
+    - name: Verify installation
+      run: |
+        python -c "import denonavr; print('denonavr version:', denonavr.__version__); print('Has DenonAVR:', hasattr(denonavr, 'DenonAVR'))"
     - name: Integration test with pytest
       run: |
         python -m pytest tests --timeout=60 --durations=10
