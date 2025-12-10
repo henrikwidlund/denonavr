@@ -527,7 +527,7 @@ class DenonAVRVolume(DenonAVRFoundation):
 
     async def async_subwoofer_off(self) -> None:
         """Turn off Subwoofer on receiver via HTTP get command."""
-        if self._subwoofer is not None and not self._subwoofer:
+        if self._subwoofer is False:
             return
 
         if self._device.telnet_available:

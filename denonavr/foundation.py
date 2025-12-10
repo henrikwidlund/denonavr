@@ -1804,7 +1804,7 @@ class DenonAVRDeviceInfo:
             )
 
     async def async_delay_time_down(self) -> None:
-        """Delay time up on receiver via HTTP get command."""
+        """Delay time down on receiver via HTTP get command."""
         if self._delay_time == 0:
             return
 

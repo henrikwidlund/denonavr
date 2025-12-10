@@ -810,7 +810,7 @@ class DenonAVRSoundMode(DenonAVRFoundation):
 
     async def async_imax_auto(self):
         """Set IMAX sound mode to Auto."""
-        if self._imax_auto_off != "OFF":
+        if self._imax_auto_off == "AUTO":
             return
 
         if self._device.telnet_available:
