@@ -1580,7 +1580,7 @@ class DenonAVRDeviceInfo:
                 self.telnet_commands.command_delay.format(delay=delay)
             )
         else:
-            await self.api.async_get_command(self.urls.command_delay_down)
+            await self.api.async_get_command(self.urls.command_delay.format(delay=delay))
 
     async def async_eco_mode(self, mode: EcoModes) -> None:
         """Set Eco mode."""
