@@ -15,6 +15,7 @@ import pytest
 from pytest_httpx import HTTPXMock
 
 import denonavr
+from denonavr import DenonAVR
 from denonavr.api import DenonAVRTelnetApi, DenonAVRTelnetProtocol
 from denonavr.const import SOUND_MODE_MAPPING
 from denonavr.exceptions import AvrNetworkError, AvrTimoutError
@@ -162,7 +163,7 @@ class TestMainFunctions:
             print(f"Receiver: {receiver}")
             # Switch receiver and update to load new sample files
             self.testing_receiver = receiver
-            self.denon = denonavr.DenonAVR(FAKE_IP, add_zones=spec[0])
+            self.denon = DenonAVR(FAKE_IP, add_zones=spec[0])
             await self.denon.async_setup()
             assert self.denon.receiver_type == spec[1].type, (
                 f"Receiver type is {self.denon.receiver_type} not {spec[1].type} for"
@@ -181,7 +182,7 @@ class TestMainFunctions:
         for receiver, spec in TESTING_RECEIVERS.items():
             # Switch receiver and update to load new sample files
             self.testing_receiver = receiver
-            self.denon = denonavr.DenonAVR(FAKE_IP, add_zones=spec[0])
+            self.denon = DenonAVR(FAKE_IP, add_zones=spec[0])
             # Switch through all functions and check if successful
             for name, zone in self.denon.zones.items():
                 print(f"Receiver: {receiver}, Zone: {name}")
@@ -199,7 +200,7 @@ class TestMainFunctions:
             print(f"Receiver: {receiver}")
             # Switch receiver and update to load new sample files
             self.testing_receiver = receiver
-            self.denon = denonavr.DenonAVR(FAKE_IP, add_zones=spec[0])
+            self.denon = DenonAVR(FAKE_IP, add_zones=spec[0])
             await self.denon.async_setup()
             assert self.denon.name is not None, f"Name is None for receiver {receiver}"
             assert (
@@ -221,7 +222,7 @@ class TestMainFunctions:
         for receiver, spec in TESTING_RECEIVERS.items():
             # Switch receiver and update to load new sample files
             self.testing_receiver = receiver
-            self.denon = denonavr.DenonAVR(FAKE_IP, add_zones=spec[0])
+            self.denon = DenonAVR(FAKE_IP, add_zones=spec[0])
             # Switch through all functions and check if successful
             for name in self.denon.zones:
                 print(f"Receiver: {receiver}, Zone: {name}")
@@ -420,7 +421,7 @@ class TestMainFunctions:
 
         httpx_mock.add_callback(self.custom_matcher)
 
-        self.denon = denonavr.DenonAVR(FAKE_IP)
+        self.denon = DenonAVR(FAKE_IP)
         # pylint: disable=protected-access
         self.denon._device.telnet_api._send_confirmation_timeout = 0.1
         await self.denon.async_setup()
@@ -453,7 +454,7 @@ class TestMainFunctions:
             return [transport, proto]
 
         httpx_mock.add_callback(self.custom_matcher)
-        self.denon = denonavr.DenonAVR(FAKE_IP)
+        self.denon = DenonAVR(FAKE_IP)
         # pylint: disable=protected-access
         self.denon._device.telnet_api._send_confirmation_timeout = 0.1
         await self.denon.async_setup()
@@ -484,7 +485,7 @@ class TestMainFunctions:
             return [transport, proto]
 
         httpx_mock.add_callback(self.custom_matcher)
-        self.denon = denonavr.DenonAVR(FAKE_IP)
+        self.denon = DenonAVR(FAKE_IP)
         # pylint: disable=protected-access
         self.denon._device.telnet_api._send_confirmation_timeout = 0.1
         await self.denon.async_setup()
@@ -515,7 +516,7 @@ class TestMainFunctions:
             return [transport, proto]
 
         httpx_mock.add_callback(self.custom_matcher)
-        self.denon = denonavr.DenonAVR(FAKE_IP)
+        self.denon = DenonAVR(FAKE_IP)
         # pylint: disable=protected-access
         self.denon._device.telnet_api._send_confirmation_timeout = 0.1
         await self.denon.async_setup()
@@ -546,7 +547,7 @@ class TestMainFunctions:
             return [transport, proto]
 
         httpx_mock.add_callback(self.custom_matcher)
-        self.denon = denonavr.DenonAVR(FAKE_IP)
+        self.denon = DenonAVR(FAKE_IP)
         # pylint: disable=protected-access
         self.denon._device.telnet_api._send_confirmation_timeout = 0.1
         await self.denon.async_setup()
@@ -577,7 +578,7 @@ class TestMainFunctions:
             return [transport, proto]
 
         httpx_mock.add_callback(self.custom_matcher)
-        self.denon = denonavr.DenonAVR(FAKE_IP)
+        self.denon = DenonAVR(FAKE_IP)
         # pylint: disable=protected-access
         self.denon._device.telnet_api._send_confirmation_timeout = 0.1
         await self.denon.async_setup()
@@ -608,7 +609,7 @@ class TestMainFunctions:
             return [transport, proto]
 
         httpx_mock.add_callback(self.custom_matcher)
-        self.denon = denonavr.DenonAVR(FAKE_IP)
+        self.denon = DenonAVR(FAKE_IP)
         # pylint: disable=protected-access
         self.denon._device.telnet_api._send_confirmation_timeout = 0.1
         await self.denon.async_setup()
@@ -639,7 +640,7 @@ class TestMainFunctions:
             return [transport, proto]
 
         httpx_mock.add_callback(self.custom_matcher)
-        self.denon = denonavr.DenonAVR(FAKE_IP)
+        self.denon = DenonAVR(FAKE_IP)
         # pylint: disable=protected-access
         self.denon._device.telnet_api._send_confirmation_timeout = 0.1
         await self.denon.async_setup()
