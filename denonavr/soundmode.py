@@ -785,7 +785,7 @@ class DenonAVRSoundMode(DenonAVRFoundation):
 
     async def async_neural_x_off(self):
         """Turn off Neural:X sound mode."""
-        if self._neural_x is not None and not self._neural_x:
+        if self._neural_x is False:
             return
 
         if self._device.telnet_available:
@@ -975,7 +975,7 @@ class DenonAVRSoundMode(DenonAVRFoundation):
 
     async def async_cinema_eq_off(self):
         """Set Cinema EQ to OFF."""
-        if self._cinema_eq is not None and not self._cinema_eq:
+        if self._cinema_eq is False:
             return
 
         if self._device.telnet_available:
@@ -1014,7 +1014,7 @@ class DenonAVRSoundMode(DenonAVRFoundation):
 
     async def async_center_spread_off(self):
         """Set Center Spread to ON."""
-        if self._center_spread is not None and not self._center_spread:
+        if self._center_spread is False:
             return
 
         if self._device.telnet_available:
@@ -1055,7 +1055,7 @@ class DenonAVRSoundMode(DenonAVRFoundation):
 
     async def async_loudness_management_off(self):
         """Set Loudness Management to OFF."""
-        if self._loudness_management is not None and not self._loudness_management:
+        if self._loudness_management is False:
             return
 
         if self._device.telnet_available:
@@ -1270,7 +1270,7 @@ class DenonAVRSoundMode(DenonAVRFoundation):
 
     async def async_speaker_virtualizer_off(self) -> None:
         """Set Speaker Virtualizer to OFF."""
-        if self._speaker_virtualizer is not None and not self._speaker_virtualizer:
+        if self._speaker_virtualizer is False:
             return
 
         if self._device.telnet_available:

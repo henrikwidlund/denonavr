@@ -1735,7 +1735,7 @@ class DenonAVRDeviceInfo:
         self,
     ) -> None:
         """Turn off Bluetooth transmitter on receiver via HTTP get command."""
-        if self._bt_transmitter is not None and not self._bt_transmitter:
+        if self._bt_transmitter is False:
             return
 
         if self.telnet_available:
@@ -1929,7 +1929,7 @@ class DenonAVRDeviceInfo:
 
     async def async_graphic_eq_off(self) -> None:
         """Turn off Graphic EQ on receiver via HTTP get command."""
-        if self._graphic_eq is not None and not self._graphic_eq:
+        if self._graphic_eq is False:
             return
 
         if self.telnet_available:
@@ -1968,7 +1968,7 @@ class DenonAVRDeviceInfo:
 
     async def async_headphone_eq_off(self) -> None:
         """Turn off Headphone EQ on receiver via HTTP get command."""
-        if self._headphone_eq is not None and not self._headphone_eq:
+        if self._headphone_eq is False:
             return
 
         if self.telnet_available:
@@ -2076,7 +2076,7 @@ class DenonAVRDeviceInfo:
         if self.is_denon:
             raise AvrCommandError("Auto lip sync is only available for Marantz devices")
 
-        if self._auto_lip_sync is not None and not self._auto_lip_sync:
+        if self._auto_lip_sync is False:
             return
 
         if self.telnet_available:

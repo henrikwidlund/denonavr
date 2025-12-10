@@ -221,7 +221,7 @@ class DenonAVRAudyssey(DenonAVRFoundation):
     ##########
     async def async_dynamiceq_off(self) -> None:
         """Turn DynamicEQ off."""
-        if self._dynamiceq is not None and not self._dynamiceq:
+        if self._dynamiceq is False:
             return
 
         if self._device.telnet_available:
@@ -346,7 +346,7 @@ class DenonAVRAudyssey(DenonAVRFoundation):
 
     async def async_lfc_off(self):
         """Turn LFC off."""
-        if self._lfc is not None and not self._lfc:
+        if self._lfc is False:
             return
 
         if self._device.telnet_available:
