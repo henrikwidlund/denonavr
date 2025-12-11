@@ -15,7 +15,7 @@ import pytest
 from pytest_httpx import HTTPXMock
 
 from denonavr.api import DenonAVRTelnetApi, DenonAVRTelnetProtocol
-from denonavr.const import AVR, AVR_X, AVR_X_2016, SOUND_MODE_MAPPING
+from denonavr.const import AVR, AVR_X, SOUND_MODE_MAPPING
 from denonavr.denonavr import DenonAVR
 from denonavr.exceptions import AvrNetworkError, AvrTimoutError
 
@@ -27,7 +27,6 @@ ZONE3 = {"Zone3": None}
 ZONE2_ZONE3 = {"Zone2": None, "Zone3": None}
 
 TESTING_RECEIVERS = {
-    # "AVR-X4100W": (NO_ZONES, AVR_X),
     "AVR-2312CI": (NO_ZONES, AVR),
     "AVR-1912": (NO_ZONES, AVR),
     "AVR-3311CI": (NO_ZONES, AVR),
@@ -40,20 +39,22 @@ TESTING_RECEIVERS = {
     "NR1604": (ZONE2_ZONE3, AVR_X),
     "AVR-4810": (NO_ZONES, AVR),
     "AVR-3312": (NO_ZONES, AVR),
+    "M-CR510": (NO_ZONES, AVR_X),
+    "M-CR510-2": (NO_ZONES, AVR_X),
+    "AVR-X4000": (ZONE2_ZONE3, AVR_X),
+    "AVR-1713": (NO_ZONES, AVR_X),
+    "AVR-3313": (ZONE2_ZONE3, AVR_X),
+    # Models below don't work for some reason
+    # "AVR-X4100W": (NO_ZONES, AVR_X),
     # "NR1609": (ZONE2, AVR_X_2016),
     # "AVC-8500H": (ZONE2_ZONE3, AVR_X_2016),
     # "AVC-A10H": (ZONE2_ZONE3, AVR_X_2016),
     # "AVR-X4300H": (ZONE2_ZONE3, AVR_X_2016),
     # "AVR-X1100W": (ZONE2, AVR_X),
     # "SR6012": (ZONE2, AVR_X_2016),
-    "M-CR510": (NO_ZONES, AVR_X),
-    "M-CR510-2": (NO_ZONES, AVR_X),
     # "AVC-X3700H": (ZONE2, AVR_X_2016),
-    "AVR-X4000": (ZONE2_ZONE3, AVR_X),
     # "SR6011": (ZONE2, AVR_X),
     # "AV7703": (ZONE2_ZONE3, AVR_X_2016),
-    "AVR-1713": (NO_ZONES, AVR_X),
-    "AVR-3313": (ZONE2_ZONE3, AVR_X),
 }
 
 APPCOMMAND_URL = "/goform/AppCommand.xml"
