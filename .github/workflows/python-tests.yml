@@ -17,17 +17,14 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11"]
 
-    name: Testing Python ${{ matrix.python-version }}
+    name: Testing Python
     steps:
     - uses: actions/checkout@v5
     - name: Set up Python
       uses: actions/setup-python@v6
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: "3.11"
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
