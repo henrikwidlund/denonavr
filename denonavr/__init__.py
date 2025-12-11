@@ -13,15 +13,11 @@ import logging
 # Import denonavr module
 from .denonavr import DenonAVR
 from .ssdp import async_identify_denonavr_receivers
-from . import const
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 __title__ = "denonavr"
 __version__ = "1.3.0-dev"
-
-
-__all__ = ["DenonAVR", "async_discover", "async_init_all_receivers", "const"]
 
 
 async def async_discover():
