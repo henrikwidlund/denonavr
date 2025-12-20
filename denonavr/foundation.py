@@ -210,7 +210,7 @@ class DenonAVRDeviceInfo:
     _room_sizes = get_args(RoomSizes)
     _triggers: Optional[Dict[int, str]] = attr.ib(default=None)
     _speaker_preset: Optional[int] = attr.ib(
-        converter=attr.converters.optional(str), default=None
+        converter=attr.converters.optional(int), default=None
     )
     _bt_transmitter: Optional[bool] = attr.ib(
         converter=attr.converters.optional(convert_on_off_bool), default=None
@@ -440,13 +440,9 @@ class DenonAVRDeviceInfo:
     def _auto_lip_sync_callback(self, parameter: str) -> None:
         """Handle a auto lip sync change event."""
         if parameter.startswith("HOSALS"):
-            auto_lip_sync = parameter[5:]
+            self._auto_lip_sync = parameter[5:]
         elif parameter.startswith("HOS"):
-            auto_lip_sync = parameter[4:]
-        else:
-            return
-
-        self._auto_lip_sync = auto_lip_sync
+            self._auto_lip_sync = parameter[4:]
 
     def get_own_zone(self) -> str:
         """
