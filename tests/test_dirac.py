@@ -16,7 +16,7 @@ from tests.test_helpers import DeviceTestFixture
 
 
 class TestDenonAVRDirac:
-    """Tests for DenonAVRDirac Dirac filter logic."""
+    """Test cases for DenonAVRDirac."""
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("filter_val", list(DIRAC_FILTER_MAP.keys()))

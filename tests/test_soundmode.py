@@ -15,7 +15,7 @@ from tests.test_helpers import DeviceTestFixture
 
 
 class TestDenonAVRSoundMode:
-    """Tests for DenonAVRSoundMode sound mode logic."""
+    """Test cases for DenonAVRSoundMode."""
 
     @pytest.mark.asyncio
     async def test_async_neural_x_on_returns_early_when_on(self):

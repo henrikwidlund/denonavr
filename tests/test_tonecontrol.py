@@ -14,11 +14,7 @@ from tests.test_helpers import DeviceTestFixture
 
 
 class TestDenonAVRToneControl:
-    """
-    Test case for DenonAVRToneControl.
-
-    These tests use the DeviceTestFixture and always set state using callback methods.
-    """
+    """Test cases for DenonAVRToneControl."""
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("value", [0, 6, 12])

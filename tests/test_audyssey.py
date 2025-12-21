@@ -17,7 +17,7 @@ VALID_REFLEV = next(iter(REF_LVL_OFFSET_MAP_LABELS_TELNET.keys()))
 
 
 class TestDenonAVRAudyssey:
-    """Test case for DenonAVRAudyssey class."""
+    """Test cases for DenonAVRAudyssey."""
 
     @pytest.mark.asyncio
     async def test_async_dynamiceq_on_returns_early_when_on(self):

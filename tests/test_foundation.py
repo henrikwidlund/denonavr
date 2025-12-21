@@ -14,12 +14,7 @@ from tests.test_helpers import DeviceTestFixture
 
 
 class TestDenonAVRDeviceInfo:
-    """
-    Test case for DenonAVRDeviceInfo.
-
-    Note: These tests mock HTTP client because it's easier.
-    Callbacks are in reality only used with Telnet.
-    """
+    """Test cases for DenonAVRDeviceInfo."""
 
     @pytest.mark.asyncio
     async def test_async_power_on_returns_early_when_power_is_on(self):
