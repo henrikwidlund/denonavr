@@ -50,14 +50,15 @@ def convert_volume(volume_str: str) -> float:
     fraction = 0.1 * float(volume_str[2])
     return -80.0 + whole_number + fraction
 
+
 @attr.s(auto_attribs=True, on_setattr=DENON_ATTR_SETATTR)
 class DenonAVRVolume(DenonAVRFoundation):
     """This class implements volume functions of Denon AVR receiver."""
 
-    _max_volume: Optional[float] = attr.ib(
+    _max_volume: Optional[float] = attr.ib(default=None)
+    _volume: Optional[float] = attr.ib(
         converter=attr.converters.optional(convert_volume), default=None
     )
-    _volume: Optional[float] = attr.ib(default=None)
     _muted: Optional[bool] = attr.ib(
         converter=attr.converters.optional(convert_muted), default=None
     )
