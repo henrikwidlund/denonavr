@@ -20,7 +20,7 @@ class TestDenonAVRVolume:
         """Test that async_volume_up returns early if volume is at max."""
         fixture = DeviceTestFixture(True)
         device = DenonAVRVolume(device=fixture.device_info)
-        device._volume_callback("Main", "", "98")  # Max volume
+        device._volume_callback("Main", "", "98")
         await fixture.async_execute(device.async_volume_up())
         fixture.assert_not_called()
 
@@ -48,7 +48,7 @@ class TestDenonAVRVolume:
         """Test that async_volume_down returns early if volume is at min."""
         fixture = DeviceTestFixture(True)
         device = DenonAVRVolume(device=fixture.device_info)
-        device._volume_callback("Main", "", "0")  # Min volume
+        device._volume_callback("Main", "", "0")
         await fixture.async_execute(device.async_volume_down())
         fixture.assert_not_called()
 
@@ -152,7 +152,6 @@ class TestDenonAVRVolume:
         await fixture.async_execute(device.async_channel_volume("Front Left", to_val))
         fixture.assert_called_once()
 
-    # Subwoofer on/off
     @pytest.mark.asyncio
     async def test_async_subwoofer_on_returns_early_when_on(self):
         """Test that async_subwoofer_on returns early if subwoofer is already on."""
@@ -189,7 +188,6 @@ class TestDenonAVRVolume:
         await fixture.async_execute(device.async_subwoofer_off())
         fixture.assert_called_once()
 
-    # Subwoofer level
     @pytest.mark.asyncio
     async def test_async_subwoofer_level_up_returns_early_when_max(self):
         """Test that async_subwoofer_level_up returns early if level is at max."""
@@ -226,7 +224,6 @@ class TestDenonAVRVolume:
         await fixture.async_execute(device.async_subwoofer_level_down("Subwoofer"))
         fixture.assert_called_once()
 
-    # LFE
     @pytest.mark.asyncio
     async def test_async_lfe_up_returns_early_when_max(self):
         """Test that async_lfe_up returns early if LFE is at max."""
@@ -283,7 +280,6 @@ class TestDenonAVRVolume:
         await fixture.async_execute(device.async_lfe(to_val))
         fixture.assert_called_once()
 
-    # Bass sync
     @pytest.mark.asyncio
     async def test_async_bass_sync_up_returns_early_when_max(self):
         """Test that async_bass_sync_up returns early if bass sync is at max."""
