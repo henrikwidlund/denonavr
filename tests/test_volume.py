@@ -88,8 +88,11 @@ class TestDenonAVRVolume:
         fixture = DeviceTestFixture(True)
         device = DenonAVRVolume(device=fixture.device_info)
         device._max_volume_callback("Main", "", "MAX30")
-        device._volume_callback("Main", "", str(int(from_val + 70)))
+        # add 80 to map to Denon scale
+        # subtract 10 to not exceed custom max of 30 (-50)
+        device._volume_callback("Main", "", str(int(from_val + 80 - 10)))
         await fixture.async_execute(device.async_set_volume(from_val))
+        # add 80 to map to Denon scale
         fixture.assert_called_match_ends(f"MV{int(device.max_volume + 80)}")
 
     @pytest.mark.asyncio

@@ -38,17 +38,20 @@ def convert_muted(value: str) -> bool:
     return bool(value.lower() == STATE_ON)
 
 
-def convert_volume(volume_str: str) -> float:
+def convert_volume(value: str | float) -> float:
     """Convert volume to float."""
-    volume_str = volume_str.strip()
-    if volume_str == "--":
+    if isinstance(value, (int, float)):
+        return float(value)
+
+    value = value.strip()
+    if value == "--":
         return -80.0
 
-    if len(volume_str) < 3:
-        return -80.0 + float(volume_str)
+    if len(value) < 3:
+        return -80.0 + float(value)
 
-    whole_number = float(volume_str[0:2])
-    fraction = 0.1 * float(volume_str[2])
+    whole_number = float(value[0:2])
+    fraction = 0.1 * float(value[2])
     return -80.0 + whole_number + fraction
 
 
