@@ -49,7 +49,9 @@ def convert_volume(value: Union[float, str]) -> float:
 class DenonAVRVolume(DenonAVRFoundation):
     """This class implements volume functions of Denon AVR receiver."""
 
-    _max_volume: Optional[float] = None
+    _max_volume: Optional[float] = attr.ib(
+        converter=attr.converters.optional(convert_volume), default=None
+    )
     _volume: Optional[float] = attr.ib(
         converter=attr.converters.optional(convert_volume), default=None
     )
@@ -388,8 +390,12 @@ class DenonAVRVolume(DenonAVRFoundation):
             or volume > 18
             or (self._max_volume and volume > self._max_volume)
         ):
-            _LOGGER.debug("Volume out of range, skipping.")
-            return
+            _LOGGER.debug(
+                "Volume %s exceeds custom max volume %s. Setting volume to max allowed",
+                volume,
+                self._max_volume,
+            )
+            volume = self._max_volume
 
         # Round volume because only values which are a multi of 0.5 are working
         volume = round(volume * 2) / 2.0
