@@ -110,12 +110,7 @@ class DenonAVRVolume(DenonAVRFoundation):
         if self._device.zone != zone:
             return
 
-        if len(parameter) < 3:
-            self._volume = -80.0 + float(parameter)
-        else:
-            whole_number = float(parameter[0:2])
-            fraction = 0.1 * float(parameter[2])
-            self._volume = -80.0 + whole_number + fraction
+        self._volume = self._get_volume(parameter)
 
     def _max_volume_callback(self, zone: str, _event: str, parameter: str) -> None:
         """Handle a max volume change event."""
@@ -130,15 +125,20 @@ class DenonAVRVolume(DenonAVRFoundation):
             return
 
         volume = parameter[3:].strip()
-        if len(volume) < 3:
-            max_volume = -80.0 + float(volume)
+        volume = self._get_volume(volume)
+        if self._max_volume != volume:
+            self._max_volume = volume
+            _LOGGER.debug("Set max volume: %s", self._max_volume)
+
+    @staticmethod
+    def _get_volume(volume_str: str) -> float:
+        """Convert volume string to float."""
+        if len(volume_str) < 3:
+            return -80.0 + float(volume_str)
         else:
-            whole_number = float(volume[0:2])
-            fraction = 0.1 * float(volume[2])
-            max_volume = -80.0 + whole_number + fraction
-        if self._max_volume != max_volume:
-            self._max_volume = max_volume
-            _LOGGER.info("Set max volume: %s", self._max_volume)
+            whole_number = float(volume_str[0:2])
+            fraction = 0.1 * float(volume_str[2])
+            return -80.0 + whole_number + fraction
 
     def _mute_callback(self, zone: str, _event: str, parameter: str) -> None:
         """Handle a muting change event."""
@@ -387,7 +387,7 @@ class DenonAVRVolume(DenonAVRFoundation):
         """
         if self._max_volume and volume > self._max_volume:
             _LOGGER.debug(
-                "Requested volume %s exceeds custom max volume %s. Setting volume to max allowed",
+                "Volume %s exceeds custom max volume %s. Setting volume to max allowed",
                 volume,
                 self._max_volume,
             )
