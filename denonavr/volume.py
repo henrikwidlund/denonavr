@@ -40,6 +40,7 @@ def convert_muted(value: str) -> bool:
 
 def convert_volume(volume_str: str) -> float:
     """Convert volume to float."""
+    volume_str = volume_str.strip()
     if volume_str == "--":
         return -80.0
 
@@ -128,7 +129,7 @@ class DenonAVRVolume(DenonAVRFoundation):
             _LOGGER.info("Ignoring invalid max volume parameter: %s", parameter)
             return
 
-        volume = convert_volume(parameter[3:].strip())
+        volume = convert_volume(parameter[3:])
         if self._max_volume != volume:
             self._max_volume = volume
             _LOGGER.debug("Set max volume: %s", self._max_volume)
