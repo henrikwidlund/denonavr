@@ -385,17 +385,17 @@ class DenonAVRVolume(DenonAVRFoundation):
         Volume is sent in a format like -50.0.
         Minimum is -80.0, maximum at 18.0
         """
-        if (
-            volume < -80
-            or volume > 18
-            or (self._max_volume and volume > self._max_volume)
-        ):
+        if self._max_volume and volume > self._max_volume:
             _LOGGER.debug(
-                "Volume %s exceeds custom max volume %s. Setting volume to max allowed",
+                "Requested volume %s exceeds custom max volume %s. Setting volume to max allowed",
                 volume,
                 self._max_volume,
             )
             volume = self._max_volume
+
+        if volume < -80 or volume > 18:
+            _LOGGER.debug("Volume out of range, skipping.")
+            return
 
         # Round volume because only values which are a multi of 0.5 are working
         volume = round(volume * 2) / 2.0

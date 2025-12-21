@@ -84,7 +84,7 @@ class TestDenonAVRVolume:
     @pytest.mark.asyncio
     @pytest.mark.parametrize("from_val", [-30, 0, 18])
     async def test_async_set_volume_custom_max_when_above_custom_max(self, from_val):
-        """Test async_set_volume sets custom max when value exceeds custom max.."""
+        """Test async_set_volume sets custom max when value exceeds custom max."""
         fixture = DeviceTestFixture(True)
         device = DenonAVRVolume(device=fixture.device_info)
         device._max_volume_callback("Main", "", "MAX30")
