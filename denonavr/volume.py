@@ -38,22 +38,15 @@ def convert_muted(value: str) -> bool:
     return bool(value.lower() == STATE_ON)
 
 
-def convert_volume(value: Union[float, str]) -> float:
-    """Convert volume to float."""
-    if value == "--":
-        return -80.0
-    return float(value)
-
-
 @attr.s(auto_attribs=True, on_setattr=DENON_ATTR_SETATTR)
 class DenonAVRVolume(DenonAVRFoundation):
     """This class implements volume functions of Denon AVR receiver."""
 
     _max_volume: Optional[float] = attr.ib(
-        converter=attr.converters.optional(convert_volume), default=None
+        converter=attr.converters.optional(float), default=None
     )
     _volume: Optional[float] = attr.ib(
-        converter=attr.converters.optional(convert_volume), default=None
+        converter=attr.converters.optional(float), default=None
     )
     _muted: Optional[bool] = attr.ib(
         converter=attr.converters.optional(convert_muted), default=None
@@ -133,12 +126,15 @@ class DenonAVRVolume(DenonAVRFoundation):
     @staticmethod
     def _get_volume(volume_str: str) -> float:
         """Convert volume string to float."""
+        if volume_str == "--":
+            return -80.0
+
         if len(volume_str) < 3:
             return -80.0 + float(volume_str)
-        else:
-            whole_number = float(volume_str[0:2])
-            fraction = 0.1 * float(volume_str[2])
-            return -80.0 + whole_number + fraction
+
+        whole_number = float(volume_str[0:2])
+        fraction = 0.1 * float(volume_str[2])
+        return -80.0 + whole_number + fraction
 
     def _mute_callback(self, zone: str, _event: str, parameter: str) -> None:
         """Handle a muting change event."""
