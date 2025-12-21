@@ -81,7 +81,7 @@ class DenonAVRAudyssey(DenonAVRFoundation):
 
         self._is_setup = True
 
-    def _ps_callback(self, zone: str, event: str, parameter: str) -> None:
+    def _ps_callback(self, zone: str, _event: str, parameter: str) -> None:
         """Handle a sound detail change event."""
         if self._device.zone != zone:
             return

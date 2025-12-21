@@ -284,12 +284,12 @@ class DenonAVRDeviceInfo:
             "VPM": self._video_processing_mode_callback,
         }
 
-    def _power_callback(self, zone: str, event: str, parameter: str) -> None:
+    def _power_callback(self, zone: str, _event: str, parameter: str) -> None:
         """Handle a power change event."""
         if self.zone == zone and parameter in POWER_STATES:
             self._power = parameter
 
-    def _settings_menu_callback(self, zone: str, event: str, parameter: str) -> None:
+    def _settings_menu_callback(self, _zone: str, event: str, parameter: str) -> None:
         """Handle a settings menu event."""
         if (
             event == "MN"
@@ -298,17 +298,17 @@ class DenonAVRDeviceInfo:
         ):
             self._settings_menu = value
 
-    def _dimmer_callback(self, zone: str, event: str, parameter: str) -> None:
+    def _dimmer_callback(self, _zone: str, _event: str, parameter: str) -> None:
         """Handle a dimmer change event."""
         if (value := parameter[1:]) in DIMMER_MODE_MAP_LABELS:
             self._dimmer = DIMMER_MODE_MAP_LABELS[value]
 
-    def _auto_standby_callback(self, zone: str, event: str, parameter: str) -> None:
+    def _auto_standby_callback(self, zone: str, _event: str, parameter: str) -> None:
         """Handle an auto standby change event."""
         if zone == "Main":
             self._auto_standby = parameter
 
-    def _auto_sleep_callback(self, zone: str, event: str, parameter: str) -> None:
+    def _auto_sleep_callback(self, _zone: str, _event: str, parameter: str) -> None:
         """Handle a sleep change event."""
         if parameter == "OFF":
             self._sleep = parameter
@@ -319,7 +319,7 @@ class DenonAVRDeviceInfo:
         """Handle a room size change event."""
         self._room_size = parameter[4:]
 
-    def _trigger_callback(self, zone: str, event: str, parameter: str) -> None:
+    def _trigger_callback(self, _zone: str, _event: str, parameter: str) -> None:
         """Handle a trigger change event."""
         values = parameter.split()
         if len(values) != 2:
@@ -330,14 +330,14 @@ class DenonAVRDeviceInfo:
 
         self._triggers[int(values[0])] = values[1]
 
-    def _vs_callback(self, zone: str, event: str, parameter: str) -> None:
+    def _vs_callback(self, _zone: str, _event: str, parameter: str) -> None:
         """Handle a VS change event."""
         for prefix, handler in self._vs_handlers.items():
             if parameter.startswith(prefix):
                 handler(parameter)
                 return
 
-    def _ps_callback(self, zone: str, event: str, parameter: str) -> None:
+    def _ps_callback(self, _zone: str, _event: str, parameter: str) -> None:
         """Handle a PS change event."""
         for prefix, handler in self._ps_handlers.items():
             if parameter.startswith(prefix):
@@ -349,7 +349,7 @@ class DenonAVRDeviceInfo:
         if parameter.startswith("DELAY"):
             self._delay = int(parameter[6:])
 
-    def _eco_mode_callback(self, zone: str, event: str, parameter: str) -> None:
+    def _eco_mode_callback(self, _zone: str, _event: str, parameter: str) -> None:
         """Handle an Eco-mode change event."""
         if parameter in ECO_MODE_MAP_LABELS:
             self._eco_mode = ECO_MODE_MAP_LABELS[parameter]
@@ -366,7 +366,7 @@ class DenonAVRDeviceInfo:
         """Handle a Video Processing Mode change event."""
         self._video_processing_mode = VIDEO_PROCESSING_MODES_MAP_LABELS[parameter[3:]]
 
-    def _ss_callback(self, zone: str, event: str, parameter: str) -> None:
+    def _ss_callback(self, _zone: str, _event: str, parameter: str) -> None:
         """Handle a SS change event."""
         for prefix, handler in self._ss_handlers.items():
             if parameter.startswith(prefix):
@@ -391,12 +391,12 @@ class DenonAVRDeviceInfo:
         elif key == "TTRLPF":
             self._tactile_transducer_lpf = f"{int(value)} Hz"
 
-    def _speaker_preset_callback(self, zone: str, event: str, parameter: str) -> None:
+    def _speaker_preset_callback(self, _zone: str, _event: str, parameter: str) -> None:
         """Handle a speaker preset change event."""
         if parameter.startswith("PR"):
             self._speaker_preset = int(parameter[3:])
 
-    def _bt_callback(self, zone: str, event: str, parameter: str) -> None:
+    def _bt_callback(self, _zone: str, _event: str, parameter: str) -> None:
         """Handle a Bluetooth change event."""
         key_value = parameter.split()
         if len(key_value) != 2:

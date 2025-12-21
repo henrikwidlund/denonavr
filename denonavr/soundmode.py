@@ -226,7 +226,7 @@ class DenonAVRSoundMode(DenonAVRFoundation):
 
             self._is_setup = True
 
-    def _soundmode_callback(self, zone: str, event: str, parameter: str) -> None:
+    def _soundmode_callback(self, zone: str, _event: str, parameter: str) -> None:
         """Handle a sound mode change event."""
         if self._device.zone != zone:
             return
@@ -237,7 +237,7 @@ class DenonAVRSoundMode(DenonAVRFoundation):
 
         self._sound_mode_raw = parameter
 
-    def _ps_callback(self, zone: str, event: str, parameter: str) -> None:
+    def _ps_callback(self, _zone: str, _event: str, parameter: str) -> None:
         """Handle a PS change event."""
         for prefix, handler in self._ps_handlers.items():
             if parameter.startswith(prefix):

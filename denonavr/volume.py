@@ -103,7 +103,7 @@ class DenonAVRVolume(DenonAVRFoundation):
 
         self._is_setup = True
 
-    def _volume_callback(self, zone: str, event: str, parameter: str) -> None:
+    def _volume_callback(self, zone: str, _event: str, parameter: str) -> None:
         """Handle a volume change event."""
         if self._device.zone != zone:
             return
@@ -115,7 +115,7 @@ class DenonAVRVolume(DenonAVRFoundation):
             fraction = 0.1 * float(parameter[2])
             self._volume = -80.0 + whole_number + fraction
 
-    def _max_volume_callback(self, zone: str, event: str, parameter: str) -> None:
+    def _max_volume_callback(self, zone: str, _event: str, parameter: str) -> None:
         """Handle a max volume change event."""
         if self._device.zone != zone:
             _LOGGER.info(
@@ -138,14 +138,14 @@ class DenonAVRVolume(DenonAVRFoundation):
             self._max_volume = max_volume
             _LOGGER.info("Set max volume: %s", self._max_volume)
 
-    def _mute_callback(self, zone: str, event: str, parameter: str) -> None:
+    def _mute_callback(self, zone: str, _event: str, parameter: str) -> None:
         """Handle a muting change event."""
         if self._device.zone != zone:
             return
 
         self._muted = parameter
 
-    def _channel_volume_callback(self, zone: str, event: str, parameter: str) -> None:
+    def _channel_volume_callback(self, _zone: str, _event: str, parameter: str) -> None:
         """Handle a channel volume change event."""
         channel_volume = parameter.split()
         if (
@@ -186,7 +186,7 @@ class DenonAVRVolume(DenonAVRFoundation):
         elif level in CHANNEL_VOLUME_MAP:
             self._subwoofer_levels[subwoofer] = CHANNEL_VOLUME_MAP[level]
 
-    def _ps_callback(self, zone: str, event: str, parameter: str) -> None:
+    def _ps_callback(self, _zone: str, _event: str, parameter: str) -> None:
         """Handle a PS change event."""
         for prefix, handler in self._ps_handlers.items():
             if parameter.startswith(prefix):
