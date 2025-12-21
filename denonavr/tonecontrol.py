@@ -255,6 +255,7 @@ class DenonAVRToneControl(DenonAVRFoundation):
         """
         if self.bass == 12:
             return
+
         if self._device.telnet_available:
             if not self.tone_control_adjust:
                 await self.async_enable_tone_control()
@@ -274,6 +275,7 @@ class DenonAVRToneControl(DenonAVRFoundation):
         """
         if self.bass == 0:
             return
+
         if self._device.telnet_available:
             if not self.tone_control_adjust:
                 await self.async_enable_tone_control()
@@ -319,6 +321,7 @@ class DenonAVRToneControl(DenonAVRFoundation):
         """
         if self.treble == 12:
             return
+
         if self._device.telnet_available:
             if not self.tone_control_adjust:
                 await self.async_enable_tone_control()
@@ -338,6 +341,7 @@ class DenonAVRToneControl(DenonAVRFoundation):
         """
         if self.treble == 0:
             return
+
         if self._device.telnet_available:
             if not self.tone_control_adjust:
                 await self.async_enable_tone_control()
