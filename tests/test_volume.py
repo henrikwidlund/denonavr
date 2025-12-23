@@ -48,7 +48,7 @@ class TestDenonAVRVolume:
         """Test that async_volume_down returns early if volume is at min."""
         fixture = DeviceTestFixture(True)
         device = DenonAVRVolume(device=fixture.device_info)
-        device._volume_callback("Main", "", "0")
+        device._volume_callback("Main", "", "00")
         await fixture.async_execute(device.async_volume_down())
         fixture.assert_not_called()
 
@@ -67,7 +67,7 @@ class TestDenonAVRVolume:
         """Test that async_set_volume returns early if value matches current volume."""
         fixture = DeviceTestFixture(True)
         device = DenonAVRVolume(device=fixture.device_info)
-        device._volume_callback("Main", "", str(int(from_val + 80)))
+        device._volume_callback("Main", "", str(int(from_val + 80)).zfill(2))
         await fixture.async_execute(device.async_set_volume(from_val))
         fixture.assert_not_called()
 
@@ -77,7 +77,7 @@ class TestDenonAVRVolume:
         """Test that async_set_volume sends command if value differs."""
         fixture = DeviceTestFixture(True)
         device = DenonAVRVolume(device=fixture.device_info)
-        device._volume_callback("Main", "", str(int(from_val + 80)))
+        device._volume_callback("Main", "", str(int(from_val + 80)).zfill(2))
         await fixture.async_execute(device.async_set_volume(to_val))
         fixture.assert_called_once()
 
