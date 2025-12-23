@@ -8,7 +8,7 @@ Unit tests for DenonAVRVolume (volume logic).
 """
 import pytest
 
-from denonavr.volume import DenonAVRVolume
+from denonavr.volume import DenonAVRVolume, convert_volume
 from tests.test_helpers import DeviceTestFixture
 
 
@@ -338,3 +338,26 @@ class TestDenonAVRVolume:
         device._bass_sync_callback(f"BSC {from_val}")
         await fixture.async_execute(device.async_bass_sync(to_val))
         fixture.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    "input_str,expected",
+    [
+        ("00", -80.0),
+        ("80", 0.0),
+        ("98", 18.0),
+        ("805", 0.5),
+        ("005", -79.5),
+        ("955", 15.5),
+        ("180", -62.0),
+        ("999", 18.0),  # Should clamp to max
+        ("-10", -80.0),  # Invalid, should clamp to min
+        ("123", -67.7),  # Should be handled as 12.3 - 80
+        ("ab23", -80.0),  # Invalid, should clamp to min
+        ("1000", -80.0),  # Invalid, should clamp to min
+        (None, -80.0),  # Invalid, should clamp to min
+    ],
+)
+def test_convert_volume(input_str, expected):
+    """Test convert_volume function with various inputs."""
+    assert convert_volume(input_str) == expected
