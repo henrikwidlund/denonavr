@@ -350,6 +350,7 @@ class TestDenonAVRVolume:
         ("005", -79.5),
         ("955", 15.5),
         ("180", -62.0),
+        ("120", -68.0),
         ("999", 18.0),  # Should clamp to max
         ("-10", -80.0),  # Invalid, should clamp to min
         ("123", -67.7),  # Should be handled as 12.3 - 80
