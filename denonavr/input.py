@@ -46,8 +46,11 @@ from .const import (
 )
 from .exceptions import (
     AvrCommandError,
+    AvrForbiddenError,
+    AvrNetworkError,
     AvrProcessingError,
     AvrRequestError,
+    AvrTimoutError,
     DenonAvrError,
 )
 from .foundation import DenonAVRFoundation
@@ -928,14 +931,21 @@ class DenonAVRInput(DenonAVRFoundation):
                     record_latency=False,
                 )
                 res.raise_for_status()
-            except httpx.TimeoutException:
+            except (httpx.TimeoutException, AvrTimoutError):
                 # No result set image URL to None
                 self._image_url = None
-            except httpx.HTTPStatusError:
+            except AvrNetworkError:
+                self._image_available = False
+                self._image_url = None
+            except (httpx.HTTPStatusError, AvrForbiddenError, AvrRequestError):
                 _LOGGER.info("No album art available for your receiver")
                 # No image available. Save this status.
                 self._image_available = False
                 #  Set image URL to None.
+                self._image_url = None
+            except Exception as exc:  # pylint: disable=broad-except
+                _LOGGER.exception("Error when testing image URL accessibility: %s", exc)
+                self._image_available = False
                 self._image_url = None
             else:
                 self._image_available = True
