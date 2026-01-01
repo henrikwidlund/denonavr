@@ -993,7 +993,7 @@ class DenonAVRDeviceInfo:
             # Suffix like /status, /volume
             string = string + resp.suffix
 
-            # A complete search string with all strributes set looks like
+            # A complete search string with all attributes set looks like
             # ./cmd[@cmd_text={cmd_text}][@name={name}]/zone1/volume
             result.append(string)
 
@@ -2521,7 +2521,11 @@ class DenonAVRFoundation:
     ):
         """Update attributes from AppCommand.xml."""
         return await self._device.async_update_attrs_appcommand(
-            update_attrs, self, appcommand0300, global_update, cache_id
+            update_attrs,
+            self,
+            appcommand0300=appcommand0300,
+            global_update=global_update,
+            cache_id=cache_id,
         )
 
     async def async_update_attrs_status_xml(
