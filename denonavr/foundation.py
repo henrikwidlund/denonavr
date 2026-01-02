@@ -946,6 +946,12 @@ class DenonAVRDeviceInfo:
                             pattern.update_attribute,
                             set_value,
                         )
+                    else:
+                        _LOGGER.debug(
+                            "Attribute %s not found for zone %s",
+                            pattern.update_attribute,
+                            self.zone,
+                        )
 
                 except (AttributeError, IndexError) as err:
                     _LOGGER.debug(
