@@ -140,10 +140,6 @@ def convert_video_output(value: str | None) -> Optional[str]:
     """Convert a video output string."""
     if value is None:
         return None
-    if value == "TV 1":
-        return "HDMI1"
-    if value == "TV 2":
-        return "HDMI2"
     if value == "Auto(Dual)":
         return "Auto"
     return value.strip()
@@ -933,23 +929,23 @@ class DenonAVRDeviceInfo:
                 try:
                     start += 1
                     # Check if attribute exists
-                    getattr(target_instance, pattern.update_attribute)
-                    # Set new value either from XML attribute or text
-                    if pattern.get_xml_attribute is not None:
-                        set_value = xml.find(search_strings[i]).get(
-                            pattern.get_xml_attribute
+                    if hasattr(target_instance, pattern.update_attribute):
+                        # Set new value either from XML attribute or text
+                        if pattern.get_xml_attribute is not None:
+                            set_value = xml.find(search_strings[i]).get(
+                                pattern.get_xml_attribute
+                            )
+                        else:
+                            set_value = xml.find(search_strings[i]).text
+
+                        setattr(target_instance, pattern.update_attribute, set_value)
+                        success += 1
+
+                        _LOGGER.debug(
+                            "Changing variable %s to value %s",
+                            pattern.update_attribute,
+                            set_value,
                         )
-                    else:
-                        set_value = xml.find(search_strings[i]).text
-
-                    setattr(target_instance, pattern.update_attribute, set_value)
-                    success += 1
-
-                    _LOGGER.debug(
-                        "Changing variable %s to value %s",
-                        pattern.update_attribute,
-                        set_value,
-                    )
 
                 except (AttributeError, IndexError) as err:
                     _LOGGER.debug(
@@ -1163,7 +1159,7 @@ class DenonAVRDeviceInfo:
 
         Possible values are: "Auto", "HDMI1", "HDMI2"
         """
-        return self._hdmi_output if self._hdmi_output else self._video_output
+        return self._hdmi_output
 
     @property
     def hdmi_audio_decode(self) -> Optional[str]:
