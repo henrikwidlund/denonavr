@@ -41,7 +41,6 @@ async def async_discover(timeout: float = 5):
         entries: list[dict] = []
         if receivers is not None:
             for receiver in receivers:
-
                 entries.append(
                     {
                         "host": receiver.ip_address,
