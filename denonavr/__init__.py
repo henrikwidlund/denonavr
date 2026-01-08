@@ -7,11 +7,16 @@ Automation Library for Denon AVR receivers.
 :license: MIT, see LICENSE for more details.
 """
 
+import asyncio
+
 # Set default logging handler to avoid "No handler found" warnings.
 import logging
 
+from zeroconf import IPVersion
+
 # Import denonavr module
 from .denonavr import DenonAVR
+from .mdns import async_query_receivers
 from .ssdp import async_identify_denonavr_receivers
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -20,15 +25,52 @@ __title__ = "denonavr"
 __version__ = "1.3.0-dev"
 
 
-async def async_discover():
+async def async_discover(timeout: float = 5):
     """
     Discover all Denon AVR devices in LAN zone.
 
     Returns a list of dictionaries which includes all discovered Denon AVR
     devices with keys "host", "modelName", "friendlyName", "presentationURL".
-    By default SSDP broadcasts are sent once with a 2 seconds timeout.
+    Combines both mDNS and SSDP discovery methods.
+    By default, SSDP broadcasts are sent once with a 2 seconds timeout.
+
+    Args:
+        timeout: Number of seconds to wait for mDNS responses.
     """
-    return await async_identify_denonavr_receivers()
+
+    async def async_query_mdns() -> list[dict]:
+        services = await async_query_receivers(timeout)
+        entries: list[dict] = []
+        if services is not None:
+            for service in services:
+                address = service.info.parsed_addresses(version=IPVersion.V4Only)
+                entries.append(
+                    {
+                        "host": address,
+                        "modelName": service.info.properties.get(b"model").decode(
+                            "utf-8"
+                        ),
+                        "friendlyName": service.name,
+                        "presentationURL": None,
+                    }
+                )
+        return entries
+
+    tasks = [
+        async_query_mdns(),
+        async_identify_denonavr_receivers(),
+    ]
+
+    results = await asyncio.gather(*tasks)
+    combined_unique_results = []
+    seen_hosts = set(str)
+    for result in results:
+        for entry in result:
+            host = entry["host"]
+            if host not in seen_hosts:
+                seen_hosts.add(host)
+                combined_unique_results.append(entry)
+    return combined_unique_results
 
 
 async def async_init_all_receivers():

@@ -6,14 +6,15 @@ This module implements a discovery function for Denon AVR receivers via mDNS.
 :copyright: (c) 2025 by Henrik Widlund.
 :license: MIT, see LICENSE for more details.
 """
-
 import asyncio
 import logging
 import threading
 from dataclasses import dataclass
 
-from zeroconf import ServiceBrowser, ServiceInfo, ServiceListener, Zeroconf
+from zeroconf import IPVersion, ServiceBrowser, ServiceInfo, ServiceListener, Zeroconf
 from zeroconf.asyncio import AsyncZeroconf
+
+from denonavr import DenonAVR
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -72,12 +73,32 @@ class MDNSListener(ServiceListener):
             _LOGGER.debug("Address: %s, Port: %s", info.parsed_addresses(), info.port)
 
 
-async def query_receivers(timeout: float = 5) -> list[ServiceInfoRecord] | None:
-    """Query for Denon/Marantz receivers using mDNS."""
+async def async_query_receivers(timeout: float = 5) -> list[ServiceInfoRecord] | None:
+    """
+    Query for Denon/Marantz receivers using mDNS.
+
+    Args:
+        timeout: Number of seconds to wait for mDNS responses before
+            collecting and returning the discovered services. During this
+            period the service browser listens for receiver announcements.
+    """
     async with AsyncZeroconf() as zeroconf:
         listener = MDNSListener()
         ServiceBrowser(zeroconf.zeroconf, "_heos-audio._tcp.local.", listener)
 
         await asyncio.sleep(timeout)
         with listener.lock:
-            return list(listener.services)
+            if len(listener.services) == 0:
+                return None
+
+            services = []
+            for service in listener.services:
+                try:
+                    device = DenonAVR(
+                        service.info.parsed_addresses(version=IPVersion.V4Only)[0]
+                    )
+                    await device.async_setup()
+                    services.append(service)
+                except Exception:  # pylint: disable=broad-except
+                    pass
+            return services if len(services) > 0 else None
