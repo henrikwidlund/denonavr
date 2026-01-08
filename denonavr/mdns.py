@@ -26,6 +26,15 @@ class ServiceInfoRecord:
     info: ServiceInfo | None
 
 
+@dataclass
+class FoundReceiver:
+    """Representation of a found Denon/Marantz receiver."""
+
+    name: str
+    ip_address: str
+    model: str
+
+
 class MDNSListener(ServiceListener):
     """Listener for mDNS service discovery."""
 
@@ -71,7 +80,7 @@ class MDNSListener(ServiceListener):
             _LOGGER.debug("Address: %s, Port: %s", info.parsed_addresses(), info.port)
 
 
-async def async_query_receivers(timeout: float = 5) -> list[ServiceInfoRecord] | None:
+async def async_query_receivers(timeout: float = 5) -> list[FoundReceiver] | None:
     """
     Query for Denon/Marantz receivers using mDNS.
 
@@ -89,7 +98,7 @@ async def async_query_receivers(timeout: float = 5) -> list[ServiceInfoRecord] |
             if not listener.services:
                 return None
 
-            services = []
+            services: list[FoundReceiver] = []
             for service in listener.services:
                 ip_addresses = service.info.parsed_addresses(version=IPVersion.V4Only)
                 if not ip_addresses:
@@ -103,5 +112,13 @@ async def async_query_receivers(timeout: float = 5) -> list[ServiceInfoRecord] |
                         service.type,
                     )
                     continue
-                services.append(service)
+                services.append(
+                    FoundReceiver(
+                        name=service.name,
+                        ip_address=ip_addresses[0],
+                        model=service.info.properties.get(b"model", b"Unknown").decode(
+                            "utf-8"
+                        ),
+                    )
+                )
             return services or None

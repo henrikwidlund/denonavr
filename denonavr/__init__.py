@@ -12,8 +12,6 @@ import asyncio
 # Set default logging handler to avoid "No handler found" warnings.
 import logging
 
-from zeroconf import IPVersion
-
 # Import denonavr module
 from .denonavr import DenonAVR
 from .mdns import async_query_receivers
@@ -39,22 +37,16 @@ async def async_discover(timeout: float = 5):
     """
 
     async def async_query_mdns() -> list[dict]:
-        services = await async_query_receivers(timeout)
+        receivers = await async_query_receivers(timeout)
         entries: list[dict] = []
-        if services is not None:
-            for service in services:
-                address = service.info.parsed_addresses(version=IPVersion.V4Only)
-                if not address:
-                    address = service.info.parsed_addresses(version=IPVersion.V6Only)
-                if not address:
-                    continue
+        if receivers is not None:
+            for receiver in receivers:
+
                 entries.append(
                     {
-                        "host": address[0],
-                        "modelName": service.info.properties.get(
-                            b"model", b"Unknown"
-                        ).decode("utf-8"),
-                        "friendlyName": service.name,
+                        "host": receiver.ip_address,
+                        "modelName": receiver.model,
+                        "friendlyName": receiver.name,
                         "presentationURL": None,
                     }
                 )
@@ -66,15 +58,13 @@ async def async_discover(timeout: float = 5):
     ]
 
     results = await asyncio.gather(*tasks)
-    combined_unique_results = []
-    seen_hosts = set()
+    combined: dict[str, dict] = {}
     for result in results:
         for entry in result:
             host = entry["host"]
-            if host not in seen_hosts:
-                seen_hosts.add(host)
-                combined_unique_results.append(entry)
-    return combined_unique_results
+            if host not in combined:
+                combined[host] = entry
+    return list(combined.values())
 
 
 async def async_init_all_receivers():
