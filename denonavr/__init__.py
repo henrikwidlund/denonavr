@@ -45,6 +45,8 @@ async def async_discover(timeout: float = 5):
             for service in services:
                 address = service.info.parsed_addresses(version=IPVersion.V4Only)
                 if not address:
+                    address = service.info.parsed_addresses(version=IPVersion.V6Only)
+                if not address:
                     continue
                 entries.append(
                     {

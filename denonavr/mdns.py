@@ -14,8 +14,6 @@ from dataclasses import dataclass
 from zeroconf import IPVersion, ServiceBrowser, ServiceInfo, ServiceListener, Zeroconf
 from zeroconf.asyncio import AsyncZeroconf
 
-from denonavr import DenonAVR
-
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -93,29 +91,17 @@ async def async_query_receivers(timeout: float = 5) -> list[ServiceInfoRecord] |
 
             services = []
             for service in listener.services:
-                try:
+                ip_addresses = service.info.parsed_addresses(version=IPVersion.V4Only)
+                if not ip_addresses:
                     ip_addresses = service.info.parsed_addresses(
-                        version=IPVersion.V4Only
+                        version=IPVersion.V6Only
                     )
-                    if not ip_addresses:
-                        ip_addresses = service.info.parsed_addresses(
-                            version=IPVersion.V6Only
-                        )
-                    if not ip_addresses:
-                        _LOGGER.info(
-                            "No IP address found for service %s (%s)",
-                            service.name,
-                            service.type,
-                        )
-                        continue
-                    device = DenonAVR(ip_addresses[0])
-                    await device.async_setup()
-                    services.append(service)
-                except Exception:  # pylint: disable=broad-except
+                if not ip_addresses:
                     _LOGGER.info(
-                        "Failed to set up receiver for service %s (%s)",
+                        "No IP address found for service %s (%s)",
                         service.name,
                         service.type,
-                        exc_info=True,
                     )
+                    continue
+                services.append(service)
             return services or None
