@@ -11,7 +11,6 @@ import asyncio
 import logging
 import threading
 from dataclasses import dataclass
-from typing import List, Optional
 
 from zeroconf import ServiceBrowser, ServiceInfo, ServiceListener, Zeroconf
 from zeroconf.asyncio import AsyncZeroconf
@@ -25,7 +24,7 @@ class ServiceInfoRecord:
 
     name: str
     type: str
-    info: Optional[ServiceInfo]
+    info: ServiceInfo | None
 
 
 class MDNSListener(ServiceListener):
@@ -33,7 +32,7 @@ class MDNSListener(ServiceListener):
 
     def __init__(self):
         """Initialize the MDNSListener."""
-        self.services: List[ServiceInfoRecord] = []
+        self.services: list[ServiceInfoRecord] = []
         self.lock = threading.Lock()
 
     def add_service(self, zc: Zeroconf, type_: str, name: str) -> None:
@@ -73,7 +72,7 @@ class MDNSListener(ServiceListener):
             _LOGGER.debug("Address: %s, Port: %s", info.parsed_addresses(), info.port)
 
 
-async def query_receivers(timeout: float = 5) -> Optional[List[ServiceInfoRecord]]:
+async def query_receivers(timeout: float = 5) -> list[ServiceInfoRecord] | None:
     """Query for Denon/Marantz receivers using mDNS."""
     async with AsyncZeroconf() as zeroconf:
         listener = MDNSListener()
