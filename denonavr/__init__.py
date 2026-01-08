@@ -38,18 +38,15 @@ async def async_discover(timeout: float = 5):
 
     async def async_query_mdns() -> list[dict]:
         receivers = await async_query_receivers(timeout)
-        entries: list[dict] = []
-        if receivers is not None:
-            for receiver in receivers:
-                entries.append(
-                    {
-                        "host": receiver.ip_address,
-                        "modelName": receiver.model,
-                        "friendlyName": receiver.name,
-                        "presentationURL": None,
-                    }
-                )
-        return entries
+        return [
+            {
+                "host": receiver.ip_address,
+                "modelName": receiver.model,
+                "friendlyName": receiver.name,
+                "presentationURL": None,
+            }
+            for receiver in (receivers or [])
+        ]
 
     tasks = [
         async_query_mdns(),
