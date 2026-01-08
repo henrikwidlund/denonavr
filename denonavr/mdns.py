@@ -53,12 +53,13 @@ class MDNSListener(ServiceListener):
         """Handle the removal of a service."""
         _LOGGER.debug("Service %s removed for type %s", name, type_)
 
-    @staticmethod
-    async def query_receivers(timeout=5) -> Optional[List[ServiceInfoRecord]]:
-        """Query for Denon/Marantz receivers using mDNS."""
-        async with AsyncZeroconf() as zeroconf:
-            listener = MDNSListener()
-            ServiceBrowser(zeroconf.zeroconf, "_heos-audio._tcp.local.", listener)
 
-            await asyncio.sleep(timeout)
-            return listener.services
+async def query_receivers(timeout: float = 5) -> Optional[List[ServiceInfoRecord]]:
+    """Query for Denon/Marantz receivers using mDNS."""
+    async with AsyncZeroconf() as zeroconf:
+        listener = MDNSListener()
+        ServiceBrowser(zeroconf.zeroconf, "_heos-audio._tcp.local.", listener)
+
+        await asyncio.sleep(timeout)
+        with listener.lock:
+            return list(listener.services)
