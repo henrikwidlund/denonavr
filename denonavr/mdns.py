@@ -13,7 +13,7 @@ import threading
 from dataclasses import dataclass
 from typing import List, Optional
 
-from zeroconf import ServiceBrowser, ServiceInfo, ServiceListener
+from zeroconf import ServiceBrowser, ServiceInfo, ServiceListener, Zeroconf
 from zeroconf.asyncio import AsyncZeroconf
 
 _LOGGER = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ class MDNSListener(ServiceListener):
         self.services: List[ServiceInfoRecord] = []
         self.lock = threading.Lock()
 
-    def add_service(self, zc, type_, name):
+    def add_service(self, zc: Zeroconf, type_: str, name: str) -> None:
         """Handle the addition of a new service."""
         info = zc.get_service_info(type_, name)
         with self.lock:
@@ -45,13 +45,32 @@ class MDNSListener(ServiceListener):
         if info:
             _LOGGER.debug("Address: %s, Port: %s", info.parsed_addresses(), info.port)
 
-    def update_service(self, zc, type_, name):
-        """Handle the update of an existing service."""
-        _LOGGER.debug("Service %s updated for type %s", name, type_)
-
-    def remove_service(self, zc, type_, name):
+    def remove_service(self, zc: Zeroconf, type_: str, name: str) -> None:
         """Handle the removal of a service."""
-        _LOGGER.debug("Service %s removed for type %s", name, type_)
+        with self.lock:
+            self.services = [
+                service
+                for service in self.services
+                if not (service.name == name and service.type == type_)
+            ]
+            _LOGGER.debug("Service %s removed for type %s", name, type_)
+
+    def update_service(self, zc: Zeroconf, type_: str, name: str) -> None:
+        """Handle the update of an existing service."""
+        info = zc.get_service_info(type_, name)
+        with self.lock:
+            for record in self.services:
+                if record.name == name and record.type == type_:
+                    record.info = info
+                    break
+            else:
+                # If the service was not previously recorded, add it now.
+                self.services.append(
+                    ServiceInfoRecord(name=name, type=type_, info=info)
+                )
+        _LOGGER.debug("Service %s updated for type %s", name, type_)
+        if info:
+            _LOGGER.debug("Address: %s, Port: %s", info.parsed_addresses(), info.port)
 
 
 async def query_receivers(timeout: float = 5) -> Optional[List[ServiceInfoRecord]]:
