@@ -44,9 +44,11 @@ async def async_discover(timeout: float = 5):
         if services is not None:
             for service in services:
                 address = service.info.parsed_addresses(version=IPVersion.V4Only)
+                if not address:
+                    continue
                 entries.append(
                     {
-                        "host": address,
+                        "host": address[0],
                         "modelName": service.info.properties.get(b"model").decode(
                             "utf-8"
                         ),
@@ -63,7 +65,7 @@ async def async_discover(timeout: float = 5):
 
     results = await asyncio.gather(*tasks)
     combined_unique_results = []
-    seen_hosts = set(str)
+    seen_hosts = set()
     for result in results:
         for entry in result:
             host = entry["host"]

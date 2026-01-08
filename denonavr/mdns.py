@@ -88,7 +88,7 @@ async def async_query_receivers(timeout: float = 5) -> list[ServiceInfoRecord] |
 
         await asyncio.sleep(timeout)
         with listener.lock:
-            if len(listener.services) == 0:
+            if not listener.services:
                 return None
 
             services = []
@@ -100,5 +100,10 @@ async def async_query_receivers(timeout: float = 5) -> list[ServiceInfoRecord] |
                     await device.async_setup()
                     services.append(service)
                 except Exception:  # pylint: disable=broad-except
-                    pass
-            return services if len(services) > 0 else None
+                    _LOGGER.info(
+                        "Failed to set up receiver for service %s (%s)",
+                        service.name,
+                        service.type,
+                        exc_info=True,
+                    )
+            return services or None
