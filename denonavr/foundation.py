@@ -146,6 +146,40 @@ def convert_video_signal_in(value: str | None) -> Optional[str]:
     return value.strip()
 
 
+BED_CHANNELS = {
+    # Front Left
+    0: 1,
+    # Front Right
+    1: 1,
+    # Center
+    2: 1,
+    # Surround Left
+    4: 1,
+    # Surround Right
+    5: 1,
+    # Surround Back Left
+    6: 1,
+    # Surround Back Right
+    7: 1,
+    # Surround Back
+    8: 1,
+}
+
+LFE_CHANNELS = {
+    # LFE
+    3: 1,
+}
+
+IMMERSIVE_CHANNELS = {
+    9: 1,
+    10: 1,
+    11: 1,
+    12: 1,
+    # EX, count as 2
+    13: 2,
+}
+
+
 def channel_status_to_str(channel_statuses: str) -> str:
     """
     Convert channel status string to industry standard string (e.g. '2.1', '5.1.2').
@@ -163,14 +197,14 @@ def channel_status_to_str(channel_statuses: str) -> str:
         if channel_status != "2":
             index += 1
             continue
-
-        if index < 3:
-            base_channel_count += 1
-        elif index == 3:
-            lfe_count += 1
-        elif index < 8:
-            base_channel_count += 1
+        if index in BED_CHANNELS:
+            base_channel_count += BED_CHANNELS[index]
+        elif index in LFE_CHANNELS:
+            lfe_count += LFE_CHANNELS[index]
+        elif index in IMMERSIVE_CHANNELS:
+            immersive_channel_count += IMMERSIVE_CHANNELS[index]
         else:
+            # Most likely height channel
             immersive_channel_count += 1
         index += 1
 
