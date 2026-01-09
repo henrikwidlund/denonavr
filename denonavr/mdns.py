@@ -100,6 +100,9 @@ async def async_query_receivers(timeout: float = 5) -> list[FoundReceiver] | Non
 
             services: list[FoundReceiver] = []
             for service in listener.services:
+                if not service.info or service.info.properties is None:
+                    continue
+
                 ip_addresses = service.info.parsed_addresses(version=IPVersion.V4Only)
                 if not ip_addresses:
                     ip_addresses = service.info.parsed_addresses(
