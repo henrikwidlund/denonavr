@@ -578,11 +578,15 @@ class DenonAVRDeviceInfo:
 
     def _input_channel_callback(self, parameter: str) -> None:
         """Handle an input channel change event."""
-        self._input_channels = parameter[7:]
+        key_value = parameter.split()
+        if len(key_value) == 2:
+            self._input_channels = key_value[1]
 
     def _output_channels_callback(self, parameter: str) -> None:
         """Handle an output channel change event."""
-        self._output_channels = parameter[7:]
+        key_value = parameter.split()
+        if len(key_value) == 2:
+            self._output_channels = key_value[1]
 
     def get_own_zone(self) -> str:
         """
