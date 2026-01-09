@@ -60,7 +60,10 @@ async def async_discover(timeout: float = 5):
             host = entry["host"]
             if host not in combined:
                 combined[host] = entry
-            elif combined[host]["presentationURL"] is None:
+            elif (
+                combined[host]["presentationURL"] is None
+                and entry["presentationURL"] is not None
+            ):
                 combined[host] = entry
     return list(combined.values())
 
