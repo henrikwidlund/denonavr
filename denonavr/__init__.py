@@ -18,6 +18,7 @@ from .mdns import async_query_receivers
 from .ssdp import async_identify_denonavr_receivers
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
+_LOGGER = logging.getLogger(__name__)
 
 __title__ = "denonavr"
 __version__ = "1.3.0-dev"
@@ -38,6 +39,7 @@ async def async_discover(timeout: float = 5):
 
     async def async_query_mdns() -> list[dict]:
         receivers = await async_query_receivers(timeout)
+        _LOGGER.info("Received mDNS receivers: %s", receivers)
         return [
             {
                 "host": receiver.ip_address,

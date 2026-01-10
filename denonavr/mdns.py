@@ -150,22 +150,29 @@ async def _async_is_av_receiver(ip: str, client: AsyncClient) -> bool:
         url = f"http://{ip}:{port}{DEVICEINFO_URL}"
         try:
             resp = await client.get(url)
+            _LOGGER.info("%s responded with status code %s", url, resp.status_code)
             if resp.status_code != 200:
                 return None
             text = resp.text
+            _LOGGER.info("%s responded with status code %s", url, text)
             try:
                 root = ElementTree.fromstring(text)
                 category = root.findtext("CategoryName")
+                _LOGGER.info("%s is %s", url, category)
                 if category:
                     return category.strip() == "AV RECEIVER"
             except ElementTree.ParseError:
                 return None
-        except Exception:  # pylint: disable=broad-exception-caught
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            _LOGGER.debug("Error checking %s: %s", url, e)
             return None
         return None
 
     tasks = [_async_check_is_avr(port) for port in [80, 8080]]
-    results = await asyncio.gather(*tasks, return_exceptions=True)
+    results: tuple[BaseException | bool] = await asyncio.gather(
+        *tasks, return_exceptions=True
+    )
+    _LOGGER.info("Results of AVR checks for %s: %s", ip, results)
     return any(results)
 
 
@@ -176,10 +183,13 @@ async def _async_get_serial_number(ip: str, client: AsyncClient) -> str | None:
         url = f"http://{ip}:{description.port}{description.url}"
         try:
             res = await client.get(url)
+            _LOGGER.info("%s responded with status code %s", url, res.status_code)
             if res.status_code != 200:
                 return None
+            _LOGGER.info("%s responded with status code %s", url, res.text)
             device_info = evaluate_scpd_xml(url, res.text)
             if device_info is None or "serialNumber" not in device_info:
+                _LOGGER.info("No serial number found for %s", url)
                 return None
             return device_info["serialNumber"]
         except Exception:  # pylint: disable=broad-exception-caught
