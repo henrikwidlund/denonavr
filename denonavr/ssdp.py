@@ -258,11 +258,11 @@ async def async_is_av_receiver(
                 await res.aread()
                 text = res.text
                 try:
-                    root = ET.fromstring(text)
+                    root = fromstring(text)
                     category = root.findtext("CategoryName")
                     if category:
                         return category.strip() == "AV RECEIVER"
-                except ET.ParseError:
+                except ParseError:
                     return None
         except Exception:  # pylint: disable=broad-exception-caught
             return None
@@ -270,7 +270,7 @@ async def async_is_av_receiver(
 
     tasks = [_async_check_is_avr(port) for port in [80, 8080]]
     results = await asyncio.gather(*tasks, return_exceptions=True)
-    return any(results)
+    return any(r is True for r in results)
 
 
 class DenonAVRSSDP(asyncio.DatagramProtocol):
