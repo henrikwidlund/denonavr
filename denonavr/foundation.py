@@ -824,12 +824,23 @@ class DenonAVRDeviceInfo:
                     record_latency=False,
                     skip_rate_limiter=True,
                 )
+            except asyncio.CancelledError:
+                # Task was canceled; allow immediate retry by clearing last timestamp
+                _LOGGER.debug("Config12 update task was cancelled")
+                self._last_config12_time = None
+                raise
+            except Exception as err:
+                # Request failed; clear last timestamp to allow a retry
+                _LOGGER.debug("Config12 update request failed: %s", err)
+                self._last_config12_time = None
             finally:
                 # Ensure the task reference is cleared when done
                 self._config12_task = None
 
-        now = time.time()
+        now = asyncio.get_event_loop().time()
         # Only allow to run every 10 seconds, endpoint is slow
+        # We do not want to use the rate limiter here, because it would block
+        # other important requests while waiting
         if self._last_config12_time is None or (
             now - self._last_config12_time >= 10
             and (self._config12_task is None or self._config12_task.done())
