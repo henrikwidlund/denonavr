@@ -821,7 +821,6 @@ class DenonAVRDeviceInfo:
                     rate_limit_key="get_config_type_12",
                     timeout=self.api.timeout,
                     read_timeout=5.0,
-                    cache_id=time.time(),
                     record_latency=False,
                     skip_rate_limiter=True,
                 )
