@@ -812,7 +812,7 @@ class DenonAVRDeviceInfo:
         _LOGGER.debug("Finished device update")
 
     def _trigger_config12_update(self) -> None:
-        async def _run_config12_update():
+        async def _async_request_config12():
             url = f"http://{self.api.host}:11080/ajax/general/get_config?type=12"
             try:
                 # This triggers telnet callbacks, response body is not interesting
@@ -835,7 +835,7 @@ class DenonAVRDeviceInfo:
             and (self._config12_task is None or self._config12_task.done())
         ):
             self._last_config12_time = now
-            self._config12_task = asyncio.create_task(_run_config12_update())
+            self._config12_task = asyncio.create_task(_async_request_config12())
 
     async def async_identify_receiver(self) -> None:
         """Identify receiver asynchronously."""
