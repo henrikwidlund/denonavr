@@ -391,8 +391,8 @@ class DenonAVRDeviceInfo:
     _ss_handlers: Dict[str, Callable[[str], None]] = attr.ib(factory=dict, init=False)
     _sy_handlers: Dict[str, Callable[[str], None]] = attr.ib(factory=dict, init=False)
     _vs_handlers: Dict[str, Callable[[str], None]] = attr.ib(factory=dict, init=False)
-    _last_config12_time: float | None = attr.ib(factory=float, init=False)
-    _config12_task: Task[None] | None = attr.ib(factory=None, init=False)
+    _last_config12_time: float | None = attr.ib(default=None, init=False)
+    _config12_task: Task[None] | None = attr.ib(default=None, init=False)
 
     # Update tags for attributes
     # AppCommand0300.xml interface
@@ -670,10 +670,6 @@ class DenonAVRDeviceInfo:
             self._pixel_depth_input = get_pixel_depth(key_value[1][0])
             self._pixel_depth_output = get_pixel_depth(key_value[1][1])
 
-    def _color_space_callback(self, parameter: str) -> None:
-        """Handle a color space change event."""
-        _LOGGER.info("Color Space Change: %s", parameter)
-
     def _max_frl_callback(self, parameter: str) -> None:
         """Handle a max FRL change event."""
         if parameter.startswith("INFSIGFRL I"):
@@ -815,10 +811,11 @@ class DenonAVRDeviceInfo:
 
         _LOGGER.debug("Finished device update")
 
-    def _trigger_config12_update(self):
+    def _trigger_config12_update(self) -> None:
         async def _run_config12_update():
             url = f"http://{self.api.host}:11080/ajax/general/get_config?type=12"
             try:
+                # This triggers telnet callbacks, response body is not interesting
                 await self.api.httpx_async_client.async_get(
                     url,
                     rate_limit_key="get_config_type_12",
