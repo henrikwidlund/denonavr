@@ -836,9 +836,7 @@ class DenonAVRDeviceInfo:
             and (self._config12_task is None or self._config12_task.done())
         ):
             self._last_config12_time = now
-            self._config12_task: Task[None] = asyncio.create_task(
-                _run_config12_update()
-            )
+            self._config12_task = asyncio.create_task(_run_config12_update())
 
     async def async_identify_receiver(self) -> None:
         """Identify receiver asynchronously."""
