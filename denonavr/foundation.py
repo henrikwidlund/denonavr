@@ -1449,7 +1449,7 @@ class DenonAVRDeviceInfo:
         """
         Return the video HDMI signal input for the device.
 
-        Only available if using Telnet..
+        Only available if using Telnet.
         """
         return self._video_hdmi_signal_in
 
