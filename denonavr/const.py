@@ -1282,22 +1282,22 @@ DENONAVR_TELNET_COMMANDS = TelnetCommands(
     command_dac_filter="PSDACFIL {mode}",  # Marantz Only
     command_illumination="ILB {mode}",  # Marantz Only
     command_auto_lip_sync="SSHOSALS {mode}",  # Marantz Only
-    command_dolby_atmos_toggle_denon=COMMAND_DOLBY_ATMOS_TOGGLE_DENON,
-    command_dolby_atmos_toggle_marantz=COMMAND_DOLBY_ATMOS_TOGGLE_MARANTZ,
-    command_page_up_denon=COMMAND_PAGE_UP_DENON,
-    command_page_down_denon=COMMAND_PAGE_DOWN_DENON,
-    command_page_up_marantz=COMMAND_PAGE_UP_MARANTZ,
-    command_page_down_marantz=COMMAND_PAGE_DOWN_MARANTZ,
-    command_input_mode_select_denon=COMMAND_INPUT_MODE_SELECT_DENON,
-    command_input_mode_auto_denon=COMMAND_INPUT_MODE_AUTO_DENON,
-    command_input_mode_hdmi_denon=COMMAND_INPUT_MODE_HDMI_DENON,
-    command_input_mode_digital_denon=COMMAND_INPUT_MODE_DIGITAL_DENON,
-    command_input_mode_analog_denon=COMMAND_INPUT_MODE_ANALOG_DENON,
-    command_input_mode_select_marantz=COMMAND_INPUT_MODE_SELECT_MARANTZ,
-    command_input_mode_auto_marantz=COMMAND_INPUT_MODE_AUTO_MARANTZ,
-    command_input_mode_hdmi_marantz=COMMAND_INPUT_MODE_HDMI_MARANTZ,
-    command_input_mode_digital_marantz=COMMAND_INPUT_MODE_DIGITAL_MARANTZ,
-    command_input_mode_analog_marantz=COMMAND_INPUT_MODE_ANALOG_MARANTZ,
+    command_dolby_atmos_toggle_denon="RCKSK0410348",
+    command_dolby_atmos_toggle_marantz="RCRC51606425",
+    command_page_up_denon="RCKSK0410945",
+    command_page_down_denon="RCKSK0410946",
+    command_page_up_marantz="RCRC52708105",
+    command_page_down_marantz="RCRC52708005",
+    command_input_mode_select_denon="RCKSK0410352",
+    command_input_mode_auto_denon="RCKSK0410358",
+    command_input_mode_hdmi_denon="RCKSK0410357",
+    command_input_mode_digital_denon="RCKSK0410359",
+    command_input_mode_analog_denon="RCKSK0410353",
+    command_input_mode_select_marantz="RCRC51600101",
+    command_input_mode_auto_marantz="RCRC51600115",
+    command_input_mode_hdmi_marantz="RCRC51600116",
+    command_input_mode_digital_marantz="RCRC51600117",
+    command_input_mode_analog_marantz="RCRC51600118",
 )
 
 ZONE2_TELNET_COMMANDS = TelnetCommands(
@@ -1401,22 +1401,22 @@ ZONE2_TELNET_COMMANDS = TelnetCommands(
     command_dac_filter="PSDACFIL {mode}",  # Marantz Only
     command_illumination="ILB {mode}",  # Marantz Only
     command_auto_lip_sync="SSHOSALS {mode}",  # Marantz Only
-    command_dolby_atmos_toggle_denon=COMMAND_DOLBY_ATMOS_TOGGLE_DENON,
-    command_dolby_atmos_toggle_marantz=COMMAND_DOLBY_ATMOS_TOGGLE_MARANTZ,
-    command_page_up_denon=COMMAND_PAGE_UP_DENON,
-    command_page_down_denon=COMMAND_PAGE_DOWN_DENON,
-    command_page_up_marantz=COMMAND_PAGE_UP_MARANTZ,
-    command_page_down_marantz=COMMAND_PAGE_DOWN_MARANTZ,
-    command_input_mode_select_denon=COMMAND_INPUT_MODE_SELECT_DENON,
-    command_input_mode_auto_denon=COMMAND_INPUT_MODE_AUTO_DENON,
-    command_input_mode_hdmi_denon=COMMAND_INPUT_MODE_HDMI_DENON,
-    command_input_mode_digital_denon=COMMAND_INPUT_MODE_DIGITAL_DENON,
-    command_input_mode_analog_denon=COMMAND_INPUT_MODE_ANALOG_DENON,
-    command_input_mode_select_marantz=COMMAND_INPUT_MODE_SELECT_MARANTZ,
-    command_input_mode_auto_marantz=COMMAND_INPUT_MODE_AUTO_MARANTZ,
-    command_input_mode_hdmi_marantz=COMMAND_INPUT_MODE_HDMI_MARANTZ,
-    command_input_mode_digital_marantz=COMMAND_INPUT_MODE_DIGITAL_MARANTZ,
-    command_input_mode_analog_marantz=COMMAND_INPUT_MODE_ANALOG_MARANTZ,
+    command_dolby_atmos_toggle_denon="RCKSK0410348",
+    command_dolby_atmos_toggle_marantz="RCRC51606425",
+    command_page_up_denon="RCKSK0410945",
+    command_page_down_denon="RCKSK0410946",
+    command_page_up_marantz="RCRC52708105",
+    command_page_down_marantz="RCRC52708005",
+    command_input_mode_select_denon="RCKSK0410352",
+    command_input_mode_auto_denon="RCKSK0410358",
+    command_input_mode_hdmi_denon="RCKSK0410357",
+    command_input_mode_digital_denon="RCKSK0410359",
+    command_input_mode_analog_denon="RCKSK0410353",
+    command_input_mode_select_marantz="RCRC51600101",
+    command_input_mode_auto_marantz="RCRC51600115",
+    command_input_mode_hdmi_marantz="RCRC51600116",
+    command_input_mode_digital_marantz="RCRC51600117",
+    command_input_mode_analog_marantz="RCRC51600118",
 )
 
 ZONE3_TELNET_COMMANDS = TelnetCommands(
@@ -1520,22 +1520,22 @@ ZONE3_TELNET_COMMANDS = TelnetCommands(
     command_dac_filter="PSDACFIL {mode}",  # Marantz Only
     command_illumination="ILB {mode}",  # Marantz Only
     command_auto_lip_sync="SSHOSALS {mode}",  # Marantz Only
-    command_dolby_atmos_toggle_denon=COMMAND_DOLBY_ATMOS_TOGGLE_DENON,
-    command_dolby_atmos_toggle_marantz=COMMAND_DOLBY_ATMOS_TOGGLE_MARANTZ,
-    command_page_up_denon=COMMAND_PAGE_UP_DENON,
-    command_page_down_denon=COMMAND_PAGE_DOWN_DENON,
-    command_page_up_marantz=COMMAND_PAGE_UP_MARANTZ,
-    command_page_down_marantz=COMMAND_PAGE_DOWN_MARANTZ,
-    command_input_mode_select_denon=COMMAND_INPUT_MODE_SELECT_DENON,
-    command_input_mode_auto_denon=COMMAND_INPUT_MODE_AUTO_DENON,
-    command_input_mode_hdmi_denon=COMMAND_INPUT_MODE_HDMI_DENON,
-    command_input_mode_digital_denon=COMMAND_INPUT_MODE_DIGITAL_DENON,
-    command_input_mode_analog_denon=COMMAND_INPUT_MODE_ANALOG_DENON,
-    command_input_mode_select_marantz=COMMAND_INPUT_MODE_SELECT_MARANTZ,
-    command_input_mode_auto_marantz=COMMAND_INPUT_MODE_AUTO_MARANTZ,
-    command_input_mode_hdmi_marantz=COMMAND_INPUT_MODE_HDMI_MARANTZ,
-    command_input_mode_digital_marantz=COMMAND_INPUT_MODE_DIGITAL_MARANTZ,
-    command_input_mode_analog_marantz=COMMAND_INPUT_MODE_ANALOG_MARANTZ,
+    command_dolby_atmos_toggle_denon="RCKSK0410348",
+    command_dolby_atmos_toggle_marantz="RCRC51606425",
+    command_page_up_denon="RCKSK0410945",
+    command_page_down_denon="RCKSK0410946",
+    command_page_up_marantz="RCRC52708105",
+    command_page_down_marantz="RCRC52708005",
+    command_input_mode_select_denon="RCKSK0410352",
+    command_input_mode_auto_denon="RCKSK0410358",
+    command_input_mode_hdmi_denon="RCKSK0410357",
+    command_input_mode_digital_denon="RCKSK0410359",
+    command_input_mode_analog_denon="RCKSK0410353",
+    command_input_mode_select_marantz="RCRC51600101",
+    command_input_mode_auto_marantz="RCRC51600115",
+    command_input_mode_hdmi_marantz="RCRC51600116",
+    command_input_mode_digital_marantz="RCRC51600117",
+    command_input_mode_analog_marantz="RCRC51600118",
 )
 
 # States
@@ -1575,7 +1575,12 @@ ZONE2_ZONE3_NAME = {ZONE2: None, ZONE3: None}
 APPCOMMAND_CMD_TEXT = "cmd_text"
 APPCOMMAND_NAME = "name"
 
-# Audyssey parameter
+# _MAP dictionaries map receiver outputs to denonavr properties
+# _MAP_REVERSE dictionaries map them the opposite way
+
+MultiEQModes = Literal["Off", "Flat", "L/R Bypass", "Reference", "Manual"]
+"""Multi EQ modes."""
+
 MULTI_EQ_MAP_APPCOMMAND = {"0": "Off", "1": "Flat", "2": "L/R Bypass", "3": "Reference"}
 MULTI_EQ_MAP_TELNET = {
     "OFF": "Off",
@@ -1585,20 +1590,26 @@ MULTI_EQ_MAP_TELNET = {
     "MANUAL": "Manual",
 }
 MULTI_EQ_MAP = {**MULTI_EQ_MAP_APPCOMMAND, **MULTI_EQ_MAP_TELNET}
-MULTI_EQ_MAP_LABELS_APPCOMMAND = {
+MULTI_EQ_MAP_REVERSE_APPCOMMAND = {
     value: key for key, value in MULTI_EQ_MAP_APPCOMMAND.items()
 }
-MULTI_EQ_MAP_LABELS_TELNET = {value: key for key, value in MULTI_EQ_MAP_TELNET.items()}
+MULTI_EQ_MAP_REVERSE_TELNET = {value: key for key, value in MULTI_EQ_MAP_TELNET.items()}
+
+ReferenceLevelOffsets = Literal["0dB", "+5dB", "+10dB", "+15dB"]
+"""Reference Level Offsets."""
 
 REF_LVL_OFFSET_MAP_APPCOMMAND = {"0": "0dB", "1": "+5dB", "2": "+10dB", "3": "+15dB"}
 REF_LVL_OFFSET_MAP_TELNET = {"0": "0dB", "5": "+5dB", "10": "+10dB", "15": "+15dB"}
 REF_LVL_OFFSET_MAP = {**REF_LVL_OFFSET_MAP_APPCOMMAND, **REF_LVL_OFFSET_MAP_TELNET}
-REF_LVL_OFFSET_MAP_LABELS_APPCOMMAND = {
+REF_LVL_OFFSET_MAP_REVERSE_APPCOMMAND = {
     value: key for key, value in REF_LVL_OFFSET_MAP_APPCOMMAND.items()
 }
-REF_LVL_OFFSET_MAP_LABELS_TELNET = {
+REF_LVL_OFFSET_MAP_REVERSE_TELNET = {
     value: key for key, value in REF_LVL_OFFSET_MAP_TELNET.items()
 }
+
+DynamicVolumeSettings = Literal["Off", "Light", "Medium", "Heavy"]
+"""Dynamic Volume Settings."""
 
 DYNAMIC_VOLUME_MAP_APPCOMMAND = {"0": "Off", "1": "Light", "2": "Medium", "3": "Heavy"}
 DYNAMIC_VOLUME_MAP_TELNET = {
@@ -1608,10 +1619,10 @@ DYNAMIC_VOLUME_MAP_TELNET = {
     "HEV": "Heavy",
 }
 DYNAMIC_VOLUME_MAP = {**DYNAMIC_VOLUME_MAP_APPCOMMAND, **DYNAMIC_VOLUME_MAP_TELNET}
-DYNAMIC_VOLUME_MAP_LABELS_APPCOMMAND = {
+DYNAMIC_VOLUME_MAP_REVERSE_APPCOMMAND = {
     value: key for key, value in DYNAMIC_VOLUME_MAP_APPCOMMAND.items()
 }
-DYNAMIC_VOLUME_MAP_LABELS_TELNET = {
+DYNAMIC_VOLUME_MAP_REVERSE_TELNET = {
     value: key for key, value in DYNAMIC_VOLUME_MAP_TELNET.items()
 }
 
@@ -1619,12 +1630,12 @@ AudioRestorers = Literal["Off", "Low", "Medium", "High"]
 """Audio Restorer settings."""
 
 AUDIO_RESTORER_MAP = {
-    "Off": "OFF",
-    "Low": "LOW",
-    "Medium": "MED",
-    "High": "HI",
+    "OFF": "Off",
+    "LOW": "Low",
+    "MED": "Medium",
+    "HI": "High",
 }
-AUDIO_RESTORER_MAP_LABELS = {value: key for key, value in AUDIO_RESTORER_MAP.items()}
+AUDIO_RESTORER_MAP_REVERSE = {value: key for key, value in AUDIO_RESTORER_MAP.items()}
 
 AuroMatic3DPresets = Literal[
     "Small",
@@ -1636,58 +1647,93 @@ AuroMatic3DPresets = Literal[
 """Auro-Matic 3D Presets."""
 
 AURO_MATIC_3D_PRESET_MAP = {
-    "Small": "SMA",
-    "Medium": "MED",
-    "Large": "LAR",
-    "Speech": "SPE",
-    "Movie": "MOV",
+    "SMA": "Small",
+    "MED": "Medium",
+    "LAR": "Large",
+    "SPE": "Speech",
+    "MOV": "Movie",
 }
-AURO_MATIC_3D_PRESET_MAP_LABELS = {
+AURO_MATIC_3D_PRESET_MAP_REVERSE = {
     value: key for key, value in AURO_MATIC_3D_PRESET_MAP.items()
 }
 
 Auro3DModes = Literal["Direct", "Channel Expansion"]
 """Auro 3D Modes."""
 
-AURO_3D_MODE_MAP = {"Direct": "DRCT", "Channel Expansion": "EXP"}
-AURO_3D_MODE_MAP_MAP_LABELS = {value: key for key, value in AURO_3D_MODE_MAP.items()}
+AURO_3D_MODE_MAP = {"DRCT": "Direct", "EXP": "Channel Expansion"}
+AURO_3D_MODE_MAP_REVERSE = {value: key for key, value in AURO_3D_MODE_MAP.items()}
 
-AutoStandbys = Literal["OFF", "15M", "30M", "60M"]
+AutoStandbys = Literal["OFF", "15M", "30M", "60M", "2H", "4H", "8H"]
+
+AUTO_STANDBY_MAP_APPCOMMAND = {
+    "0": "OFF",
+    "15": "15M",
+    "30": "30M",
+    "60": "60M",
+    "120": "2H",
+    "240": "4H",
+    "480": "8H",
+}
+AUTO_STANDBY_MAP_TELNET = {
+    "OFF": "OFF",
+    "15M": "15M",
+    "30M": "30M",
+    "60M": "60M",
+    "2H": "2H",
+    "4H": "4H",
+    "8H": "8H",
+}
+AUTO_STANDBY_MAP = {**AUTO_STANDBY_MAP_APPCOMMAND, **AUTO_STANDBY_MAP_TELNET}
 
 BluetoothOutputModes = Literal["Bluetooth + Speakers", "Bluetooth Only"]
 """Bluetooth Output Modes."""
 
 BLUETOOTH_OUTPUT_MODES_MAP = {
-    "Bluetooth + Speakers": "SP",
-    "Bluetooth Only": "BT",
+    "SP": "Bluetooth + Speakers",
+    "BT": "Bluetooth Only",
 }
-BLUETOOTH_OUTPUT_MAP_LABELS = {
+BLUETOOTH_OUTPUT_MODES_MAP_REVERSE = {
     value: key for key, value in BLUETOOTH_OUTPUT_MODES_MAP.items()
 }
 
-DIMMER_MODE_MAP = {
-    "Off": DIMER_OFF,
-    "Dark": DIMER_DARK,
-    "Dim": DIMER_DIM,
-    "Bright": DIMER_BRIGHT,
+DIMMER_MODE_MAP_APPCOMMAND = {
+    "0": "Off",
+    "1": "Dark",
+    "2": "Dim",
+    "3": "Bright",
 }
-DIMMER_MODE_MAP_LABELS = {value: key for key, value in DIMMER_MODE_MAP.items()}
+DIMMER_MODE_MAP_TELNET = {
+    DIMER_OFF: "Off",
+    DIMER_DARK: "Dark",
+    DIMER_DIM: "Dim",
+    DIMER_BRIGHT: "Bright",
+}
+DIMMER_MODE_MAP = {**DIMMER_MODE_MAP_TELNET, **DIMMER_MODE_MAP_APPCOMMAND}
+# Telnet literals are correct for telnet and HTTP setters
+DIMMER_MODE_MAP_REVERSE = {value: key for key, value in DIMMER_MODE_MAP_TELNET.items()}
 
 DimmerModes = Literal["Off", "Dark", "Dim", "Bright"]
 """Dimmer Modes."""
 
-DIRAC_FILTER_MAP = {"Off": "OFF", "Slot 1": "1", "Slot 2": "2", "Slot 3": "3"}
-DIRAC_FILTER_MAP_LABELS = {value: key for key, value in DIRAC_FILTER_MAP.items()}
+DIRAC_FILTER_MAP = {"OFF": "Off", "1": "Slot 1", "2": "Slot 2", "3": "Slot 3"}
+DIRAC_FILTER_MAP_REVERSE = {value: key for key, value in DIRAC_FILTER_MAP.items()}
 
 DiracFilters = Literal["Slot 1", "Slot 2", "Slot 3", "Off"]
 """Dirac Filters."""
 
-ECO_MODE_MAP = {
-    "On": "ON",
-    "Auto": "AUTO",
-    "Off": "OFF",
+ECO_MODE_MAP_APPCOMMAND = {
+    "0": "Off",
+    "1": "On",
+    "2": "Auto",
 }
-ECO_MODE_MAP_LABELS = {value: key for key, value in ECO_MODE_MAP.items()}
+ECO_MODE_MAP_TELNET = {
+    "ON": "On",
+    "AUTO": "Auto",
+    "OFF": "Off",
+}
+ECO_MODE_MAP = {**ECO_MODE_MAP_APPCOMMAND, **ECO_MODE_MAP_TELNET}
+# Telnet literals are correct for telnet and HTTP setters
+ECO_MODE_MAP_REVERSE = {value: key for key, value in ECO_MODE_MAP_TELNET.items()}
 
 EcoModes = Literal["On", "Auto", "Off"]
 """Eco Modes."""
@@ -1706,17 +1752,17 @@ EffectSpeakers = Literal[
 """Effect Speakers."""
 
 EFFECT_SPEAKER_SELECTION_MAP = {
-    "Floor": "FL",
-    "Front": "FR",
-    "Front Height": "FH",
-    "Front Wide": "FW",
-    "Front Height + Front Wide": "HW",
-    "Height + Floor": "HF",
-    "Surround Back": "SB",
-    "Surround Back + Front Height": "BH",
-    "Surround Back + Front Wide": "BW",
+    "FL": "Floor",
+    "FR": "Front",
+    "FH": "Front Height",
+    "FW": "Front Wide",
+    "HW": "Front Height + Front Wide",
+    "HF": "Height + Floor",
+    "SB": "Surround Back",
+    "BH": "Surround Back + Front Height",
+    "BW": "Surround Back + Front Wide",
 }
-EFFECT_SPEAKER_SELECTION_MAP_LABELS = {
+EFFECT_SPEAKER_SELECTION_MAP_REVERSE = {
     value: key for key, value in EFFECT_SPEAKER_SELECTION_MAP.items()
 }
 
@@ -1724,14 +1770,14 @@ DRCs = Literal["AUTO", "LOW", "MID", "HI", "OFF"]
 """Dynamic Range Control (DRC) Settings."""
 
 HDMI_OUTPUT_MAP = {
-    "Auto": "AUTO",
-    "HDMI1": "1",
-    "HDMI2": "2",
-}
-HDMI_OUTPUT_MAP_LABELS = {
     "MONIAUTO": "Auto",
     "MONI1": "HDMI1",
     "MONI2": "HDMI2",
+}
+HDMI_OUTPUT_MAP_REVERSE = {
+    "Auto": "AUTO",
+    "HDMI1": "1",
+    "HDMI2": "2",
 }
 
 HDMIOutputs = Literal["Auto", "HDMI1", "HDMI2"]
@@ -1743,56 +1789,55 @@ Subwoofers = Literal["Subwoofer", "Subwoofer 2", "Subwoofer 3", "Subwoofer 4"]
 """Subwoofers."""
 
 SUBWOOFERS_MAP = {
-    "Subwoofer": "",
-    "Subwoofer 2": "2",
-    "Subwoofer 3": "3",
-    "Subwoofer 4": "4",
-}
-"""Subwoofers."""
-
-SUBWOOFERS_MAP_LABELS = {
     "SWL": "Subwoofer",
     "SWL2": "Subwoofer 2",
     "SWL3": "Subwoofer 3",
     "SWL4": "Subwoofer 4",
 }
 
-CHANNEL_MAP = {
-    "Front Left": "FL",
-    "Front Right": "FR",
-    "Center": "C",
-    "Subwoofer": "SW",
-    "Subwoofer 2": "SW2",
-    "Subwoofer 3": "SW3",
-    "Subwoofer 4": "SW4",
-    "Surround Left": "SL",
-    "Surround Right": "SR",
-    "Surround Back Left": "SBL",
-    "Surround Back Right": "SBR",
-    "Front Height Left": "FHL",
-    "Front Height Right": "FHR",
-    "Front Wide Left": "FWL",
-    "Front Wide Right": "FWR",
-    "Top Front Left": "TFL",
-    "Top Front Right": "TFR",
-    "Top Middle Left": "TML",
-    "Top Middle Right": "TMR",
-    "Top Rear Left": "TRL",
-    "Top Rear Right": "TRR",
-    "Rear Height Left": "RHL",
-    "Rear Height Right": "RHR",
-    "Front Dolby Left": "FDL",
-    "Front Dolby Right": "FDR",
-    "Surround Dolby Left": "SDL",
-    "Surround Dolby Right": "SDR",
-    "Back Dolby Left": "BDL",
-    "Back Dolby Right": "BDR",
-    "Surround Height Left": "SHL",
-    "Surround Height Right": "SHR",
-    "Top Surround": "TS",
-    "Center Height": "CH",
+SUBWOOFERS_MAP_REVERSE = {
+    "Subwoofer": "",
+    "Subwoofer 2": "2",
+    "Subwoofer 3": "3",
+    "Subwoofer 4": "4",
 }
-CHANNEL_MAP_LABELS = {value: key for key, value in CHANNEL_MAP.items()}
+
+CHANNEL_MAP = {
+    "FL": "Front Left",
+    "FR": "Front Right",
+    "C": "Center",
+    "SW": "Subwoofer",
+    "SW2": "Subwoofer 2",
+    "SW3": "Subwoofer 3",
+    "SW4": "Subwoofer 4",
+    "SL": "Surround Left",
+    "SR": "Surround Right",
+    "SBL": "Surround Back Left",
+    "SBR": "Surround Back Right",
+    "FHL": "Front Height Left",
+    "FHR": "Front Height Right",
+    "FWL": "Front Wide Left",
+    "FWR": "Front Wide Right",
+    "TFL": "Top Front Left",
+    "TFR": "Top Front Right",
+    "TML": "Top Middle Left",
+    "TMR": "Top Middle Right",
+    "TRL": "Top Rear Left",
+    "TRR": "Top Rear Right",
+    "RHL": "Rear Height Left",
+    "RHR": "Rear Height Right",
+    "FDL": "Front Dolby Left",
+    "FDR": "Front Dolby Right",
+    "SDL": "Surround Dolby Left",
+    "SDR": "Surround Dolby Right",
+    "BDL": "Back Dolby Left",
+    "BDR": "Back Dolby Right",
+    "SHL": "Surround Height Left",
+    "SHR": "Surround Height Right",
+    "TS": "Top Surround",
+    "CH": "Center Height",
+}
+CHANNEL_MAP_REVERSE = {value: key for key, value in CHANNEL_MAP.items()}
 
 Channels = Literal[
     "Front Left",
@@ -1882,19 +1927,19 @@ CHANNEL_VOLUME_MAP = {
     "615": 11.5,
     "62": 12.0,
 }
-CHANNEL_VOLUME_MAP_LABELS = {value: key for key, value in CHANNEL_VOLUME_MAP.items()}
+CHANNEL_VOLUME_MAP_REVERSE = {value: key for key, value in CHANNEL_VOLUME_MAP.items()}
 
 DialogEnhancerLevels = Literal["Off", "Low", "Medium", "High"]
 """Dialog Enhancer Levels."""
 
 DIALOG_ENHANCER_LEVEL_MAP = {
-    "Off": "OFF",
-    "Low": "LOW",
-    "Medium": "MED",
-    "High": "HIGH",
+    "OFF": "Off",
+    "LOW": "Low",
+    "MED": "Medium",
+    "HIGH": "High",
 }
 
-DIALOG_ENHANCER_LEVEL_MAP_LABELS = {
+DIALOG_ENHANCER_LEVEL_MAP_REVERSE = {
     value: key for key, value in DIALOG_ENHANCER_LEVEL_MAP.items()
 }
 
@@ -1935,13 +1980,13 @@ VideoProcessingModes = Literal["Auto", "Game", "Movie", "Bypass"]
 """Video Processing Modes."""
 
 VIDEO_PROCESSING_MODES_MAP = {
-    "Auto": "AUTO",
-    "Game": "GAME",
-    "Movie": "MOVI",
-    "Bypass": "BYP",
+    "AUTO": "Auto",
+    "GAME": "Game",
+    "MOVI": "Movie",
+    "BYP": "Bypass",
 }
 
-VIDEO_PROCESSING_MODES_MAP_LABELS = {
+VIDEO_PROCESSING_MODES_MAP_REVERSE = {
     value: key for key, value in VIDEO_PROCESSING_MODES_MAP.items()
 }
 
@@ -1949,35 +1994,35 @@ MDAXs = Literal["Off", "Low", "Medium", "High"]
 """M-DAX Modes."""
 
 MDAX_MAP = {
-    "Off": "OFF",
-    "Low": "LOW",
-    "Medium": "MED",
-    "High": "HI",
+    "OFF": "Off",
+    "LOW": "Low",
+    "MED": "Medium",
+    "HI": "High",
 }
-MDAX_MAP_LABELS = {value: key for key, value in MDAX_MAP.items()}
+MDAX_MAP_REVERSE = {value: key for key, value in MDAX_MAP.items()}
 
 DACFilters = Literal["Mode 1", "Mode 2"]
 """DAC Filter Modes."""
 
 DAC_FILTERS_MAP = {
-    "Mode 1": "MODE1",
-    "Mode 2": "MODE2",
+    "MODE1": "Mode 1",
+    "MODE2": "Mode 2",
 }
 
-DAC_FILTERS_MAP_LABELS = {value: key for key, value in DAC_FILTERS_MAP.items()}
+DAC_FILTERS_MAP_REVERSE = {value: key for key, value in DAC_FILTERS_MAP.items()}
 
 Illuminations = Literal["Auto", "Bright", "Dim", "Dark", "Off"]
 """Illumination Modes."""
 
 ILLUMINATION_MAP = {
-    "Auto": "AUTO",
-    "Bright": "BRI",
-    "Dim": "DIM",
-    "Dark": "DAR",
-    "Off": "OFF",
+    "AUTO": "Auto",
+    "BRI": "Bright",
+    "DIM": "Dim",
+    "DAR": "Dark",
+    "OFF": "Off",
 }
 
-ILLUMINATION_MAP_LABELS = {value: key for key, value in ILLUMINATION_MAP.items()}
+ILLUMINATION_MAP_REVERSE = {value: key for key, value in ILLUMINATION_MAP.items()}
 
 InputModes = Literal["Select", "Auto", "HDMI", "Digital", "Analog"]
 """Input Mode Selection."""

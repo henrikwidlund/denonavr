@@ -16,6 +16,7 @@ import attr
 
 from .audyssey import DenonAVRAudyssey, audyssey_factory
 from .const import (
+    AVR_X,
     DENON_ATTR_SETATTR,
     MAIN_ZONE,
     VALID_ZONES,
@@ -23,17 +24,21 @@ from .const import (
     AutoStandbys,
     BluetoothOutputModes,
     DimmerModes,
+    DynamicVolumeSettings,
     EcoModes,
     HDMIAudioDecodes,
     HDMIOutputs,
     Illuminations,
     InputModes,
+    MultiEQModes,
     PanelLocks,
+    ReferenceLevelOffsets,
     RoomSizes,
     TransducerLPFs,
     VideoProcessingModes,
 )
 from .dirac import DenonAVRDirac, dirac_factory
+from .exceptions import AvrForbiddenError, AvrIncompleteResponseError
 from .foundation import DenonAVRFoundation, set_api_host, set_api_timeout
 from .input import DenonAVRInput, input_factory
 from .soundmode import DenonAVRSoundMode, sound_mode_factory
@@ -94,6 +99,7 @@ class DenonAVR(DenonAVRFoundation):
         init=False,
     )
     _setup_lock: asyncio.Lock = attr.ib(default=attr.Factory(asyncio.Lock))
+    _allow_recovery: bool = attr.ib(converter=bool, default=True, init=True)
     audyssey: DenonAVRAudyssey = attr.ib(
         validator=attr.validators.instance_of(DenonAVRAudyssey),
         default=attr.Factory(audyssey_factory, takes_self=True),
@@ -194,27 +200,50 @@ class DenonAVR(DenonAVRFoundation):
         # Create a cache id for this global update
         cache_id = time.time()
 
-        # Verify update method
-        _LOGGER.debug("Verifying update method")
-        await self._device.async_verify_avr_2016_update_method(cache_id=cache_id)
+        try:
+            # Update device
+            await self._device.async_update(global_update=True, cache_id=cache_id)
 
-        # Update device (component_tasks depend on the result from this one)
-        await self._device.async_update(global_update=True, cache_id=cache_id)
+            # Update other functions
+            component_tasks = [
+                self.input.async_update(global_update=True, cache_id=cache_id),
+                self.soundmode.async_update(global_update=True, cache_id=cache_id),
+                self.tonecontrol.async_update(global_update=True, cache_id=cache_id),
+                self.vol.async_update(global_update=True, cache_id=cache_id),
+            ]
 
-        # Update other functions
-        component_tasks = [
-            self.input.async_update(global_update=True, cache_id=cache_id),
-            self.soundmode.async_update(global_update=True, cache_id=cache_id),
-            self.tonecontrol.async_update(global_update=True, cache_id=cache_id),
-            self.vol.async_update(global_update=True, cache_id=cache_id),
-        ]
+            await asyncio.gather(*component_tasks)
+        except AvrForbiddenError:
+            # Recovery in case receiver changes port from 80 to 8080 which
+            # might happen at Denon AVR-X 2016 receivers
+            if self._device.use_avr_2016_update and self._allow_recovery:
+                self._allow_recovery = False
+                _LOGGER.warning(
+                    "AppCommand.xml returns HTTP status 403. Running setup"
+                    " again once to check if receiver interface switched "
+                    "ports"
+                )
+                self._is_setup = False
+                await self.async_update()
+            else:
+                raise
+        except AvrIncompleteResponseError:
+            # Use status XML interface if Appcommand.xml returns an incomplete result
+            # Only AVR_X devices support both interfaces
+            if self._device.use_avr_2016_update and self._device.receiver == AVR_X:
+                _LOGGER.warning(
+                    "Error verifying Appcommand.xml update method, it returns "
+                    "an incomplete result set. Deactivating the interface"
+                )
+                self._device.use_avr_2016_update = False
+                await self.async_update()
+            else:
+                raise
+        else:
+            if not self._allow_recovery:
+                self._allow_recovery = True
+                _LOGGER.info("AppCommand.xml recovered from HTTP status 403 error")
 
-        await asyncio.gather(*component_tasks)
-
-        # AppCommand0300.xml interface is very slow, thus it is not included
-        # into main update
-        # await self.audyssey.async_update(
-        #     global_update=True, cache_id=cache_id)
         _LOGGER.debug("Finished denonavr update")
 
     async def async_trigger_advanced_video_info_update(self) -> None:
@@ -561,8 +590,6 @@ class DenonAVR(DenonAVRFoundation):
         """
         Returns the dimmer state of the device.
 
-        Only available if using Telnet.
-
         Possible values are: "Off", "Dark", "Dim" and "Bright"
         """
         return self._device.dimmer
@@ -572,9 +599,7 @@ class DenonAVR(DenonAVRFoundation):
         """
         Return the auto-standby state of the device.
 
-        Only available if using Telnet.
-
-        Possible values are: "OFF", "15M", "30M", "60M"
+        Possible values are: "OFF", "15M", "30M", "60M", "2H", "4H", "8H"
         """
         return self._device.auto_standby
 
@@ -602,8 +627,6 @@ class DenonAVR(DenonAVRFoundation):
     def eco_mode(self) -> Optional[str]:
         """
         Returns the eco-mode for the device.
-
-        Only available if using Telnet.
 
         Possible values are: "Off", "On", "Auto"
         """
@@ -933,15 +956,15 @@ class DenonAVR(DenonAVRFoundation):
         """Toggle DynamicEQ."""
         await self.audyssey.async_toggle_dynamic_eq()
 
-    async def async_set_multieq(self, value: str) -> None:
+    async def async_set_multieq(self, value: MultiEQModes) -> None:
         """Set MultiEQ mode."""
         await self.audyssey.async_set_multieq(value)
 
-    async def async_set_reflevoffset(self, value: str) -> None:
+    async def async_set_reflevoffset(self, value: ReferenceLevelOffsets) -> None:
         """Set Reference Level Offset."""
         await self.audyssey.async_set_reflevoffset(value)
 
-    async def async_set_dynamicvol(self, value: str) -> None:
+    async def async_set_dynamicvol(self, value: DynamicVolumeSettings) -> None:
         """Set Dynamic Volume."""
         await self.audyssey.async_set_dynamicvol(value)
 
@@ -968,44 +991,44 @@ class DenonAVR(DenonAVRFoundation):
         await self.input.async_toggle_play_pause()
 
     async def async_play(self) -> None:
-        """Send play command to receiver command via HTTP post."""
+        """Send play command to receiver command."""
         await self.input.async_play()
 
     async def async_pause(self) -> None:
-        """Send pause command to receiver command via HTTP post."""
+        """Send pause command to receiver command."""
         await self.input.async_pause()
 
     async def async_stop(self) -> None:
-        """Send stop command to receiver command via HTTP post."""
+        """Send stop command to receiver command."""
         await self.input.async_stop()
 
     async def async_previous_track(self) -> None:
-        """Send previous track command to receiver command via HTTP post."""
+        """Send previous track command to receiver command."""
         await self.input.async_previous_track()
 
     async def async_next_track(self) -> None:
-        """Send next track command to receiver command via HTTP post."""
+        """Send next track command to receiver command."""
         await self.input.async_next_track()
 
     async def async_power_on(self) -> None:
-        """Turn on receiver via HTTP get command."""
+        """Turn on receiver."""
         await self._device.async_power_on()
 
     async def async_power_off(self) -> None:
-        """Turn off receiver via HTTP get command."""
+        """Turn off receiver."""
         await self._device.async_power_off()
 
     async def async_volume_up(self) -> None:
-        """Volume up receiver via HTTP get command."""
+        """Volume up receiver."""
         await self.vol.async_volume_up()
 
     async def async_volume_down(self) -> None:
-        """Volume down receiver via HTTP get command."""
+        """Volume down receiver."""
         await self.vol.async_volume_down()
 
     async def async_set_volume(self, volume: float) -> None:
         """
-        Set receiver volume via HTTP get command.
+        Set receiver volume.
 
         Volume is send in a format like -50.0.
         Minimum is -80.0, maximum at 18.0
@@ -1013,11 +1036,11 @@ class DenonAVR(DenonAVRFoundation):
         await self.vol.async_set_volume(volume)
 
     async def async_mute(self, mute: bool) -> None:
-        """Mute receiver via HTTP get command."""
+        """Mute receiver."""
         await self.vol.async_mute(mute)
 
     async def async_mute_toggle(self) -> None:
-        """Mute toggle receiver via HTTP get command."""
+        """Mute toggle receiver."""
         await self.vol.async_mute_toggle()
 
     async def async_enable_tone_control(self) -> None:
@@ -1087,60 +1110,60 @@ class DenonAVR(DenonAVRFoundation):
         await self.tonecontrol.async_treble_down()
 
     async def async_cursor_up(self) -> None:
-        """Send cursor up to receiver via HTTP get command."""
+        """Send cursor up to receiver."""
         await self._device.async_cursor_up()
 
     async def async_cursor_down(self) -> None:
-        """Send cursor down to receiver via HTTP get command."""
+        """Send cursor down to receiver."""
         await self._device.async_cursor_down()
 
     async def async_cursor_left(self) -> None:
-        """Send cursor left to receiver via HTTP get command."""
+        """Send cursor left to receiver."""
         await self._device.async_cursor_left()
 
     async def async_cursor_right(self) -> None:
-        """Send cursor right to receiver via HTTP get command."""
+        """Send cursor right to receiver."""
         await self._device.async_cursor_right()
 
     async def async_cursor_enter(self) -> None:
-        """Send cursor enter to receiver via HTTP get command."""
+        """Send cursor enter to receiver."""
         await self._device.async_cursor_enter()
 
     async def async_back(self) -> None:
-        """Send back to receiver via HTTP get command."""
+        """Send back to receiver."""
         await self._device.async_back()
 
     async def async_info(self) -> None:
-        """Send info to receiver via HTTP get command."""
+        """Send info to receiver."""
         await self._device.async_info()
 
     async def async_options(self) -> None:
-        """Raise options menu to receiver via HTTP get command."""
+        """Raise options menu to receiver."""
         await self._device.async_options()
 
     async def async_settings_menu(self) -> None:
-        """Raise settings menu to receiver via HTTP get command."""
+        """Raise settings menu to receiver."""
         await self._device.async_settings_menu()
 
     async def async_channel_level_adjust(self) -> None:
-        """Toggle the channel level adjust menu on receiver via HTTP get command."""
+        """Toggle the channel level adjust menu on receiver."""
         await self._device.async_channel_level_adjust()
 
     async def async_dimmer_toggle(self) -> None:
-        """Toggle dimmer on receiver via HTTP get command."""
+        """Toggle dimmer on receiver."""
         await self._device.async_dimmer_toggle()
 
     async def async_dimmer(self, mode: DimmerModes) -> None:
-        """Set dimmer mode on receiver via HTTP get command."""
+        """Set dimmer mode on receiver."""
         await self._device.async_dimmer(mode)
 
     async def async_auto_standby(self, auto_standby: AutoStandbys) -> None:
-        """Set auto standby on receiver via HTTP get command."""
+        """Set auto standby on receiver."""
         await self._device.async_auto_standby(auto_standby)
 
     async def async_sleep(self, sleep: Union[Literal["OFF"], int]) -> None:
         """
-        Set auto standby on receiver via HTTP get command.
+        Set auto standby on receiver.
 
         Valid sleep values are "OFF" and 1-120 (in minutes)
         """
@@ -1156,7 +1179,7 @@ class DenonAVR(DenonAVRFoundation):
 
     async def async_delay(self, delay: int) -> None:
         """
-        Set delay on receiver via HTTP get command.
+        Set delay on receiver.
 
         :param delay: Delay time in ms. Valid values are 0-500.
         """
@@ -1171,11 +1194,11 @@ class DenonAVR(DenonAVRFoundation):
         await self._device.async_hdmi_output(output)
 
     async def async_hdmi_audio_decode(self, mode: HDMIAudioDecodes) -> None:
-        """Set HDMI Audio Decode mode on receiver via HTTP get command."""
+        """Set HDMI Audio Decode mode on receiver."""
         await self._device.async_hdmi_audio_decode(mode)
 
     async def async_video_processing_mode(self, mode: VideoProcessingModes) -> None:
-        """Set video processing mode on receiver via HTTP get command."""
+        """Set video processing mode on receiver."""
         await self._device.async_video_processing_mode(mode)
 
     async def async_status(self) -> None:
@@ -1187,16 +1210,16 @@ class DenonAVR(DenonAVRFoundation):
         return await self._device.async_status()
 
     async def async_system_reset(self) -> None:
-        """DANGER! Reset the receiver via HTTP get command."""
+        """DANGER! Reset the receiver."""
         await self._device.async_system_reset()
 
     async def async_network_restart(self) -> None:
-        """Restart the network on the receiver via HTTP get command."""
+        """Restart the network on the receiver."""
         await self._device.async_network_restart()
 
     async def async_speaker_preset(self, preset: int) -> None:
         """
-        Set speaker preset on receiver via HTTP get command.
+        Set speaker preset on receiver.
 
         Valid preset values are 1-2.
         """
@@ -1204,143 +1227,143 @@ class DenonAVR(DenonAVRFoundation):
 
     async def async_speaker_preset_toggle(self) -> None:
         """
-        Toggle speaker preset on receiver via HTTP get command.
+        Toggle speaker preset on receiver.
 
         Only available if using Telnet.
         """
         await self._device.async_speaker_preset_toggle()
 
     async def async_bt_transmitter_on(self) -> None:
-        """Turn on Bluetooth transmitter on receiver via HTTP get command."""
+        """Turn on Bluetooth transmitter on receiver."""
         await self._device.async_bt_transmitter_on()
 
     async def async_bt_transmitter_off(self) -> None:
-        """Turn off Bluetooth transmitter on receiver via HTTP get command."""
+        """Turn off Bluetooth transmitter on receiver."""
         await self._device.async_bt_transmitter_off()
 
     async def async_bt_transmitter_toggle(self) -> None:
         """
-        Toggle Bluetooth transmitter mode on receiver via HTTP get command.
+        Toggle Bluetooth transmitter mode on receiver.
 
         Only available if using Telnet.
         """
         await self._device.async_bt_transmitter_toggle()
 
     async def async_bt_output_mode(self, mode: BluetoothOutputModes) -> None:
-        """Set Bluetooth transmitter mode on receiver via HTTP get command."""
+        """Set Bluetooth transmitter mode on receiver."""
         await self._device.async_bt_output_mode(mode)
 
     async def async_bt_output_mode_toggle(self) -> None:
         """
-        Toggle Bluetooth output mode on receiver via HTTP get command.
+        Toggle Bluetooth output mode on receiver.
 
         Only available if using Telnet.
         """
         await self._device.async_bt_output_mode_toggle()
 
     async def async_delay_time_up(self) -> None:
-        """Delay time up on receiver via HTTP get command."""
+        """Delay time up on receiver."""
         await self._device.async_delay_time_up()
 
     async def async_delay_time_down(self) -> None:
-        """Delay time up on receiver via HTTP get command."""
+        """Delay time up on receiver."""
         await self._device.async_delay_time_down()
 
     async def async_delay_time(self, delay_time: int) -> None:
         """
-        Set delay time on receiver via HTTP get command.
+        Set delay time on receiver.
 
         :param delay_time: Delay time in ms. Valid values are 0-300.
         """
         await self._device.async_delay_time(delay_time)
 
     async def async_audio_restorer(self, mode: AudioRestorers):
-        """Set audio restorer on receiver via HTTP get command."""
+        """Set audio restorer on receiver."""
         await self._device.async_audio_restorer(mode)
 
     async def async_remote_control_lock(self):
-        """Set remote control lock on receiver via HTTP get command."""
+        """Set remote control lock on receiver."""
         await self._device.async_remote_control_lock()
 
     async def async_remote_control_unlock(self):
-        """Set remote control unlock on receiver via HTTP get command."""
+        """Set remote control unlock on receiver."""
         await self._device.async_remote_control_unlock()
 
     async def async_panel_lock(self, panel_lock_mode: PanelLocks):
-        """Set panel lock on receiver via HTTP get command."""
+        """Set panel lock on receiver."""
         await self._device.async_panel_lock(panel_lock_mode)
 
     async def async_panel_unlock(self):
-        """Set panel unlock on receiver via HTTP get command."""
+        """Set panel unlock on receiver."""
         await self._device.async_panel_unlock()
 
     async def async_graphic_eq_on(self) -> None:
-        """Turn on Graphic EQ on receiver via HTTP get command."""
+        """Turn on Graphic EQ on receiver."""
         await self._device.async_graphic_eq_on()
 
     async def async_graphic_eq_off(self) -> None:
-        """Turn off Graphic EQ on receiver via HTTP get command."""
+        """Turn off Graphic EQ on receiver."""
         await self._device.async_graphic_eq_off()
 
     async def async_graphic_eq_toggle(self) -> None:
         """
-        Toggle Graphic EQ on receiver via HTTP get command.
+        Toggle Graphic EQ on receiver.
 
         Only available if using Telnet.
         """
         await self._device.async_graphic_eq_toggle()
 
     async def async_headphone_eq_on(self) -> None:
-        """Turn on Headphone EQ on receiver via HTTP get command."""
+        """Turn on Headphone EQ on receiver."""
         await self._device.async_headphone_eq_on()
 
     async def async_headphone_eq_off(self) -> None:
-        """Turn off Headphone EQ on receiver via HTTP get command."""
+        """Turn off Headphone EQ on receiver."""
         await self._device.async_headphone_eq_off()
 
     async def async_headphone_eq_toggle(self) -> None:
         """
-        Toggle Headphone EQ on receiver via HTTP get command.
+        Toggle Headphone EQ on receiver.
 
         Only available if using Telnet.
         """
         await self._device.async_headphone_eq_toggle()
 
     async def async_tactile_transducer_on(self) -> None:
-        """Turn on tactile transducer on receiver via HTTP get command."""
+        """Turn on tactile transducer on receiver."""
         await self._device.async_tactile_transducer_on()
 
     async def async_tactile_transducer_off(self) -> None:
-        """Turn on tactile transducer on receiver via HTTP get command."""
+        """Turn on tactile transducer on receiver."""
         await self._device.async_tactile_transducer_off()
 
     async def async_tactile_transducer_toggle(self) -> None:
         """
-        Turn on tactile transducer on receiver via HTTP get command.
+        Turn on tactile transducer on receiver.
 
         Only available if using Telnet.
         """
         await self._device.async_tactile_transducer_toggle()
 
     async def async_tactile_transducer_level_up(self) -> None:
-        """Increase the transducer level on receiver via HTTP get command."""
+        """Increase the transducer level on receiver."""
         await self._device.async_tactile_transducer_level_up()
 
     async def async_tactile_transducer_level_down(self) -> None:
-        """Decrease the transducer on receiver via HTTP get command."""
+        """Decrease the transducer on receiver."""
         await self._device.async_tactile_transducer_level_down()
 
     async def async_transducer_lpf(self, lpf: TransducerLPFs) -> None:
-        """Set transducer low pass filter on receiver via HTTP get command."""
+        """Set transducer low pass filter on receiver."""
         await self._device.async_transducer_lpf(lpf)
 
     async def async_room_size(self, room_size: RoomSizes) -> None:
-        """Set room size on receiver via HTTP get command."""
+        """Set room size on receiver."""
         await self._device.async_room_size(room_size)
 
     async def async_trigger_on(self, trigger: int) -> None:
         """
-        Set trigger to ON on receiver via HTTP get command.
+        Set trigger to ON on receiver.
 
         :param trigger: Trigger number to set to ON. Valid values are 1-3.
         """
@@ -1348,7 +1371,7 @@ class DenonAVR(DenonAVRFoundation):
 
     async def async_trigger_off(self, trigger: int) -> None:
         """
-        Set trigger to OFF on receiver via HTTP get command.
+        Set trigger to OFF on receiver.
 
         :param trigger: Trigger number to set to OFF. Valid values are 1-3.
         """
@@ -1356,7 +1379,7 @@ class DenonAVR(DenonAVRFoundation):
 
     async def async_trigger_toggle(self, trigger: int) -> None:
         """
-        Toggle trigger on receiver via HTTP get command.
+        Toggle trigger on receiver.
 
         Only available if using Telnet.
 
@@ -1366,7 +1389,7 @@ class DenonAVR(DenonAVRFoundation):
 
     async def async_quick_select_mode(self, quick_select_number: int) -> None:
         """
-        Set quick select mode on receiver via HTTP get command.
+        Set quick select mode on receiver.
 
         :param quick_select_number: Quick select number to set. Valid values are 1-5.
         """
@@ -1374,23 +1397,23 @@ class DenonAVR(DenonAVRFoundation):
 
     async def async_quick_select_memory(self, quick_select_number: int) -> None:
         """
-        Set quick select memory on receiver via HTTP get command.
+        Set quick select memory on receiver.
 
         :param quick_select_number: Quick select number to set. Valid values are 1-5.
         """
         await self._device.async_quick_select_memory(quick_select_number)
 
     async def async_hdmi_cec_on(self) -> None:
-        """Turn on HDMI CEC on receiver via HTTP get command."""
+        """Turn on HDMI CEC on receiver."""
         await self._device.async_hdmi_cec_on()
 
     async def async_hdmi_cec_off(self) -> None:
-        """Turn off HDMI CEC on receiver via HTTP get command."""
+        """Turn off HDMI CEC on receiver."""
         await self._device.async_hdmi_cec_off()
 
     async def async_illumination(self, mode: Illuminations):
         """
-        Set illumination mode on receiver via HTTP get command.
+        Set illumination mode on receiver.
 
         Only available for Marantz devices.
         """
@@ -1398,7 +1421,7 @@ class DenonAVR(DenonAVRFoundation):
 
     async def async_auto_lip_sync_on(self) -> None:
         """
-        Turn on auto lip sync on receiver via HTTP get command.
+        Turn on auto lip sync on receiver.
 
         Only available on Marantz devices.
         """
@@ -1406,7 +1429,7 @@ class DenonAVR(DenonAVRFoundation):
 
     async def async_auto_lip_sync_off(self) -> None:
         """
-        Turn off auto lip sync on receiver via HTTP get command.
+        Turn off auto lip sync on receiver.
 
         Only available on Marantz devices.
         """
@@ -1414,20 +1437,20 @@ class DenonAVR(DenonAVRFoundation):
 
     async def async_auto_lip_sync_toggle(self) -> None:
         """
-        Toggle auto lip sync on receiver via HTTP get command.
+        Toggle auto lip sync on receiver.
 
         Only available on Marantz devices and when using Telnet.
         """
         await self._device.async_auto_lip_sync_toggle()
 
     async def async_page_up(self) -> None:
-        """Page Up on receiver via HTTP get command."""
+        """Page Up on receiver."""
         await self._device.async_page_up()
 
     async def async_page_down(self) -> None:
-        """Page Down on receiver via HTTP get command."""
+        """Page Down on receiver."""
         await self._device.async_page_down()
 
     async def async_input_mode(self, mode: InputModes):
-        """Set input mode on receiver via HTTP get command."""
+        """Set input mode on receiver."""
         await self._device.async_input_mode(mode)
