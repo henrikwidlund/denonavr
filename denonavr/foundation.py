@@ -613,7 +613,7 @@ class DenonAVRDeviceInfo:
         if parameter.startswith("DELAY"):
             return
 
-        self._delay_time = int(parameter[4:])
+        self._delay_time = parameter[4:]
 
     def _audio_restorer_callback(self, _zone: str, parameter: str) -> None:
         """Handle an audio restorer change event."""
