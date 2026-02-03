@@ -917,6 +917,24 @@ class DenonAVR(DenonAVRFoundation):
         return self._device.max_frl_output
 
     @property
+    def colorspace_input(self) -> Optional[str]:
+        """
+        Return the colorspace input for the device.
+
+        Only available if using Telnet.
+        """
+        return self._device.colorspace_input
+
+    @property
+    def colorspace_output(self) -> Optional[str]:
+        """
+        Return the colorspace output for the device.
+
+        Only available if using Telnet.
+        """
+        return self._device.colorspace_output
+
+    @property
     def max_resolution(self) -> Optional[str]:
         """
         Return the max resolution for the current signal for the device.
