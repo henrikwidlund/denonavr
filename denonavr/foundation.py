@@ -393,6 +393,12 @@ class DenonAVRDeviceInfo:
     _max_frl_output: Optional[str] = attr.ib(
         converter=attr.converters.optional(convert_video_signal), default=None
     )
+    _colorspace_input: Optional[str] = attr.ib(
+        converter=attr.converters.optional(str), default=None
+    )
+    _colorspace_output: Optional[str] = attr.ib(
+        converter=attr.converters.optional(str), default=None
+    )
     _max_resolution: Optional[str] = attr.ib(
         converter=attr.converters.optional(str), default=None
     )
@@ -446,6 +452,7 @@ class DenonAVRDeviceInfo:
             "INFSIGHDR": self._hdr_callback,
             "INFSIGPIX": self._pixel_depth_callback,
             "INFSIGFRL": self._max_frl_callback,
+            "INFSIGCOS": self._colorspace_callback,
         }
 
         self._sy_handlers: Dict[str, Callable[[str], None]] = {
@@ -690,6 +697,23 @@ class DenonAVRDeviceInfo:
         elif parameter.startswith("INFSIGFRL O"):
             self._max_frl_output = parameter[12:]
 
+    def _colorspace_callback(self, parameter: str) -> None:
+        """Handle a colorspace event."""
+
+        def get_colorspace(value: str) -> str | None:
+            if value == "1":
+                return "4:2:2"
+            if value == "2":
+                return "4:4:4"
+            if value == "3":
+                return "RGB"
+            return None
+
+        key_value = parameter.split()
+        if len(key_value) == 2 and len(key_value[1]) == 2:
+            self._colorspace_input = get_colorspace(key_value[1][0])
+            self._colorspace_output = get_colorspace(key_value[1][1])
+
     def _max_resolution_callback(self, parameter: str) -> None:
         """Handle a max resolution change event."""
         key_value = parameter.split()
@@ -830,6 +854,7 @@ class DenonAVRDeviceInfo:
             "SSINFSIGHDR ?",
             "SSINFSIGPIX ?",
             "SSINFSIGFRL ?",
+            "SSINFSIGCOS ?",
         ]
         for command in commands:
             try:
@@ -1497,6 +1522,24 @@ class DenonAVRDeviceInfo:
         Only available if using Telnet.
         """
         return self._max_frl_output
+
+    @property
+    def colorspace_input(self) -> Optional[str]:
+        """
+        Return the colorspace input for the device.
+
+        Only available if using Telnet.
+        """
+        return self._colorspace_input
+
+    @property
+    def colorspace_output(self) -> Optional[str]:
+        """
+        Return the colorspace output for the device.
+
+        Only available if using Telnet.
+        """
+        return self._colorspace_output
 
     @property
     def max_resolution(self) -> Optional[str]:
