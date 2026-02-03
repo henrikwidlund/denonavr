@@ -95,7 +95,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_room_size returns early when room size matches."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._room_size_callback("ROOMS")
+        device._room_size_callback("Main", "ROOMS")
         await fixture.async_execute(device.async_room_size("S"))
         fixture.assert_not_called()
 
@@ -104,7 +104,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_room_size sends command if room size differs."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._room_size_callback("ROOMS")
+        device._room_size_callback("Main", "ROOMS")
         await fixture.async_execute(device.async_room_size("M"))
         fixture.assert_called_once()
 
@@ -113,7 +113,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_room_size raises on invalid room size."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._room_size_callback("ROOMS")
+        device._room_size_callback("Main", "ROOMS")
         with pytest.raises(AvrCommandError):
             await fixture.async_execute(device.async_room_size("INVALID"))
 
@@ -194,7 +194,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_delay_up returns early when delay is at max."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._delay_callback("DELAY 500")
+        device._delay_callback("Main", "DELAY 500")
         await fixture.async_execute(device.async_delay_up())
         fixture.assert_not_called()
 
@@ -203,7 +203,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_delay_up sends command if delay is not at max."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._delay_callback("DELAY 100")
+        device._delay_callback("Main", "DELAY 100")
         await fixture.async_execute(device.async_delay_up())
         fixture.assert_called_once()
 
@@ -212,7 +212,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_delay_down returns early when delay is at min."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._delay_callback("DELAY 000")
+        device._delay_callback("Main", "DELAY 000")
         await fixture.async_execute(device.async_delay_down())
         fixture.assert_not_called()
 
@@ -221,7 +221,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_delay_down sends command if delay is not at min."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._delay_callback("DELAY 100")
+        device._delay_callback("Main", "DELAY 100")
         await fixture.async_execute(device.async_delay_down())
         fixture.assert_called_once()
 
@@ -230,7 +230,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_delay returns early when delay matches."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._delay_callback("DELAY 100")
+        device._delay_callback("Main", "DELAY 100")
         await fixture.async_execute(device.async_delay(100))
         fixture.assert_not_called()
 
@@ -239,7 +239,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_delay sends command if delay differs."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._delay_callback("DELAY 100")
+        device._delay_callback("Main", "DELAY 100")
         await fixture.async_execute(device.async_delay(200))
         fixture.assert_called_once()
 
@@ -275,7 +275,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_hdmi_output returns early when HDMI output matches."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._hdmi_output_callback("MONI1")
+        device._hdmi_output_callback("Main", "MONI1")
         await fixture.async_execute(device.async_hdmi_output("HDMI1"))
         fixture.assert_not_called()
 
@@ -284,7 +284,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_hdmi_output sends command if HDMI output differs."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._hdmi_output_callback("MONIAUTO")
+        device._hdmi_output_callback("Main", "MONIAUTO")
         await fixture.async_execute(device.async_hdmi_output("HDMI2"))
         fixture.assert_called_once()
 
@@ -293,7 +293,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_hdmi_output raises on invalid HDMI output."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._hdmi_output_callback("MONI1")
+        device._hdmi_output_callback("Main", "MONI1")
         with pytest.raises(AvrCommandError):
             await device.async_hdmi_output("InvalidOutput")
 
@@ -302,7 +302,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_hdmi_audio_decode returns early when setting matches."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._hdmi_audio_decode_callback("AUDIO AMP")
+        device._hdmi_audio_decode_callback("Main", "AUDIO AMP")
         await fixture.async_execute(device.async_hdmi_audio_decode("AMP"))
         fixture.assert_not_called()
 
@@ -311,7 +311,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_hdmi_audio_decode sends command if setting differs."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._hdmi_audio_decode_callback("AUDIO AMP")
+        device._hdmi_audio_decode_callback("Main", "AUDIO AMP")
         await fixture.async_execute(device.async_hdmi_audio_decode("TV"))
         fixture.assert_called_once()
 
@@ -320,7 +320,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_hdmi_audio_decode raises on invalid setting."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._hdmi_audio_decode_callback("Auto")
+        device._hdmi_audio_decode_callback("Main", "Auto")
         with pytest.raises(AvrCommandError):
             await device.async_hdmi_audio_decode("InvalidMode")
 
@@ -329,7 +329,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_video_processing_mode returns early when mode matches."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._video_processing_mode_callback("VPMAUTO")
+        device._video_processing_mode_callback("Main", "VPMAUTO")
         await fixture.async_execute(device.async_video_processing_mode("Auto"))
         fixture.assert_not_called()
 
@@ -338,7 +338,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_video_processing_mode sends command if mode differs."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._video_processing_mode_callback("VPMAUTO")
+        device._video_processing_mode_callback("Main", "VPMAUTO")
         await fixture.async_execute(device.async_video_processing_mode("Movie"))
         fixture.assert_called_once()
 
@@ -347,7 +347,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_video_processing_mode raises on invalid mode."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._video_processing_mode_callback("VPMAUTO")
+        device._video_processing_mode_callback("Main", "VPMAUTO")
         with pytest.raises(AvrCommandError):
             await device.async_video_processing_mode("InvalidMode")
 
@@ -419,7 +419,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_delay_time_up returns early when delay time is at max."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._delay_time_callback("DEL 300")
+        device._delay_time_callback("Main", "DEL 300")
         await fixture.async_execute(device.async_delay_time_up())
         fixture.assert_not_called()
 
@@ -428,7 +428,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_delay_time_up sends command if delay time is not at max."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._delay_time_callback("DEL 100")
+        device._delay_time_callback("Main", "DEL 100")
         await fixture.async_execute(device.async_delay_time_up())
         fixture.assert_called_once()
 
@@ -437,7 +437,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_delay_time_down returns early when delay time is at min."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._delay_time_callback("DEL 000")
+        device._delay_time_callback("Main", "DEL 000")
         await fixture.async_execute(device.async_delay_time_down())
         fixture.assert_not_called()
 
@@ -446,7 +446,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_delay_time_down sends command if delay time is not at min."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._delay_time_callback("DEL 100")
+        device._delay_time_callback("Main", "DEL 100")
         await fixture.async_execute(device.async_delay_time_down())
         fixture.assert_called_once()
 
@@ -455,7 +455,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_delay_time returns early when delay time matches."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._delay_time_callback("DEL 100")
+        device._delay_time_callback("Main", "DEL 100")
         await fixture.async_execute(device.async_delay_time(100))
         fixture.assert_not_called()
 
@@ -464,7 +464,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_delay_time sends command if delay time differs."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._delay_time_callback("DELAYT 100")
+        device._delay_time_callback("Main", "DELAYT 100")
         await fixture.async_execute(device.async_delay_time(200))
         fixture.assert_called_once()
 
@@ -473,7 +473,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_audio_restorer_low returns early when setting is low."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._audio_restorer_callback("RSTR LOW")
+        device._audio_restorer_callback("Main", "RSTR LOW")
         await fixture.async_execute(device.async_audio_restorer("Low"))
         fixture.assert_not_called()
 
@@ -482,7 +482,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_audio_restorer_low sends command if setting is off."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._audio_restorer_callback("RSTR OFF")
+        device._audio_restorer_callback("Main", "RSTR OFF")
         await fixture.async_execute(device.async_audio_restorer("Low"))
         fixture.assert_called_once()
 
@@ -491,7 +491,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_graphic_eq_on returns early when graphic EQ is on."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._graphic_eq_callback("GEQ ON")
+        device._graphic_eq_callback("Main", "GEQ ON")
         await fixture.async_execute(device.async_graphic_eq_on())
         fixture.assert_not_called()
 
@@ -500,7 +500,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_graphic_eq_on sends command if graphic EQ is off."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._graphic_eq_callback("GEQ OFF")
+        device._graphic_eq_callback("Main", "GEQ OFF")
         await fixture.async_execute(device.async_graphic_eq_on())
         fixture.assert_called_once()
 
@@ -509,7 +509,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_graphic_eq_off returns early when graphic EQ is off."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._graphic_eq_callback("GEQ OFF")
+        device._graphic_eq_callback("Main", "GEQ OFF")
         await fixture.async_execute(device.async_graphic_eq_off())
         fixture.assert_not_called()
 
@@ -518,7 +518,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_graphic_eq_off sends command if graphic EQ is on."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._graphic_eq_callback("GEQ ON")
+        device._graphic_eq_callback("Main", "GEQ ON")
         await fixture.async_execute(device.async_graphic_eq_off())
         fixture.assert_called_once()
 
@@ -527,7 +527,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_headphone_eq_on returns early when headphone EQ is on."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._headphone_eq_callback("HEQ ON")
+        device._headphone_eq_callback("Main", "HEQ ON")
         await fixture.async_execute(device.async_headphone_eq_on())
         fixture.assert_not_called()
 
@@ -536,7 +536,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_headphone_eq_on sends command if headphone EQ is off."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._headphone_eq_callback("HEQ OFF")
+        device._headphone_eq_callback("Main", "HEQ OFF")
         await fixture.async_execute(device.async_headphone_eq_on())
         fixture.assert_called_once()
 
@@ -545,7 +545,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_headphone_eq_off returns early when headphone EQ is off."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._headphone_eq_callback("HEQ OFF")
+        device._headphone_eq_callback("Main", "HEQ OFF")
         await fixture.async_execute(device.async_headphone_eq_off())
         fixture.assert_not_called()
 
@@ -554,7 +554,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_headphone_eq_off sends command if headphone EQ is on."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._headphone_eq_callback("HEQ ON")
+        device._headphone_eq_callback("Main", "HEQ ON")
         await fixture.async_execute(device.async_headphone_eq_off())
         fixture.assert_called_once()
 
@@ -653,7 +653,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_audio_restorer returns early when setting matches."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._audio_restorer_callback("RSTR OFF")
+        device._audio_restorer_callback("Main", "RSTR OFF")
         await fixture.async_execute(device.async_audio_restorer("Off"))
         fixture.assert_not_called()
 
@@ -662,7 +662,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_audio_restorer sends command if setting differs."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._audio_restorer_callback("RSTR OFF")
+        device._audio_restorer_callback("Main", "RSTR OFF")
         await fixture.async_execute(device.async_audio_restorer("High"))
         fixture.assert_called_once()
 
@@ -671,7 +671,7 @@ class TestDenonAVRDeviceInfo:
         """Test that async_audio_restorer raises on invalid setting."""
         fixture = DeviceTestFixture(True)
         device = fixture.device_info
-        device._audio_restorer_callback("RSTR OFF")
+        device._audio_restorer_callback("Main", "RSTR OFF")
         with pytest.raises(AvrCommandError):
             await device.async_audio_restorer("Max")
 

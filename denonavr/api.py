@@ -682,6 +682,8 @@ class DenonAVRTelnetApi:
                 "PSIMAXSWO ?",  # Subwoofer Output LFE+Main/LFE
                 "PSSWL ?",  # Subwoofer Level
                 "STBY?",  # Auto Standby
+                "Z2STBY?",  # Auto Standby
+                "Z3STBY?",  # Auto Standby
                 "SLP?",  # Sleep
                 "VSVPM ?",  # Video Process
                 "PSLFE ?",  # LFE Level

@@ -397,10 +397,11 @@ class DenonAVRDeviceInfo:
         converter=attr.converters.optional(str), default=None
     )
     _is_setup: bool = attr.ib(converter=bool, default=False, init=False)
-    _allow_recovery: bool = attr.ib(converter=bool, default=True, init=True)
     _setup_lock: asyncio.Lock = attr.ib(default=attr.Factory(asyncio.Lock))
     _op_handlers: Dict[str, Callable[[str], None]] = attr.ib(factory=dict, init=False)
-    _ps_handlers: Dict[str, Callable[[str], None]] = attr.ib(factory=dict, init=False)
+    _ps_handlers: Dict[str, Callable[[str, str], None]] = attr.ib(
+        factory=dict, init=False
+    )
     _ss_handlers: Dict[str, Callable[[str], None]] = attr.ib(factory=dict, init=False)
     _sy_handlers: Dict[str, Callable[[str], None]] = attr.ib(factory=dict, init=False)
     _vs_handlers: Dict[str, Callable[[str], None]] = attr.ib(factory=dict, init=False)
@@ -425,7 +426,7 @@ class DenonAVRDeviceInfo:
             "INFINS": self._input_channel_callback,
         }
 
-        self._ps_handlers: Dict[str, Callable[[str], None]] = {
+        self._ps_handlers: Dict[str, Callable[[str, str], None]] = {
             # Note order, 'DELAY' must be before 'DEL' because of startswith check
             "DELAY": self._delay_callback,
             "DEL": self._delay_time_callback,
@@ -479,19 +480,23 @@ class DenonAVRDeviceInfo:
 
     def _auto_standby_callback(self, zone: str, _event: str, parameter: str) -> None:
         """Handle an auto standby change event."""
-        if zone == "Main":
+        if zone == self.zone:
             self._auto_standby = parameter
 
-    def _auto_sleep_callback(self, _zone: str, _event: str, parameter: str) -> None:
+    def _auto_sleep_callback(self, zone: str, _event: str, parameter: str) -> None:
         """Handle a sleep change event."""
+        if zone != self.zone:
+            return
+
         if parameter == "OFF":
             self._sleep = parameter
         else:
             self._sleep = int(parameter)
 
-    def _room_size_callback(self, parameter: str) -> None:
+    def _room_size_callback(self, zone: str, parameter: str) -> None:
         """Handle a room size change event."""
-        self._room_size = parameter[4:]
+        if zone == self.zone:
+            self._room_size = parameter[4:]
 
     def _trigger_callback(self, _zone: str, _event: str, parameter: str) -> None:
         """Handle a trigger change event."""
@@ -511,11 +516,11 @@ class DenonAVRDeviceInfo:
                 handler(parameter)
                 return
 
-    def _ps_callback(self, _zone: str, _event: str, parameter: str) -> None:
+    def _ps_callback(self, zone: str, _event: str, parameter: str) -> None:
         """Handle a PS change event."""
         for prefix, handler in self._ps_handlers.items():
             if parameter.startswith(prefix):
-                handler(parameter)
+                handler(zone, parameter)
                 return
 
     def _op_callback(self, _zone: str, _event: str, parameter: str) -> None:
@@ -525,27 +530,30 @@ class DenonAVRDeviceInfo:
                 handler(parameter)
                 return
 
-    def _delay_callback(self, parameter: str) -> None:
+    def _delay_callback(self, zone: str, parameter: str) -> None:
         """Handle a delay change event."""
-        if parameter.startswith("DELAY"):
-            self._delay = int(parameter[6:])
+        if zone == self.zone and parameter.startswith("DELAY"):
+            self._delay = parameter[6:]
 
-    def _eco_mode_callback(self, _zone: str, _event: str, parameter: str) -> None:
+    def _eco_mode_callback(self, zone: str, _event: str, parameter: str) -> None:
         """Handle an Eco-mode change event."""
-        if parameter in ECO_MODE_MAP_TELNET:
+        if zone == self.zone and parameter in ECO_MODE_MAP_TELNET:
             self._eco_mode = parameter
 
-    def _hdmi_output_callback(self, parameter: str) -> None:
+    def _hdmi_output_callback(self, zone: str, parameter: str) -> None:
         """Handle a HDMI output change event."""
-        self._hdmi_output = parameter
+        if zone == self.zone:
+            self._hdmi_output = parameter
 
-    def _hdmi_audio_decode_callback(self, parameter: str) -> None:
+    def _hdmi_audio_decode_callback(self, zone: str, parameter: str) -> None:
         """Handle a HDMI Audio Decode mode change event."""
-        self._hdmi_audio_decode = parameter[6:]
+        if zone == self.zone:
+            self._hdmi_audio_decode = parameter[6:]
 
-    def _video_processing_mode_callback(self, parameter: str) -> None:
+    def _video_processing_mode_callback(self, zone: str, parameter: str) -> None:
         """Handle a Video Processing Mode change event."""
-        self._video_processing_mode = parameter[3:]
+        if zone == self.zone:
+            self._video_processing_mode = parameter[3:]
 
     def _ss_callback(self, _zone: str, _event: str, parameter: str) -> None:
         """Handle a SS change event."""
@@ -577,7 +585,7 @@ class DenonAVRDeviceInfo:
         elif key == "TTRLEV":
             self._tactile_transducer_level = CHANNEL_VOLUME_MAP[value]
         elif key == "TTRLPF":
-            self._tactile_transducer_lpf = f"{int(value)} Hz"
+            self._tactile_transducer_lpf = f"{value} Hz"
 
     def _speaker_preset_callback(self, _zone: str, _event: str, parameter: str) -> None:
         """Handle a speaker preset change event."""
@@ -599,7 +607,7 @@ class DenonAVRDeviceInfo:
         else:
             self._bt_output_mode = parameter[3:]
 
-    def _delay_time_callback(self, parameter: str) -> None:
+    def _delay_time_callback(self, _zone: str, parameter: str) -> None:
         """Handle a delay time change event."""
         # do not match "DELAY" as it's another event
         if parameter.startswith("DELAY"):
@@ -607,15 +615,15 @@ class DenonAVRDeviceInfo:
 
         self._delay_time = int(parameter[4:])
 
-    def _audio_restorer_callback(self, parameter: str) -> None:
+    def _audio_restorer_callback(self, _zone: str, parameter: str) -> None:
         """Handle an audio restorer change event."""
         self._audio_restorer = parameter[5:]
 
-    def _graphic_eq_callback(self, parameter: str) -> None:
+    def _graphic_eq_callback(self, _zone: str, parameter: str) -> None:
         """Handle a Graphic EQ change event."""
         self._graphic_eq = parameter[4:]
 
-    def _headphone_eq_callback(self, parameter: str) -> None:
+    def _headphone_eq_callback(self, _zone: str, parameter: str) -> None:
         """Handle a Headphone EQ change event."""
         if parameter.startswith("HEQ"):
             self._headphone_eq = parameter[4:]
