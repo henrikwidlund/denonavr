@@ -451,7 +451,7 @@ class DenonAVRVolume(DenonAVRFoundation):
                 )
 
     async def async_mute_toggle(self) -> None:
-        """Mute toggle receiver via HTTP get command."""
+        """Mute toggle receiver."""
         if self._muted:
             if self._device.telnet_available:
                 await self._device.telnet_api.async_send_commands(

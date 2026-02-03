@@ -1946,7 +1946,7 @@ class DenonAVRDeviceInfo:
 
     async def async_delay(self, delay: int) -> None:
         """
-        Set delay on receiver via HTTP get command.
+        Set delay on receiver.
 
         :param delay: Delay time in ms. Valid values are 0-500.
         """
