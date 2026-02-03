@@ -1038,7 +1038,7 @@ class DenonAVR(DenonAVRFoundation):
         await self.vol.async_mute(mute)
 
     async def async_mute_toggle(self) -> None:
-        """Mute toggle receiver via HTTP get command."""
+        """Mute toggle receiver."""
         await self.vol.async_mute_toggle()
 
     async def async_enable_tone_control(self) -> None:
@@ -1177,7 +1177,7 @@ class DenonAVR(DenonAVRFoundation):
 
     async def async_delay(self, delay: int) -> None:
         """
-        Set delay on receiver via HTTP get command.
+        Set delay on receiver.
 
         :param delay: Delay time in ms. Valid values are 0-500.
         """

@@ -212,7 +212,7 @@ class DenonAVRVolume(DenonAVRFoundation):
 
     def _bass_sync_callback(self, parameter: str) -> None:
         """Handle a Bass Sync change event."""
-        self._bass_sync = int(parameter[4:])
+        self._bass_sync = parameter[4:]
 
     async def async_update(
         self, global_update: bool = False, cache_id: Optional[Hashable] = None
@@ -451,7 +451,7 @@ class DenonAVRVolume(DenonAVRFoundation):
                 )
 
     async def async_mute_toggle(self) -> None:
-        """Mute toggle receiver via HTTP get command."""
+        """Mute toggle receiver."""
         if self._muted:
             if self._device.telnet_available:
                 await self._device.telnet_api.async_send_commands(
