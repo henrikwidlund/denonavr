@@ -590,7 +590,7 @@ class DenonAVRDeviceInfo:
     def _speaker_preset_callback(self, _zone: str, _event: str, parameter: str) -> None:
         """Handle a speaker preset change event."""
         if parameter.startswith("PR"):
-            self._speaker_preset = int(parameter[3:])
+            self._speaker_preset = parameter[3:]
 
     def _bt_callback(self, _zone: str, _event: str, parameter: str) -> None:
         """Handle a Bluetooth change event."""
