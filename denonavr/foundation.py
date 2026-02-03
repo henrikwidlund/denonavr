@@ -404,7 +404,9 @@ class DenonAVRDeviceInfo:
     )
     _ss_handlers: Dict[str, Callable[[str], None]] = attr.ib(factory=dict, init=False)
     _sy_handlers: Dict[str, Callable[[str], None]] = attr.ib(factory=dict, init=False)
-    _vs_handlers: Dict[str, Callable[[str], None]] = attr.ib(factory=dict, init=False)
+    _vs_handlers: Dict[str, Callable[[str, str], None]] = attr.ib(
+        factory=dict, init=False
+    )
 
     def __attrs_post_init__(self) -> None:
         """Initialize special attributes and callbacks."""
@@ -453,7 +455,7 @@ class DenonAVRDeviceInfo:
             "INFSIGRES": self._video_signal_callback,
         }
 
-        self._vs_handlers: Dict[str, Callable[[str], None]] = {
+        self._vs_handlers: Dict[str, Callable[[str, str], None]] = {
             "MONI": self._hdmi_output_callback,
             "AUDIO": self._hdmi_audio_decode_callback,
             "VPM": self._video_processing_mode_callback,
@@ -509,11 +511,11 @@ class DenonAVRDeviceInfo:
 
         self._triggers[int(values[0])] = values[1]
 
-    def _vs_callback(self, _zone: str, _event: str, parameter: str) -> None:
+    def _vs_callback(self, zone: str, _event: str, parameter: str) -> None:
         """Handle a VS change event."""
         for prefix, handler in self._vs_handlers.items():
             if parameter.startswith(prefix):
-                handler(parameter)
+                handler(zone, parameter)
                 return
 
     def _ps_callback(self, zone: str, _event: str, parameter: str) -> None:
@@ -585,7 +587,7 @@ class DenonAVRDeviceInfo:
         elif key == "TTRLEV":
             self._tactile_transducer_level = CHANNEL_VOLUME_MAP[value]
         elif key == "TTRLPF":
-            self._tactile_transducer_lpf = f"{value} Hz"
+            self._tactile_transducer_lpf = f"{int(value)} Hz"
 
     def _speaker_preset_callback(self, _zone: str, _event: str, parameter: str) -> None:
         """Handle a speaker preset change event."""
