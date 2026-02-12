@@ -413,6 +413,7 @@ class DenonAVRDeviceInfo:
     _vs_handlers: Dict[str, Callable[[str, str], None]] = attr.ib(
         factory=dict, init=False
     )
+    _is_dirac_supported: bool = attr.ib(converter=bool, default=False, init=False)
 
     def __attrs_post_init__(self) -> None:
         """Initialize special attributes and callbacks."""
@@ -909,6 +910,8 @@ class DenonAVRDeviceInfo:
                 device_zones = xml.find("./DeviceZones")
                 if device_zones is not None:
                     self.zones = device_zones.text
+
+                self._is_dirac_supported = xml.find(".//DiracLive") is not None
 
                 is_avr_x = self._is_avr_x(xml)
                 if is_avr_x:
@@ -1561,6 +1564,11 @@ class DenonAVRDeviceInfo:
         if not self.manufacturer:
             return True  # Fallback to Denon
         return "denon" in self.manufacturer.lower()
+
+    @property
+    def is_dirac_supported(self) -> Optional[bool]:
+        """Return true if Dirac is supported by the device."""
+        return self._is_dirac_supported
 
     ##########
     # Getter #
