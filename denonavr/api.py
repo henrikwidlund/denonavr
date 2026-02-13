@@ -562,7 +562,7 @@ class DenonAVRTelnetApi:
     # Keep track of the following events since they are sent
     # when manually requesting updates. The receiver will send them back,
     # even if they've not changed.
-    _potential_duplicate_events: dict[str, str] = attr.ib(
+    _potential_duplicate_events: Dict[str, str] = attr.ib(
         init=False,
         default=attr.Factory(
             lambda: {
