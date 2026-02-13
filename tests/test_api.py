@@ -37,3 +37,4 @@ def test_should_propagate_event_no_match():
     """Test that the event is propagated when the parameter is not a duplicate key."""
     tracker = {k: "" for k in _EVENTS_PRODUCING_DUPLICATES}
     assert _should_propagate_event("EV", "UNRELATED_PARAM", tracker)
+    assert all(value == "" for value in tracker.values())
