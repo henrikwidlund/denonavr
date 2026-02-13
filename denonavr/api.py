@@ -564,18 +564,20 @@ class DenonAVRTelnetApi:
     # even if they've not changed.
     _potential_duplicate_events: dict[str, str] = attr.ib(
         init=False,
-        factory=lambda: {
-            "INFSIGRES I": "",
-            "INFSIGRES O": "",
-            "SDVIN ": "",
-            "SDVOUT ": "",
-            "INFSIGHDR I": "",
-            "INFSIGHDR O": "",
-            "INFSIGPIX": "",
-            "INFSIGFRL I": "",
-            "INFSIGFRL O": "",
-            "INFSIGCOS": "",
-        },
+        default=attr.Factory(
+            lambda: {
+                "INFSIGRES I": "",
+                "INFSIGRES O": "",
+                "SDVIN ": "",
+                "SDVOUT ": "",
+                "INFSIGHDR I": "",
+                "INFSIGHDR O": "",
+                "INFSIGPIX": "",
+                "INFSIGFRL I": "",
+                "INFSIGFRL O": "",
+                "INFSIGCOS": "",
+            }
+        ),
     )
 
     def __attrs_post_init__(self) -> None:
