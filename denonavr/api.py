@@ -937,6 +937,7 @@ class DenonAVRTelnetApi:
                     )
                     return
                 self._potential_duplicate_events[key] = parameter
+                break
 
         self._run_callbacks(message, event, zone, parameter)
 
