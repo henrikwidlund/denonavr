@@ -9,7 +9,7 @@ This module covers some basic automated tests for the api module.
 
 # pylint: disable=protected-access
 
-from denonavr.api import _should_propagate_event, _EVENTS_PRODUCING_DUPLICATES
+from denonavr.api import _EVENTS_PRODUCING_DUPLICATES, _should_propagate_event
 
 
 def test_should_propagate_event_initial():
