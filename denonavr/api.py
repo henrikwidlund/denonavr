@@ -926,7 +926,7 @@ class DenonAVRTelnetApi:
         # check if the parameter is the same as the last one and ignore
         # if so to prevent triggering callbacks twice.
         # Update the last parameter for the event otherwise.
-        for _i, key in enumerate(self._potential_duplicate_events.keys()):
+        for key in self._potential_duplicate_events:
             if parameter.startswith(key):
                 current_value = self._potential_duplicate_events[key]
                 if parameter == current_value:
