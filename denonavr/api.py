@@ -864,6 +864,21 @@ class DenonAVRTelnetApi:
         """Unregister a callback handler for raw telnet messages."""
         self._raw_callbacks.remove(callback)
 
+    # Keep track of the following events since they are sent when manually requesting updates.
+    # The receiver will send them back, even if they've not changed.
+    _potential_duplicate_events: dict[str, str] = {
+        "INFSIGRES I": "",
+        "INFSIGRES O": "",
+        "SDVIN ": "",
+        "SDVOUT ": "",
+        "INFSIGHDR I": "",
+        "INFSIGHDR O": "",
+        "INFSIGPIX": "",
+        "INFSIGFRL I": "",
+        "INFSIGFRL O": "",
+        "INFSIGCOS": "",
+    }
+
     def _process_event(self, message: str) -> None:
         """Process a realtime event."""
         _LOGGER.debug("Incoming Telnet message: %s", message)
@@ -902,6 +917,21 @@ class DenonAVRTelnetApi:
 
         if event not in TELNET_EVENTS:
             return
+
+        # For events that are sent when manually requesting updates,
+        # check if the parameter is the same as the last one and ignore if so to prevent triggering callbacks twice.
+        # Update the last parameter for the event otherwise.
+        for _i, key in enumerate(self._potential_duplicate_events.keys()):
+            if parameter.startswith(key):
+                current_value = self._potential_duplicate_events[key]
+                if parameter == current_value:
+                    _LOGGER.debug(
+                        "Duplicate message received for event %s with parameter %s, ignoring",
+                        event,
+                        parameter,
+                    )
+                    return
+                self._potential_duplicate_events[key] = parameter
 
         self._run_callbacks(message, event, zone, parameter)
 
