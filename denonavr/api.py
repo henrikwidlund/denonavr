@@ -57,6 +57,19 @@ _MONITOR_INTERVAL = 30
 _DENON_UPDATE_COMMANDS: List[str] | None = None
 _MARANTZ_UPDATE_COMMANDS: List[str] | None = None
 
+_EVENTS_PRODUCING_DUPLICATES = [
+    "INFSIGRES I",
+    "INFSIGRES O",
+    "SDVIN ",
+    "SDVOUT ",
+    "INFSIGHDR I",
+    "INFSIGHDR O",
+    "INFSIGPIX",
+    "INFSIGFRL I",
+    "INFSIGFRL O",
+    "INFSIGCOS",
+]
+
 
 def telnet_event_map_factory() -> Dict[str, List]:
     """Create telnet event map."""
@@ -559,6 +572,14 @@ class DenonAVRTelnetApi:
     )
     _update_callback_tasks: Set[asyncio.Task] = attr.ib(default=attr.Factory(set))
 
+    # Keep track of the following events since they are sent
+    # when manually requesting updates. The receiver will send them back,
+    # even if they've not changed.
+    _potential_duplicate_events: Dict[str, str] = attr.ib(
+        init=False,
+        default=attr.Factory(lambda: {k: "" for k in _EVENTS_PRODUCING_DUPLICATES}),
+    )
+
     def __attrs_post_init__(self) -> None:
         """Initialize special attributes."""
         self._register_raw_callback(self._send_confirmation_callback)
@@ -903,7 +924,8 @@ class DenonAVRTelnetApi:
         if event not in TELNET_EVENTS:
             return
 
-        self._run_callbacks(message, event, zone, parameter)
+        if _should_propagate_event(event, parameter, self._potential_duplicate_events):
+            self._run_callbacks(message, event, zone, parameter)
 
     def _run_callbacks(
         self, message: str, event: str, zone: str, parameter: str
@@ -1049,3 +1071,23 @@ class DenonAVRTelnetApi:
     def healthy(self) -> bool:
         """Return True if telnet connection is healthy."""
         return self._protocol is not None and self._protocol.connected
+
+
+def _should_propagate_event(
+    event: str, parameter: str, duplicate_tracker_map: Dict[str, str]
+) -> bool:
+    """Determine if an event should be propagated."""
+    for key in duplicate_tracker_map:
+        if parameter.startswith(key):
+            current_value = duplicate_tracker_map[key]
+            if parameter == current_value:
+                _LOGGER.debug(
+                    "Ignoring duplicate event %s with parameter %s",
+                    event,
+                    parameter,
+                )
+                return False
+            duplicate_tracker_map[key] = parameter
+            return True
+
+    return True
