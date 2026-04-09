@@ -69,6 +69,10 @@ _EVENTS_PRODUCING_DUPLICATES = [
     "INFSIGFRL O",
     "INFSIGCOS",
     "HDMIDIAGMAXRES",
+    "INFASP",
+    "INFINS",
+    "SYSDA",
+    "SYSMI",
 ]
 
 

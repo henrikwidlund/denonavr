@@ -834,13 +834,13 @@ class DenonAVRDeviceInfo:
         else:
             await self.async_update_status_xml(cache_id=cache_id)
 
-        await self.async_trigger_advanced_video_info_update()
+        await self.async_trigger_advanced_audio_video_info_update()
 
         _LOGGER.debug("Finished device update")
 
-    async def async_trigger_advanced_video_info_update(self) -> None:
+    async def async_trigger_advanced_audio_video_info_update(self) -> None:
         """
-        Trigger an advanced video info update.
+        Trigger an advanced audio and video info update.
 
         Only available if using Telnet.
         """
@@ -856,13 +856,17 @@ class DenonAVRDeviceInfo:
             "SSINFSIGPIX ?",
             "SSINFSIGFRL ?",
             "SSINFSIGCOS ?",
+            "INFASP ?",
+            "INFINS ?",
+            "SYSDA ?",
+            "SYSMI ?",
         ]
         for command in commands:
             try:
                 await self.telnet_api.async_send_commands(
                     command, skip_confirmation=True
                 )
-                await asyncio.sleep(0.05)
+                await asyncio.sleep(0.075)
             except Exception:  # pylint: disable=broad-except
                 _LOGGER.debug(
                     "Failed to send advanced video info command: %s.", command

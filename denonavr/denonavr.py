@@ -244,13 +244,13 @@ class DenonAVR(DenonAVRFoundation):
 
         _LOGGER.debug("Finished denonavr update")
 
-    async def async_trigger_advanced_video_info_update(self) -> None:
+    async def async_trigger_advanced_audio_video_info_update(self) -> None:
         """
-        Trigger an advanced video info update.
+        Trigger an advanced audio and video info update.
 
         Only available if using Telnet.
         """
-        await self._device.async_trigger_advanced_video_info_update()
+        await self._device.async_trigger_advanced_audio_video_info_update()
 
     async def async_update_tonecontrol(self):
         """Get Tonecontrol settings."""
