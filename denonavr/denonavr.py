@@ -1480,3 +1480,7 @@ class DenonAVR(DenonAVRFoundation):
     async def async_input_mode(self, mode: InputModes):
         """Set input mode on receiver."""
         await self._device.async_input_mode(mode)
+
+    def clear_duplicate_event_cache(self) -> None:
+        """Clear the cache for potential duplicate events."""
+        self._device.telnet_api.clear_duplicate_event_cache()
