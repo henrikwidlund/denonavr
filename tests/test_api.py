@@ -9,7 +9,12 @@ This module covers some basic automated tests for the api module.
 
 # pylint: disable=protected-access
 
-from denonavr.api import _EVENTS_PRODUCING_DUPLICATES, _should_propagate_event
+
+from denonavr.api import (
+    _EVENTS_PRODUCING_DUPLICATES,
+    _should_propagate_event,
+    DenonAVRTelnetApi,
+)
 
 
 def test_should_propagate_event_initial():
@@ -38,3 +43,25 @@ def test_should_propagate_event_no_match():
     tracker = {k: "" for k in _EVENTS_PRODUCING_DUPLICATES}
     assert _should_propagate_event("EV", "UNRELATED_PARAM", tracker)
     assert all(value == "" for value in tracker.values())
+
+
+def test_duplicate_event_cache_propagation():
+    """Test duplicate event suppression and cache clearing in DenonAVRTelnetApi."""
+    api = DenonAVRTelnetApi()
+    duplicate_key = next(iter(api._potential_duplicate_events.keys()))
+    param1 = duplicate_key + "_val1"
+    param2 = duplicate_key + "_val1"  # duplicate
+
+    # Use the module-level _should_propagate_event, not as a method
+    from denonavr.api import _should_propagate_event
+
+    assert _should_propagate_event(
+        duplicate_key, param1, api._potential_duplicate_events
+    )
+    assert not _should_propagate_event(
+        duplicate_key, param2, api._potential_duplicate_events
+    )
+    api.clear_duplicate_event_cache()
+    assert _should_propagate_event(
+        duplicate_key, param1, api._potential_duplicate_events
+    )
