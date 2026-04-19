@@ -1064,6 +1064,11 @@ class DenonAVRTelnetApi:
         self._send_tasks.add(task)
         task.add_done_callback(self._send_tasks.discard)
 
+    def clear_duplicate_event_cache(self):
+        """Clear the cache for potential duplicate events."""
+        for key in self._potential_duplicate_events:
+            self._potential_duplicate_events[key] = ""
+
     ##############
     # Properties #
     ##############
