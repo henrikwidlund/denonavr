@@ -12,8 +12,8 @@ This module covers some basic automated tests for the api module.
 
 from denonavr.api import (
     _EVENTS_PRODUCING_DUPLICATES,
-    _should_propagate_event,
     DenonAVRTelnetApi,
+    _should_propagate_event,
 )
 
 
@@ -48,20 +48,11 @@ def test_should_propagate_event_no_match():
 def test_duplicate_event_cache_propagation():
     """Test duplicate event suppression and cache clearing in DenonAVRTelnetApi."""
     api = DenonAVRTelnetApi()
-    duplicate_key = next(iter(api._potential_duplicate_events.keys()))
+    duplicate_key = next(iter(_EVENTS_PRODUCING_DUPLICATES))
     param1 = duplicate_key + "_val1"
     param2 = duplicate_key + "_val1"  # duplicate
 
-    # Use the module-level _should_propagate_event, not as a method
-    from denonavr.api import _should_propagate_event
-
-    assert _should_propagate_event(
-        duplicate_key, param1, api._potential_duplicate_events
-    )
-    assert not _should_propagate_event(
-        duplicate_key, param2, api._potential_duplicate_events
-    )
+    assert _should_propagate_event("EV", param1, api._potential_duplicate_events)
+    assert not _should_propagate_event("EV", param2, api._potential_duplicate_events)
     api.clear_duplicate_event_cache()
-    assert _should_propagate_event(
-        duplicate_key, param1, api._potential_duplicate_events
-    )
+    assert _should_propagate_event("EV", param1, api._potential_duplicate_events)
