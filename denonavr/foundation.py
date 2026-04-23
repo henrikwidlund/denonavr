@@ -856,8 +856,8 @@ class DenonAVRDeviceInfo:
             "SSINFSIGPIX ?",
             "SSINFSIGFRL ?",
             "SSINFSIGCOS ?",
-            "INFASP ?",
-            "INFINS ?",
+            "OPINFASP ?",
+            "OPINFINS ?",
             "SYSDA ?",
             "SYSMI ?",
         ]
