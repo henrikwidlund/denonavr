@@ -32,18 +32,23 @@ class DeviceTestFixture:
 
     async def async_execute(self, action: Awaitable[Any]):
         """Execute an async action within the patched context."""
-        with patch.object(
-            type(self.device_info),
-            "telnet_available",
-            new_callable=PropertyMock,
-            return_value=True,
-        ), patch.object(
-            self.api, "async_get_command", new_callable=AsyncMock
-        ) as mock_get, patch.object(
-            self.api, "async_post_appcommand", new_callable=AsyncMock
-        ) as mock_post, patch.object(
-            self.telnet_api, "async_send_commands", new_callable=AsyncMock
-        ) as mock_telnet:
+        with (
+            patch.object(
+                type(self.device_info),
+                "telnet_available",
+                new_callable=PropertyMock,
+                return_value=True,
+            ),
+            patch.object(
+                self.api, "async_get_command", new_callable=AsyncMock
+            ) as mock_get,
+            patch.object(
+                self.api, "async_post_appcommand", new_callable=AsyncMock
+            ) as mock_post,
+            patch.object(
+                self.telnet_api, "async_send_commands", new_callable=AsyncMock
+            ) as mock_telnet,
+        ):
             await action
 
         self._mock_get = mock_get
