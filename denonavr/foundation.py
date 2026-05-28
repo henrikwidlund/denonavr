@@ -1758,7 +1758,7 @@ class DenonAVRDeviceInfo:
 
         Valid sleep values are "OFF" and 1-120 (in minutes)
         """
-        if sleep != "OFF" and sleep not in range(1, 120):
+        if sleep != "OFF" and sleep not in range(1, 121):
             raise AvrCommandError("Invalid sleep value")
 
         if self._sleep == sleep:
@@ -1937,7 +1937,7 @@ class DenonAVRDeviceInfo:
 
         :param quick_select_number: Quick select number to set. Valid values are 1-5.
         """
-        if quick_select_number not in range(1, 5):
+        if quick_select_number not in range(1, 6):
             raise AvrCommandError("Quick select number must be between 1 and 5")
 
         if self.telnet_available:
@@ -1961,7 +1961,7 @@ class DenonAVRDeviceInfo:
 
         :param quick_select_number: Quick select number to set. Valid values are 1-5.
         """
-        if quick_select_number not in range(1, 5):
+        if quick_select_number not in range(1, 6):
             raise AvrCommandError("Quick select number must be between 1 and 5")
 
         if self.telnet_available:
