@@ -186,6 +186,9 @@ class DenonAVRInput(DenonAVRFoundation):
         default=attr.Factory(set),
     )
     _callback_tasks: Set[asyncio.Task] = attr.ib(default=attr.Factory(set))
+    _digital_input_mode: Optional[str] = attr.ib(
+        converter=attr.converters.optional(str), default=None
+    )
     _netaudio_state: str = attr.ib(converter=fix_string, default="")
     _netaudio_now_playing: bool = attr.ib(converter=bool, default=False)
 
@@ -221,6 +224,9 @@ class DenonAVRInput(DenonAVRFoundation):
         self._device.telnet_api.register_callback("NSE", self._netaudio_callback)
         self._device.telnet_api.register_callback("TF", self._tuner_callback)
         self._device.telnet_api.register_callback("HD", self._hdtuner_callback)
+        self._device.telnet_api.register_callback(
+            "DC", self._digital_input_mode_callback
+        )
         self._device.telnet_api.register_callback(
             "SS", self._input_func_update_callback
         )
@@ -424,6 +430,13 @@ class DenonAVRInput(DenonAVRFoundation):
                 host=self._device.api.host, port=self._device.api.port
             )
         )
+
+    def _digital_input_mode_callback(
+        self, zone: str, _event: str, parameter: str
+    ) -> None:
+        """Handle a Digital Input Mode change event."""
+        if zone == self._device.zone:
+            self._digital_input_mode = parameter
 
     def _input_func_update_callback(
         self, _zone: str, _event: str, _parameter: str
@@ -1069,6 +1082,11 @@ class DenonAVRInput(DenonAVRFoundation):
     def frequency(self) -> Optional[str]:
         """Return frequency of current radio station as string."""
         return self._frequency
+
+    @property
+    def digital_input_mode(self) -> Optional[str]:
+        """Return the current digital input mode."""
+        return self._digital_input_mode
 
     @property
     def station(self) -> Optional[str]:

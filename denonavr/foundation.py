@@ -405,9 +405,6 @@ class DenonAVRDeviceInfo:
     _picture_mode: Optional[str] = attr.ib(
         converter=attr.converters.optional(str), default=None
     )
-    _digital_input_mode: Optional[str] = attr.ib(
-        converter=attr.converters.optional(str), default=None
-    )
     _is_setup: bool = attr.ib(converter=bool, default=False, init=False)
     _setup_lock: asyncio.Lock = attr.ib(default=attr.Factory(asyncio.Lock))
     _op_handlers: Dict[str, Callable[[str], None]] = attr.ib(factory=dict, init=False)
@@ -628,13 +625,6 @@ class DenonAVRDeviceInfo:
         if zone == self.zone:
             self._picture_mode = parameter
 
-    def _digital_input_mode_callback(
-        self, zone: str, _event: str, parameter: str
-    ) -> None:
-        """Handle a Digital Input Mode change event."""
-        if zone == self.zone:
-            self._digital_input_mode = parameter
-
     def _delay_time_callback(self, _zone: str, parameter: str) -> None:
         """Handle a delay time change event."""
         # do not match "DELAY" as it's another event
@@ -834,7 +824,6 @@ class DenonAVRDeviceInfo:
         self.telnet_api.register_callback("BT", self._bt_callback)
         self.telnet_api.register_callback("PS", self._ps_callback)
         self.telnet_api.register_callback("PV", self._picture_mode_callback)
-        self.telnet_api.register_callback("DC", self._digital_input_mode_callback)
         if not self.is_denon:
             self.telnet_api.register_callback("ILB", self._illumination_callback)
 
@@ -1585,15 +1574,6 @@ class DenonAVRDeviceInfo:
         Only available if using Telnet and on models with video processing.
         """
         return self._picture_mode
-
-    @property
-    def digital_input_mode(self) -> Optional[str]:
-        """
-        Return the current digital input mode.
-
-        Only available if using Telnet.
-        """
-        return self._digital_input_mode
 
     @property
     def telnet_available(self) -> bool:

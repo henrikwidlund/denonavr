@@ -467,6 +467,15 @@ class DenonAVR(DenonAVRFoundation):
         return self.input.frequency
 
     @property
+    def digital_input_mode(self) -> Optional[str]:
+        """
+        Return the current digital input mode.
+
+        Only available if using Telnet.
+        """
+        return self.input.digital_input_mode
+
+    @property
     def station(self) -> Optional[str]:
         """Return current radio station as string."""
         return self.input.station
@@ -672,6 +681,15 @@ class DenonAVR(DenonAVRFoundation):
         Possible values are: "Auto", "Game", "Movie", "Bypass"
         """
         return self._device.video_processing_mode
+
+    @property
+    def picture_mode(self) -> Optional[str]:
+        """
+        Return the current picture mode.
+
+        Only available if using Telnet and on models with video processing.
+        """
+        return self._device.picture_mode
 
     @property
     def tactile_transducer(self) -> Optional[str]:
@@ -1417,7 +1435,7 @@ class DenonAVR(DenonAVRFoundation):
         """
         Set quick select mode on receiver.
 
-        :param quick_select_number: Quick select number to set. Valid values are 1-5.
+        :param quick_select_number: Quick select number to set. Valid values are 1-6.
         """
         await self._device.async_quick_select_mode(quick_select_number)
 
@@ -1425,7 +1443,7 @@ class DenonAVR(DenonAVRFoundation):
         """
         Set quick select memory on receiver.
 
-        :param quick_select_number: Quick select number to set. Valid values are 1-5.
+        :param quick_select_number: Quick select number to set. Valid values are 1-6.
         """
         await self._device.async_quick_select_memory(quick_select_number)
 
