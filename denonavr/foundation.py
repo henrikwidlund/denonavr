@@ -402,6 +402,12 @@ class DenonAVRDeviceInfo:
     _max_resolution: Optional[str] = attr.ib(
         converter=attr.converters.optional(str), default=None
     )
+    _picture_mode: Optional[str] = attr.ib(
+        converter=attr.converters.optional(str), default=None
+    )
+    _digital_input_mode: Optional[str] = attr.ib(
+        converter=attr.converters.optional(str), default=None
+    )
     _is_setup: bool = attr.ib(converter=bool, default=False, init=False)
     _setup_lock: asyncio.Lock = attr.ib(default=attr.Factory(asyncio.Lock))
     _op_handlers: Dict[str, Callable[[str], None]] = attr.ib(factory=dict, init=False)
@@ -617,6 +623,18 @@ class DenonAVRDeviceInfo:
         else:
             self._bt_output_mode = parameter[3:]
 
+    def _picture_mode_callback(self, zone: str, _event: str, parameter: str) -> None:
+        """Handle a Picture Mode change event."""
+        if zone == self.zone:
+            self._picture_mode = parameter
+
+    def _digital_input_mode_callback(
+        self, zone: str, _event: str, parameter: str
+    ) -> None:
+        """Handle a Digital Input Mode change event."""
+        if zone == self.zone:
+            self._digital_input_mode = parameter
+
     def _delay_time_callback(self, _zone: str, parameter: str) -> None:
         """Handle a delay time change event."""
         # do not match "DELAY" as it's another event
@@ -815,6 +833,8 @@ class DenonAVRDeviceInfo:
         self.telnet_api.register_callback("SP", self._speaker_preset_callback)
         self.telnet_api.register_callback("BT", self._bt_callback)
         self.telnet_api.register_callback("PS", self._ps_callback)
+        self.telnet_api.register_callback("PV", self._picture_mode_callback)
+        self.telnet_api.register_callback("DC", self._digital_input_mode_callback)
         if not self.is_denon:
             self.telnet_api.register_callback("ILB", self._illumination_callback)
 
@@ -1558,6 +1578,24 @@ class DenonAVRDeviceInfo:
         return self._max_resolution
 
     @property
+    def picture_mode(self) -> Optional[str]:
+        """
+        Return the current picture mode.
+
+        Only available if using Telnet and on models with video processing.
+        """
+        return self._picture_mode
+
+    @property
+    def digital_input_mode(self) -> Optional[str]:
+        """
+        Return the current digital input mode.
+
+        Only available if using Telnet.
+        """
+        return self._digital_input_mode
+
+    @property
     def telnet_available(self) -> bool:
         """Return true if telnet is connected and healthy."""
         return self.telnet_api.connected and self.telnet_api.healthy
@@ -1935,10 +1973,10 @@ class DenonAVRDeviceInfo:
         """
         Set quick select mode on receiver.
 
-        :param quick_select_number: Quick select number to set. Valid values are 1-5.
+        :param quick_select_number: Quick select number to set. Valid values are 1-6.
         """
-        if quick_select_number not in range(1, 6):
-            raise AvrCommandError("Quick select number must be between 1 and 5")
+        if quick_select_number not in range(1, 7):
+            raise AvrCommandError("Quick select number must be between 1 and 6")
 
         if self.telnet_available:
             if self.is_denon:
@@ -1959,10 +1997,10 @@ class DenonAVRDeviceInfo:
         """
         Set quick select memory on receiver.
 
-        :param quick_select_number: Quick select number to set. Valid values are 1-5.
+        :param quick_select_number: Quick select number to set. Valid values are 1-6.
         """
-        if quick_select_number not in range(1, 6):
-            raise AvrCommandError("Quick select number must be between 1 and 5")
+        if quick_select_number not in range(1, 7):
+            raise AvrCommandError("Quick select number must be between 1 and 6")
 
         if self.telnet_available:
             if self.is_denon:
