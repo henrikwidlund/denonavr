@@ -738,6 +738,8 @@ class DenonAVRTelnetApi:
                 "SSINFSIGPIX ?",  # Video Pixel Depth
                 "SSINFSIGFRL ?",  # Video Max FRL
                 "SSINFSIGCOS ?",  # Signal Color Space
+                "PV?",  # Picture Mode
+                "DC?",  # Digital Codec
             ]
 
             index = commands.index("MNMEN?")

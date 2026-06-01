@@ -23,6 +23,7 @@ from .const import (
     AudioRestorers,
     AutoStandbys,
     BluetoothOutputModes,
+    DigitalCodecModes,
     DimmerModes,
     DynamicVolumeSettings,
     EcoModes,
@@ -32,6 +33,7 @@ from .const import (
     InputModes,
     MultiEQModes,
     PanelLocks,
+    PictureModes,
     ReferenceLevelOffsets,
     RoomSizes,
     TransducerLPFs,
@@ -467,6 +469,15 @@ class DenonAVR(DenonAVRFoundation):
         return self.input.frequency
 
     @property
+    def digital_codec(self) -> Optional[str]:
+        """
+        Return the current digital converter mode.
+
+        Only available if using Telnet.
+        """
+        return self.input.digital_codec
+
+    @property
     def station(self) -> Optional[str]:
         """Return current radio station as string."""
         return self.input.station
@@ -672,6 +683,15 @@ class DenonAVR(DenonAVRFoundation):
         Possible values are: "Auto", "Game", "Movie", "Bypass"
         """
         return self._device.video_processing_mode
+
+    @property
+    def picture_mode(self) -> Optional[str]:
+        """
+        Return the current picture mode.
+
+        Only available if using Telnet and on models with video processing.
+        """
+        return self._device.picture_mode
 
     @property
     def tactile_transducer(self) -> Optional[str]:
@@ -1227,6 +1247,14 @@ class DenonAVR(DenonAVRFoundation):
         """Set video processing mode on receiver."""
         await self._device.async_video_processing_mode(mode)
 
+    async def async_set_picture_mode(self, mode: PictureModes) -> None:
+        """Set picture mode on receiver."""
+        await self._device.async_set_picture_mode(mode)
+
+    async def async_set_digital_codec(self, mode: DigitalCodecModes) -> None:
+        """Set digital converter mode on receiver."""
+        await self.input.async_set_digital_codec(mode)
+
     async def async_status(self) -> None:
         """
         Toggles the display of status on the device.
@@ -1417,7 +1445,7 @@ class DenonAVR(DenonAVRFoundation):
         """
         Set quick select mode on receiver.
 
-        :param quick_select_number: Quick select number to set. Valid values are 1-5.
+        :param quick_select_number: Quick select number to set. Valid values are 1-6.
         """
         await self._device.async_quick_select_mode(quick_select_number)
 
@@ -1425,7 +1453,7 @@ class DenonAVR(DenonAVRFoundation):
         """
         Set quick select memory on receiver.
 
-        :param quick_select_number: Quick select number to set. Valid values are 1-5.
+        :param quick_select_number: Quick select number to set. Valid values are 1-6.
         """
         await self._device.async_quick_select_memory(quick_select_number)
 
