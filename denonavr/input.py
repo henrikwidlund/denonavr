@@ -11,7 +11,7 @@ import asyncio
 import logging
 from collections.abc import Hashable
 from copy import deepcopy
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple, get_args
 
 import attr
 import httpx
@@ -40,6 +40,9 @@ from .const import (
     STATE_STOPPED,
     STATIC_ALBUM_URL,
     TELNET_MAPPING,
+    DIGITAL_CONVERTER_MAP,
+    DIGITAL_CONVERTER_MAP_REVERSE,
+    DigitalConverterModes,
     TUNER_SOURCES,
     ZONE2,
     ZONE3,
@@ -186,9 +189,10 @@ class DenonAVRInput(DenonAVRFoundation):
         default=attr.Factory(set),
     )
     _callback_tasks: Set[asyncio.Task] = attr.ib(default=attr.Factory(set))
-    _digital_input_mode: Optional[str] = attr.ib(
-        converter=attr.converters.optional(str), default=None
+    _digital_converter: Optional[str] = attr.ib(
+        converter=attr.converters.optional(DIGITAL_CONVERTER_MAP.get), default=None
     )
+    _digital_converter_modes = get_args(DigitalConverterModes)
     _netaudio_state: str = attr.ib(converter=fix_string, default="")
     _netaudio_now_playing: bool = attr.ib(converter=bool, default=False)
 
@@ -225,7 +229,7 @@ class DenonAVRInput(DenonAVRFoundation):
         self._device.telnet_api.register_callback("TF", self._tuner_callback)
         self._device.telnet_api.register_callback("HD", self._hdtuner_callback)
         self._device.telnet_api.register_callback(
-            "DC", self._digital_input_mode_callback
+            "DC", self._digital_converter_callback
         )
         self._device.telnet_api.register_callback(
             "SS", self._input_func_update_callback
@@ -431,12 +435,12 @@ class DenonAVRInput(DenonAVRFoundation):
             )
         )
 
-    def _digital_input_mode_callback(
+    def _digital_converter_callback(
         self, zone: str, _event: str, parameter: str
     ) -> None:
-        """Handle a Digital Input Mode change event."""
+        """Handle a Digital Converter change event."""
         if zone == self._device.zone:
-            self._digital_input_mode = parameter
+            self._digital_converter = parameter
 
     def _input_func_update_callback(
         self, _zone: str, _event: str, _parameter: str
@@ -1084,9 +1088,9 @@ class DenonAVRInput(DenonAVRFoundation):
         return self._frequency
 
     @property
-    def digital_input_mode(self) -> Optional[str]:
-        """Return the current digital input mode."""
-        return self._digital_input_mode
+    def digital_converter(self) -> Optional[str]:
+        """Return the current digital converter mode."""
+        return self._digital_converter
 
     @property
     def station(self) -> Optional[str]:
@@ -1114,6 +1118,26 @@ class DenonAVRInput(DenonAVRFoundation):
     ##########
     # Setter #
     ##########
+
+    async def async_set_digital_converter(self, mode: DigitalConverterModes) -> None:
+        """Set digital converter mode on receiver."""
+        if mode not in self._digital_converter_modes:
+            raise AvrCommandError("Invalid digital converter mode")
+
+        if self._digital_converter == mode:
+            return
+
+        raw_mode = DIGITAL_CONVERTER_MAP_REVERSE[mode]
+        if self._device.telnet_available:
+            await self._device.telnet_api.async_send_commands(
+                self._device.telnet_commands.command_digital_converter.format(
+                    mode=raw_mode
+                )
+            )
+        else:
+            await self._device.api.async_get_command(
+                self._device.urls.command_digital_converter.format(mode=raw_mode)
+            )
 
     async def async_set_input_func(self, input_func: str) -> None:
         """

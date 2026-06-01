@@ -68,7 +68,10 @@ from .const import (
     HDMIOutputs,
     Illuminations,
     InputModes,
+    PICTURE_MODE_MAP,
+    PICTURE_MODE_MAP_REVERSE,
     PanelLocks,
+    PictureModes,
     ReceiverType,
     ReceiverURLs,
     RoomSizes,
@@ -403,8 +406,9 @@ class DenonAVRDeviceInfo:
         converter=attr.converters.optional(str), default=None
     )
     _picture_mode: Optional[str] = attr.ib(
-        converter=attr.converters.optional(str), default=None
+        converter=attr.converters.optional(PICTURE_MODE_MAP.get), default=None
     )
+    _picture_modes = get_args(PictureModes)
     _is_setup: bool = attr.ib(converter=bool, default=False, init=False)
     _setup_lock: asyncio.Lock = attr.ib(default=attr.Factory(asyncio.Lock))
     _op_handlers: Dict[str, Callable[[str], None]] = attr.ib(factory=dict, init=False)
@@ -2111,6 +2115,24 @@ class DenonAVRDeviceInfo:
         else:
             await self.api.async_get_command(
                 self.urls.command_video_processing_mode.format(mode=processing_mode)
+            )
+
+    async def async_set_picture_mode(self, mode: PictureModes) -> None:
+        """Set picture mode on receiver."""
+        if mode not in self._picture_modes:
+            raise AvrCommandError("Invalid picture mode")
+
+        if self._picture_mode == mode:
+            return
+
+        raw_mode = PICTURE_MODE_MAP_REVERSE[mode]
+        if self.telnet_available:
+            await self.telnet_api.async_send_commands(
+                self.telnet_commands.command_picture_mode.format(mode=raw_mode)
+            )
+        else:
+            await self.api.async_get_command(
+                self.urls.command_picture_mode.format(mode=raw_mode)
             )
 
     async def async_status(self) -> None:

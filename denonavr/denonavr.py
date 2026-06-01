@@ -23,6 +23,7 @@ from .const import (
     AudioRestorers,
     AutoStandbys,
     BluetoothOutputModes,
+    DigitalConverterModes,
     DimmerModes,
     DynamicVolumeSettings,
     EcoModes,
@@ -32,6 +33,7 @@ from .const import (
     InputModes,
     MultiEQModes,
     PanelLocks,
+    PictureModes,
     ReferenceLevelOffsets,
     RoomSizes,
     TransducerLPFs,
@@ -467,13 +469,13 @@ class DenonAVR(DenonAVRFoundation):
         return self.input.frequency
 
     @property
-    def digital_input_mode(self) -> Optional[str]:
+    def digital_converter(self) -> Optional[str]:
         """
-        Return the current digital input mode.
+        Return the current digital converter mode.
 
         Only available if using Telnet.
         """
-        return self.input.digital_input_mode
+        return self.input.digital_converter
 
     @property
     def station(self) -> Optional[str]:
@@ -1244,6 +1246,14 @@ class DenonAVR(DenonAVRFoundation):
     async def async_video_processing_mode(self, mode: VideoProcessingModes) -> None:
         """Set video processing mode on receiver."""
         await self._device.async_video_processing_mode(mode)
+
+    async def async_set_picture_mode(self, mode: PictureModes) -> None:
+        """Set picture mode on receiver."""
+        await self._device.async_set_picture_mode(mode)
+
+    async def async_set_digital_converter(self, mode: DigitalConverterModes) -> None:
+        """Set digital converter mode on receiver."""
+        await self.input.async_set_digital_converter(mode)
 
     async def async_status(self) -> None:
         """

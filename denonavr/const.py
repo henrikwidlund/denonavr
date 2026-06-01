@@ -98,6 +98,8 @@ ReceiverURLs = namedtuple(
         "command_sleep",
         "command_center_spread",
         "command_video_processing_mode",
+        "command_picture_mode",
+        "command_digital_converter",
         "command_room_size",
         "command_status",
         "command_system_reset",
@@ -219,6 +221,8 @@ TelnetCommands = namedtuple(
         "command_sleep",
         "command_center_spread",
         "command_video_processing_mode",
+        "command_picture_mode",
+        "command_digital_converter",
         "command_room_size",
         "command_status",
         "command_system_reset",
@@ -690,6 +694,8 @@ COMMAND_AUTO_STANDBY = "/goform/formiPhoneAppDirect.xml?STBY{mode}"
 COMMAND_SLEEP = "/goform/formiPhoneAppDirect.xml?SLP{value}"
 COMMAND_CENTER_SPREAD = "/goform/formiPhoneAppDirect.xml?PSCES%20{mode}"
 COMMAND_VIDEO_PROCESSING_MODE = "/goform/formiPhoneAppDirect.xml?VSVPM{mode}"
+COMMAND_PICTURE_MODE = "/goform/formiPhoneAppDirect.xml?PV{mode}"
+COMMAND_DIGITAL_CONVERTER = "/goform/formiPhoneAppDirect.xml?DC{mode}"
 COMMAND_ROOM_SIZE = "/goform/formiPhoneAppDirect.xml?PSRSZ%20{size}"
 COMMAND_STATUS = "/goform/formiPhoneAppDirect.xml?RCSHP0230030"
 COMMAND_SYSTEM_RESET = "/goform/formiPhoneAppDirect.xml?SYRST"
@@ -836,6 +842,8 @@ DENONAVR_URLS = ReceiverURLs(
     command_sleep=COMMAND_SLEEP,
     command_center_spread=COMMAND_CENTER_SPREAD,
     command_video_processing_mode=COMMAND_VIDEO_PROCESSING_MODE,
+    command_picture_mode=COMMAND_PICTURE_MODE,
+    command_digital_converter=COMMAND_DIGITAL_CONVERTER,
     command_room_size=COMMAND_ROOM_SIZE,
     command_status=COMMAND_STATUS,
     command_system_reset=COMMAND_SYSTEM_RESET,
@@ -957,6 +965,8 @@ ZONE2_URLS = ReceiverURLs(
     command_sleep=COMMAND_SLEEP,
     command_center_spread=COMMAND_CENTER_SPREAD,
     command_video_processing_mode=COMMAND_VIDEO_PROCESSING_MODE,
+    command_picture_mode=COMMAND_PICTURE_MODE,
+    command_digital_converter=COMMAND_DIGITAL_CONVERTER,
     command_room_size=COMMAND_ROOM_SIZE,
     command_status=COMMAND_STATUS,
     command_system_reset=COMMAND_SYSTEM_RESET,
@@ -1078,6 +1088,8 @@ ZONE3_URLS = ReceiverURLs(
     command_sleep=COMMAND_SLEEP,
     command_center_spread=COMMAND_CENTER_SPREAD,
     command_video_processing_mode=COMMAND_VIDEO_PROCESSING_MODE,
+    command_picture_mode=COMMAND_PICTURE_MODE,
+    command_digital_converter=COMMAND_DIGITAL_CONVERTER,
     command_room_size=COMMAND_ROOM_SIZE,
     command_status=COMMAND_STATUS,
     command_system_reset=COMMAND_SYSTEM_RESET,
@@ -1257,6 +1269,8 @@ DENONAVR_TELNET_COMMANDS = TelnetCommands(
     command_sleep="SLP{value}",
     command_center_spread="PSCES {mode}",
     command_video_processing_mode="VSVPM{mode}",
+    command_picture_mode="PV{mode}",
+    command_digital_converter="DC{mode}",
     command_room_size="PSRSZ {size}",
     command_status="RCSHP0230030",
     command_system_reset="SYRST",
@@ -1376,6 +1390,8 @@ ZONE2_TELNET_COMMANDS = TelnetCommands(
     command_sleep="SLP{value}",
     command_center_spread="PSCES {mode}",
     command_video_processing_mode="VSVPM{mode}",
+    command_picture_mode="PV{mode}",
+    command_digital_converter="DC{mode}",
     command_room_size="PSRSZ {size}",
     command_status="RCSHP0230030",
     command_system_reset="SYRST",
@@ -1495,6 +1511,8 @@ ZONE3_TELNET_COMMANDS = TelnetCommands(
     command_sleep="SLP{value}",
     command_center_spread="PSCES {mode}",
     command_video_processing_mode="VSVPM{mode}",
+    command_picture_mode="PV{mode}",
+    command_digital_converter="DC{mode}",
     command_room_size="PSRSZ {size}",
     command_status="RCSHP0230030",
     command_system_reset="SYRST",
@@ -2024,6 +2042,38 @@ ILLUMINATION_MAP = {
 }
 
 ILLUMINATION_MAP_REVERSE = {value: key for key, value in ILLUMINATION_MAP.items()}
+
+PictureModes = Literal[
+    "Movie", "Game", "Vivid", "Stream", "Brilliant", "Custom", "Day", "Night", "Off"
+]
+"""Picture Modes."""
+
+PICTURE_MODE_MAP = {
+    "MOV": "Movie",
+    "GAM": "Game",
+    "VVD": "Vivid",
+    "STM": "Stream",
+    "BRL": "Brilliant",
+    "CSTM": "Custom",
+    "DAY": "Day",
+    "NGT": "Night",
+    "OFF": "Off",
+}
+
+PICTURE_MODE_MAP_REVERSE = {value: key for key, value in PICTURE_MODE_MAP.items()}
+
+DigitalConverterModes = Literal["Auto", "PCM", "DTS"]
+"""Digital Converter Modes."""
+
+DIGITAL_CONVERTER_MAP = {
+    "AUTO": "Auto",
+    "PCM": "PCM",
+    "DTS": "DTS",
+}
+
+DIGITAL_CONVERTER_MAP_REVERSE = {
+    value: key for key, value in DIGITAL_CONVERTER_MAP.items()
+}
 
 InputModes = Literal["Select", "Auto", "HDMI", "Digital", "Analog"]
 """Input Mode Selection."""
