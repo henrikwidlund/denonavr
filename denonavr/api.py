@@ -690,41 +690,11 @@ class DenonAVRTelnetApi:
                 "PSGEQ ?",  # Graphic EQ
                 "PSHEQ ?",  # Headphone EQ
                 # Regular State Info
-                "PSBAS ?",  # BASS
-                "PSTRE ?",  # TREBLE
-                "PSCNTAMT ?",  # Containment Amount
-                "PSMULTEQ: ?",  # MultEQ
-                "PSREFLEV ?",  # Reference Level
-                "PSDYNVOL ?",  # Dynamic Vol.
                 "DIM ?",  # Dimmer
-                "PSDELAY ?",  # Audio Delay
                 "ECO?",  # ECO
-                "VSMONI ?",  # HDMI Output
-                "PSDIRAC ?",  # Dirac Live Filter
-                "CV?",  # Channel Volume
-                "PSIMAX ?",  # IMAX
-                "PSIMAXHPF ?",  # IMAX High Pass Filter
-                "PSIMAXLPF ?",  # IMAX Low Pass Filter
-                "PSIMAXSWO ?",  # Subwoofer Output LFE+Main/LFE
-                "PSSWL ?",  # Subwoofer Level
-                "STBY?",  # Auto Standby
-                "Z2STBY?",  # Auto Standby
-                "Z3STBY?",  # Auto Standby
                 "SLP?",  # Sleep
-                "VSVPM ?",  # Video Process
-                "PSLFE ?",  # LFE Level
-                "PSBSC ?",  # Bass Sync
-                "PSDEH ?",  # Dialog Enhancer
-                "PSAUROPR ?",  # Auro-Matic Preset
-                "PSAUROST ?",  # Auro-Matic Strength
-                "PSAUROMODE ?",  # AURO-3D Mode
-                "PSRSZ ?",  # ROOM SIZE
-                "SPPR ?",  # Speaker Preset
-                "PSDIC ?",  # Dialog Control
-                "PSSP: ?",  # Effect Speaker selection
-                "PSDRC ?",  # DRC
-                "PSDEL ?",  # DELAY TIME
-                "PSRSTR ?",  # AUDIO RESTORER
+                "VSMONI ?",  # HDMI Output
+                "PSDELAY ?",  # Audio Delay
                 "SSINFSIGRES ?",  # Video Signal
                 "SSINFAISFSV ?",  # Audio Sampling Rate
                 "SYSDA ?",  # Audio Signal
@@ -740,6 +710,36 @@ class DenonAVRTelnetApi:
                 "SSINFSIGCOS ?",  # Signal Color Space
                 "PV?",  # Picture Mode
                 "DC?",  # Digital Codec
+                "PSBAS ?",  # BASS
+                "PSTRE ?",  # TREBLE
+                "PSCNTAMT ?",  # Containment Amount
+                "PSMULTEQ: ?",  # MultEQ
+                "PSREFLEV ?",  # Reference Level
+                "PSDYNVOL ?",  # Dynamic Vol.
+                "PSDIRAC ?",  # Dirac Live Filter
+                "CV?",  # Channel Volume
+                "PSIMAX ?",  # IMAX
+                "PSIMAXHPF ?",  # IMAX High Pass Filter
+                "PSIMAXLPF ?",  # IMAX Low Pass Filter
+                "PSIMAXSWO ?",  # Subwoofer Output LFE+Main/LFE
+                "PSSWL ?",  # Subwoofer Level
+                "STBY?",  # Auto Standby
+                "Z2STBY?",  # Auto Standby
+                "Z3STBY?",  # Auto Standby
+                "VSVPM ?",  # Video Process
+                "PSLFE ?",  # LFE Level
+                "PSBSC ?",  # Bass Sync
+                "PSDEH ?",  # Dialog Enhancer
+                "PSAUROPR ?",  # Auro-Matic Preset
+                "PSAUROST ?",  # Auro-Matic Strength
+                "PSAUROMODE ?",  # AURO-3D Mode
+                "PSRSZ ?",  # ROOM SIZE
+                "SPPR ?",  # Speaker Preset
+                "PSDIC ?",  # Dialog Control
+                "PSSP: ?",  # Effect Speaker selection
+                "PSDRC ?",  # DRC
+                "PSDEL ?",  # DELAY TIME
+                "PSRSTR ?",  # AUDIO RESTORER
             ]
 
             index = commands.index("MNMEN?")
