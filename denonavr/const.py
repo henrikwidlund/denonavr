@@ -2044,20 +2044,30 @@ ILLUMINATION_MAP = {
 ILLUMINATION_MAP_REVERSE = {value: key for key, value in ILLUMINATION_MAP.items()}
 
 PictureModes = Literal[
-    "Movie", "Game", "Vivid", "Stream", "Brilliant", "Custom", "Day", "Night", "Off"
+    "Off",
+    "Brilliant",
+    "Custom",
+    "Game",
+    "ISF Day",
+    "ISF Night",
+    "Movie",
+    "Standard",
+    "Stream",
+    "Vivid",
 ]
 """Picture Modes."""
 
 PICTURE_MODE_MAP = {
-    "MOV": "Movie",
-    "GAM": "Game",
-    "VVD": "Vivid",
-    "STM": "Stream",
+    "OFF": "Off",
     "BRL": "Brilliant",
     "CSTM": "Custom",
-    "DAY": "Day",
-    "NGT": "Night",
-    "OFF": "Off",
+    "GAM": "Game",
+    "DAY": "ISF Day",
+    "NGT": "ISF Night",
+    "MOV": "Movie",
+    "STD": "Standard",
+    "STM": "Stream",
+    "VVD": "Vivid",
 }
 
 PICTURE_MODE_MAP_REVERSE = {value: key for key, value in PICTURE_MODE_MAP.items()}

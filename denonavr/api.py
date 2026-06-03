@@ -708,15 +708,16 @@ class DenonAVRTelnetApi:
                 "SSINFSIGPIX ?",  # Video Pixel Depth
                 "SSINFSIGFRL ?",  # Video Max FRL
                 "SSINFSIGCOS ?",  # Signal Color Space
+                "PSDIRAC ?",  # Dirac Live Filter
+                "PSREFLEV ?",  # Reference Level
+                "PSDYNVOL ?",  # Dynamic Vol.
+                "SPPR ?",  # Speaker Preset
                 "PV?",  # Picture Mode
                 "DC?",  # Digital Codec
                 "PSBAS ?",  # BASS
                 "PSTRE ?",  # TREBLE
                 "PSCNTAMT ?",  # Containment Amount
                 "PSMULTEQ: ?",  # MultEQ
-                "PSREFLEV ?",  # Reference Level
-                "PSDYNVOL ?",  # Dynamic Vol.
-                "PSDIRAC ?",  # Dirac Live Filter
                 "CV?",  # Channel Volume
                 "PSIMAX ?",  # IMAX
                 "PSIMAXHPF ?",  # IMAX High Pass Filter
@@ -734,7 +735,6 @@ class DenonAVRTelnetApi:
                 "PSAUROST ?",  # Auro-Matic Strength
                 "PSAUROMODE ?",  # AURO-3D Mode
                 "PSRSZ ?",  # ROOM SIZE
-                "SPPR ?",  # Speaker Preset
                 "PSDIC ?",  # Dialog Control
                 "PSSP: ?",  # Effect Speaker selection
                 "PSDRC ?",  # DRC
