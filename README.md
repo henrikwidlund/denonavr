@@ -45,7 +45,7 @@ d = denonavr.DenonAVR("10.0.60.6")
 await d.async_setup()
 await d.async_update()
 await d.async_telnet_connect()
->>> async def update_callback(zone, event, parameter):
+>>> def update_callback(zone, event, parameter):
 >>>>>> print("Zone: " + zone + " Event: " + event + " Parameter: " + parameter)
 >>> d.register_callback("ALL", update_callback)
 ```
