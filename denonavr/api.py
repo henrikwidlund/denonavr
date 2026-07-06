@@ -47,6 +47,7 @@ from .exceptions import (
     AvrProcessingError,
     AvrTimoutError,
 )
+from .rate_limiter import AdaptiveLimiter
 
 if sys.version_info[:2] < (3, 11):
     from async_timeout import timeout as asyncio_timeout
@@ -83,6 +84,11 @@ class HTTPXAsyncClient:
         init=False,
     )
 
+    rate_limiter: AdaptiveLimiter = attr.ib(
+        validator=attr.validators.instance_of(AdaptiveLimiter),
+        default=attr.Factory(AdaptiveLimiter),
+    )
+
     def __hash__(self) -> int:
         """Hash the class using its ID that caching works."""
         return id(self)
@@ -92,6 +98,7 @@ class HTTPXAsyncClient:
     async def async_get(
         self,
         url: str,
+        rate_limit_key: str,
         timeout: float,
         read_timeout: float,
         *,
@@ -99,7 +106,9 @@ class HTTPXAsyncClient:
     ) -> httpx.Response:
         """Call GET endpoint of Denon AVR receiver asynchronously."""
         client = self.client_getter()
+        start = time.monotonic()
         try:
+            await self.rate_limiter.acquire(rate_limit_key)
             async with client.stream(
                 "GET", url, timeout=httpx.Timeout(timeout, read=read_timeout)
             ) as res:
@@ -110,6 +119,7 @@ class HTTPXAsyncClient:
             if self.is_default_async_client():
                 await client.aclose()
 
+        self.rate_limiter.record_latency(rate_limit_key, start)
         return res
 
     @cache_result
@@ -117,6 +127,7 @@ class HTTPXAsyncClient:
     async def async_post(
         self,
         url: str,
+        rate_limit_key: str,
         timeout: float,
         read_timeout: float,
         *,
@@ -126,7 +137,9 @@ class HTTPXAsyncClient:
     ) -> httpx.Response:
         """Call POST endpoint of Denon AVR receiver asynchronously."""
         client = self.client_getter()
+        start = time.monotonic()
         try:
+            await self.rate_limiter.acquire(rate_limit_key)
             async with client.stream(
                 "POST",
                 url,
@@ -141,6 +154,7 @@ class HTTPXAsyncClient:
             if self.is_default_async_client():
                 await client.aclose()
 
+        self.rate_limiter.record_latency(rate_limit_key, start)
         return res
 
     def is_default_async_client(self) -> bool:
@@ -190,7 +204,11 @@ class DenonAVRApi:
         endpoint = f"http://{self.host}:{port}{request}"
 
         return await self.httpx_async_client.async_get(
-            endpoint, self.timeout, self.read_timeout, cache_id=cache_id
+            endpoint,
+            self.host,
+            self.timeout,
+            self.read_timeout,
+            cache_id=cache_id,
         )
 
     async def async_post(
@@ -210,6 +228,7 @@ class DenonAVRApi:
 
         return await self.httpx_async_client.async_post(
             endpoint,
+            self.host,
             self.timeout,
             self.read_timeout,
             content=content,
@@ -493,6 +512,11 @@ class DenonAVRTelnetApi:
     _raw_callbacks: List[Callable] = attr.ib(
         validator=attr.validators.instance_of(list),
         default=attr.Factory(list),
+        init=False,
+    )
+    _rate_limiter: AdaptiveLimiter = attr.ib(
+        validator=attr.validators.instance_of(AdaptiveLimiter),
+        default=attr.Factory(AdaptiveLimiter),
         init=False,
     )
     _update_callback_tasks: Set[asyncio.Task] = attr.ib(default=attr.Factory(set))
@@ -887,6 +911,8 @@ class DenonAVRTelnetApi:
                     f"Error sending command {command}. Telnet connected: "
                     f"{self.connected}, Connection healthy: {self.healthy}"
                 )
+            start = time.monotonic()
+            await self._rate_limiter.acquire(self.host)
             self._protocol.write(f"{command}\r")
             if not skip_confirmation:
                 try:
@@ -898,6 +924,8 @@ class DenonAVRTelnetApi:
                     _LOGGER.debug(
                         "Timeout waiting for confirmation of command: %s", command
                     )
+                else:
+                    self._rate_limiter.record_latency(self.host, start)
                 finally:
                     self._send_confirmation_command = ""
 

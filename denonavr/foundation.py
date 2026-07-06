@@ -2243,6 +2243,16 @@ def set_api_host(
     return value
 
 
+def set_api_use_rate_limiter(
+    instance: DenonAVRFoundation, attribute: attr.Attribute, value: bool
+) -> bool:
+    """Enable or disable the rate limiter on both APIs on changes too."""
+    # pylint: disable=protected-access
+    instance._device.api.httpx_async_client.rate_limiter.enabled = value
+    instance._device.telnet_api._rate_limiter.enabled = value
+    return value
+
+
 def set_api_timeout(
     instance: DenonAVRFoundation, attribute: attr.Attribute, value: float
 ) -> float:
