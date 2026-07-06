@@ -803,11 +803,10 @@ class DenonAVRTelnetApi:
         parameter = message[len(event) :]
 
         if event == "MV":
-            # This seems undocumented by Denon and appears to basically be a
-            # noop that goes along with volume changes. This is here to prevent
-            # duplicate callback calls.
+            # Handle undocumented max volume event:
+            # propagate as a custom event for DenonAVRVolume
             if parameter[0:3] == "MAX":
-                return
+                event = "CUST_MAX_VOL"
 
         # Determine zone
         zone = MAIN_ZONE
