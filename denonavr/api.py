@@ -192,8 +192,6 @@ class HTTPXAsyncClient:
         if self._persistent_client:
             await self._persistent_client.aclose()
             self._persistent_client = None
-        # Close limiter tasks
-        await self.rate_limiter.aclose()
 
 
 @attr.s(auto_attribs=True, on_setattr=DENON_ATTR_SETATTR)
@@ -262,11 +260,7 @@ class DenonAVRApi:
         port: Optional[int] = None,
         cache_id: Hashable = None,
     ) -> httpx.Response:
-        """
-        Call POST endpoint of Denon AVR receiver asynchronously.
-
-        Skips rate limiter and does not record latency.
-        """
+        """Call POST endpoint of Denon AVR receiver asynchronously."""
         # Use default port of the receiver if no different port is specified
         port = port if port is not None else self.port
 
@@ -280,8 +274,6 @@ class DenonAVRApi:
             content=content,
             data=data,
             cache_id=cache_id,
-            record_latency=False,
-            skip_rate_limiter=True,
         )
 
     async def async_get_command(
@@ -299,12 +291,20 @@ class DenonAVRApi:
         return res.text
 
     async def async_get_xml(
-        self, request: str, *, cache_id: Hashable = None
+        self,
+        request: str,
+        *,
+        cache_id: Hashable = None,
+        record_latency: bool = True,
+        skip_rate_limiter: bool = False,
     ) -> ET.Element:
         """Return XML data from HTTP GET endpoint asynchronously."""
         # HTTP GET to endpoint
         res = await self.async_get(
-            request, cache_id=cache_id, record_latency=False, skip_rate_limiter=True
+            request,
+            cache_id=cache_id,
+            record_latency=record_latency,
+            skip_rate_limiter=skip_rate_limiter,
         )
         # create ElementTree
         try:
@@ -1031,9 +1031,10 @@ class DenonAVRTelnetApi:
                     _LOGGER.debug(
                         "Timeout waiting for confirmation of command: %s", command
                     )
-                finally:
+                else:
                     if record_latency:
                         self._rate_limiter.record_latency(self.host, start)
+                finally:
                     self._send_confirmation_command = ""
 
     async def async_send_commands(
