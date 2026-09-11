@@ -738,7 +738,9 @@ class DenonAVRDeviceInfo:
         key_value = parameter.split()
         if len(key_value) == 2:
             value = key_value[1]
-            if value.endswith("G"):
+            if value == "NO":
+                value = "No limit"
+            elif value.endswith("G"):
                 value = value.replace("G", "Gbps")
             self._max_resolution = value
 

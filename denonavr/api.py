@@ -69,10 +69,23 @@ _EVENTS_PRODUCING_DUPLICATES = [
     "INFSIGFRL O",
     "INFSIGCOS",
     "HDMIDIAGMAXRES",
+    "HDMIDIAGERR",
+    "HDMIDIAGHDCP23",
+    "HDMIDIAGHDR",
+    "HDMIDIAGDCR",
+    "HDMIDIAGDVN",
+    "HDMIDIAGDTSX",
+    "HDMIDIAGATMS",
+    "HDMIDIAGPCM2",
     "INFASP",
     "INFINS",
-    "SYSDA",
-    "SYSMI",
+    "SDA",
+    "SMI",
+]
+
+_EVENTS_TO_IGNORE = [
+    "SDV END",
+    "HDMIDIAG END",
 ]
 
 
@@ -930,6 +943,9 @@ class DenonAVRTelnetApi:
                 parameter = parameter[len(event) :]
 
         if event not in TELNET_EVENTS:
+            return
+
+        if any(parameter.startswith(key) for key in _EVENTS_TO_IGNORE):
             return
 
         if _should_propagate_event(event, parameter, self._potential_duplicate_events):
