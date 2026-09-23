@@ -234,10 +234,10 @@ class DenonAVRToneControl(DenonAVRFoundation):
         if value < 0 or value > 12:
             raise AvrCommandError("Invalid value for bass")
 
-        if self._bass == value:
-            return
-
         if self._device.telnet_available:
+            if self._bass == value:
+                return
+
             if not self.tone_control_adjust:
                 await self.async_enable_tone_control()
             telnet_command = self._device.telnet_commands.command_bass + str(value + 44)
@@ -253,10 +253,10 @@ class DenonAVRToneControl(DenonAVRFoundation):
         Note:
         Doesn't work, if Dynamic Equalizer is active.
         """
-        if self.bass == 12:
-            return
-
         if self._device.telnet_available:
+            if self.bass == 12:
+                return
+
             if not self.tone_control_adjust:
                 await self.async_enable_tone_control()
             telnet_command = self._device.telnet_commands.command_bass + "UP"
@@ -273,10 +273,10 @@ class DenonAVRToneControl(DenonAVRFoundation):
         Note:
         Doesn't work, if Dynamic Equalizer is active.
         """
-        if self.bass == 0:
-            return
-
         if self._device.telnet_available:
+            if self.bass == 0:
+                return
+
             if not self.tone_control_adjust:
                 await self.async_enable_tone_control()
             telnet_command = self._device.telnet_commands.command_bass + "DOWN"
@@ -298,10 +298,10 @@ class DenonAVRToneControl(DenonAVRFoundation):
         if value < 0 or value > 12:
             raise AvrCommandError("Invalid value for treble")
 
-        if self._treble == value:
-            return
-
         if self._device.telnet_available:
+            if self._treble == value:
+                return
+
             if not self.tone_control_adjust:
                 await self.async_enable_tone_control()
             telnet_command = self._device.telnet_commands.command_treble + str(
@@ -319,10 +319,10 @@ class DenonAVRToneControl(DenonAVRFoundation):
         Note:
         Doesn't work, if Dynamic Equalizer is active.
         """
-        if self.treble == 12:
-            return
-
         if self._device.telnet_available:
+            if self.treble == 12:
+                return
+
             if not self.tone_control_adjust:
                 await self.async_enable_tone_control()
             telnet_command = self._device.telnet_commands.command_treble + "UP"
@@ -339,10 +339,10 @@ class DenonAVRToneControl(DenonAVRFoundation):
         Note:
         Doesn't work, if Dynamic Equalizer is active.
         """
-        if self.treble == 0:
-            return
-
         if self._device.telnet_available:
+            if self.treble == 0:
+                return
+
             if not self.tone_control_adjust:
                 await self.async_enable_tone_control()
             telnet_command = self._device.telnet_commands.command_treble + "DOWN"

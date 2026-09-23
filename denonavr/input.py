@@ -1125,11 +1125,11 @@ class DenonAVRInput(DenonAVRFoundation):
         if mode not in self._digital_codec_modes:
             raise AvrCommandError("Invalid digital codec mode")
 
-        if self._digital_codec == mode:
-            return
-
         raw_mode = DIGITAL_CODEC_MAP_REVERSE[mode]
         if self._device.telnet_available:
+            if self._digital_codec == mode:
+                return
+
             await self._device.telnet_api.async_send_commands(
                 self._device.telnet_commands.command_digital_codec.format(mode=raw_mode)
             )
@@ -1167,9 +1167,6 @@ class DenonAVRInput(DenonAVRFoundation):
                     f"No mapping for input source {input_func}"
                 ) from err
 
-        if self._input_func == input_func:
-            return
-
         # Create command URL and send command via HTTP GET
         if linp in self._favorite_func_list:
             command_url = self._device.urls.command_fav_src + linp
@@ -1178,6 +1175,9 @@ class DenonAVRInput(DenonAVRFoundation):
             command_url = self._device.urls.command_sel_src + linp
             telnet_command = self._device.telnet_commands.command_sel_src + linp
         if self._device.telnet_available:
+            if self._input_func == input_func:
+                return
+
             await self._device.telnet_api.async_send_commands(telnet_command)
         else:
             await self._device.api.async_get_command(command_url)

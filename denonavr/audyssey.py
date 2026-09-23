@@ -224,10 +224,10 @@ class DenonAVRAudyssey(DenonAVRFoundation):
     ##########
     async def async_dynamiceq_off(self) -> None:
         """Turn DynamicEQ off."""
-        if self._dynamiceq is False:
-            return
-
         if self._device.telnet_available:
+            if self._dynamiceq is False:
+                return
+
             telnet_command = self._device.telnet_commands.command_dynamiceq + "OFF"
             await self._device.telnet_api.async_send_commands(telnet_command)
             return
@@ -239,10 +239,10 @@ class DenonAVRAudyssey(DenonAVRFoundation):
 
     async def async_dynamiceq_on(self) -> None:
         """Turn DynamicEQ on."""
-        if self._dynamiceq:
-            return
-
         if self._device.telnet_available:
+            if self._dynamiceq:
+                return
+
             telnet_command = self._device.telnet_commands.command_dynamiceq + "ON"
             await self._device.telnet_api.async_send_commands(telnet_command)
             return
@@ -254,10 +254,10 @@ class DenonAVRAudyssey(DenonAVRFoundation):
 
     async def async_set_multieq(self, value: MultiEQModes) -> None:
         """Set MultiEQ mode."""
-        if self._multeq == value:
-            return
-
         if self._device.telnet_available:
+            if self._multeq == value:
+                return
+
             setting = MULTI_EQ_MAP_REVERSE_TELNET.get(value)
             if setting is None:
                 raise AvrCommandError(f"Value {value} not known for MultiEQ")
@@ -282,10 +282,10 @@ class DenonAVRAudyssey(DenonAVRFoundation):
                 "Reference level could only be set when DynamicEQ is active"
             )
 
-        if self._reflevoffset == value:
-            return
-
         if self._device.telnet_available:
+            if self._reflevoffset == value:
+                return
+
             setting = REF_LVL_OFFSET_MAP_REVERSE_TELNET.get(value)
             if setting is None:
                 raise AvrCommandError(
@@ -306,10 +306,10 @@ class DenonAVRAudyssey(DenonAVRFoundation):
 
     async def async_set_dynamicvol(self, value: DynamicVolumeSettings) -> None:
         """Set Dynamic Volume."""
-        if self._dynamicvol == value:
-            return
-
         if self._device.telnet_available:
+            if self._dynamicvol == value:
+                return
+
             setting = DYNAMIC_VOLUME_MAP_REVERSE_TELNET.get(value)
             if setting is None:
                 raise AvrCommandError(f"Value {value} not known for Dynamic Volume")
@@ -335,10 +335,10 @@ class DenonAVRAudyssey(DenonAVRFoundation):
 
     async def async_lfc_on(self):
         """Turn LFC on."""
-        if self._lfc:
-            return
-
         if self._device.telnet_available:
+            if self._lfc:
+                return
+
             await self._device.telnet_api.async_send_commands(
                 self._device.telnet_commands.command_lfc.format(mode="ON")
             )
@@ -349,10 +349,10 @@ class DenonAVRAudyssey(DenonAVRFoundation):
 
     async def async_lfc_off(self):
         """Turn LFC off."""
-        if self._lfc is False:
-            return
-
         if self._device.telnet_available:
+            if self._lfc is False:
+                return
+
             await self._device.telnet_api.async_send_commands(
                 self._device.telnet_commands.command_lfc.format(mode="OFF")
             )
@@ -377,11 +377,11 @@ class DenonAVRAudyssey(DenonAVRFoundation):
         if amount < 1 or amount > 7:
             raise AvrCommandError("Containment amount must be between 1 and 7")
 
-        if self._containment_amount == amount:
-            return
-
         local_amount = f"{amount:02}"
         if self._device.telnet_available:
+            if self._containment_amount == amount:
+                return
+
             await self._device.telnet_api.async_send_commands(
                 self._device.telnet_commands.command_containment_amount.format(
                     value=local_amount
@@ -394,10 +394,10 @@ class DenonAVRAudyssey(DenonAVRFoundation):
 
     async def async_containment_amount_up(self) -> None:
         """Increase Containment Amount."""
-        if self._containment_amount == 7:
-            return
-
         if self._device.telnet_available:
+            if self._containment_amount == 7:
+                return
+
             await self._device.telnet_api.async_send_commands(
                 self._device.telnet_commands.command_containment_amount.format(
                     value="UP"
@@ -410,10 +410,10 @@ class DenonAVRAudyssey(DenonAVRFoundation):
 
     async def async_containment_amount_down(self) -> None:
         """Decrease Containment Amount."""
-        if self._containment_amount == 1:
-            return
-
         if self._device.telnet_available:
+            if self._containment_amount == 1:
+                return
+
             await self._device.telnet_api.async_send_commands(
                 self._device.telnet_commands.command_containment_amount.format(
                     value="DOWN"

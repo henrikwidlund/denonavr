@@ -32,7 +32,7 @@ class TestDenonAVRVolume:
         """Test that async_volume_up returns early if volume is at custom max."""
         fixture = DeviceTestFixture(True)
         device = DenonAVRVolume(device=fixture.device_info)
-        device._max_volume_callback("Main", "", "MAX 30")
+        device._max_volume_callback("Main", "", "VCTZMALIM 30")
         device._volume_callback("Main", "", "30")
         await fixture.async_execute(device.async_volume_up())
         fixture.assert_not_called()
@@ -90,7 +90,7 @@ class TestDenonAVRVolume:
         """Test async_set_volume sets custom max when value exceeds custom max."""
         fixture = DeviceTestFixture(True)
         device = DenonAVRVolume(device=fixture.device_info)
-        device._max_volume_callback("Main", "", "MAX 30")
+        device._max_volume_callback("Main", "", "VCTZMALIM 30")
         # add 80 to map to Denon scale
         # subtract 10 to not exceed custom max of 30 (-50)
         device._volume_callback("Main", "", str(int(from_val + 80 - 10)))
