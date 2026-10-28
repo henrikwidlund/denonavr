@@ -7,6 +7,9 @@ This module covers some basic automated tests of foundation.
 :license: MIT, see LICENSE for more details.
 """
 
+import asyncio
+from unittest.mock import AsyncMock, PropertyMock, patch
+
 import pytest
 
 from denonavr.foundation import AvrCommandError, channel_status_to_str
@@ -674,6 +677,43 @@ class TestDenonAVRDeviceInfo:
         device._audio_restorer_callback("Main", "RSTR OFF")
         with pytest.raises(AvrCommandError):
             await device.async_audio_restorer("Max")
+
+    @pytest.mark.asyncio
+    async def test_async_update_sends_advanced_info_commands_in_background(self):
+        """Test that async_update does not wait for advanced info commands."""
+        fixture = DeviceTestFixture(True)
+        device = fixture.device_info
+        device._is_setup = True
+        device.use_avr_2016_update = False
+        release = asyncio.Event()
+
+        async def advanced_info_update():
+            await release.wait()
+
+        with (
+            patch.object(
+                type(device),
+                "telnet_available",
+                new_callable=PropertyMock,
+                return_value=True,
+            ),
+            patch.object(device, "async_update_status_xml", new_callable=AsyncMock),
+            patch.object(
+                device,
+                "async_trigger_advanced_audio_video_info_update",
+                side_effect=advanced_info_update,
+            ) as mock_advanced,
+        ):
+            await device.async_update()
+            # A running update is not started twice
+            await device.async_update()
+            await asyncio.sleep(0)
+
+            assert not device._advanced_info_task.done()
+            mock_advanced.assert_called_once()
+
+            release.set()
+            await device._advanced_info_task
 
 
 @pytest.mark.parametrize(

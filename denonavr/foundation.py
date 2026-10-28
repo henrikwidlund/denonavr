@@ -422,6 +422,7 @@ class DenonAVRDeviceInfo:
         factory=dict, init=False
     )
     _is_dirac_supported: bool = attr.ib(converter=bool, default=False, init=False)
+    _advanced_info_task: Optional[asyncio.Task] = attr.ib(default=None, init=False)
 
     def __attrs_post_init__(self) -> None:
         """Initialize special attributes and callbacks."""
@@ -858,9 +859,19 @@ class DenonAVRDeviceInfo:
         else:
             await self.async_update_status_xml(cache_id=cache_id)
 
-        await self.async_trigger_advanced_audio_video_info_update()
+        self._schedule_advanced_audio_video_info_update()
 
         _LOGGER.debug("Finished device update")
+
+    def _schedule_advanced_audio_video_info_update(self) -> None:
+        """Send the advanced audio and video info commands in the background."""
+        if not self.telnet_available:
+            return
+        if self._advanced_info_task is not None and not self._advanced_info_task.done():
+            return
+        self._advanced_info_task = asyncio.create_task(
+            self.async_trigger_advanced_audio_video_info_update()
+        )
 
     async def async_trigger_advanced_audio_video_info_update(self) -> None:
         """
