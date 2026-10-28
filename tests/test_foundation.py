@@ -12,6 +12,7 @@ from unittest.mock import AsyncMock, PropertyMock, patch
 
 import pytest
 
+from denonavr.exceptions import AvrNetworkError, AvrRequestError, AvrTimoutError
 from denonavr.foundation import AvrCommandError, channel_status_to_str
 from tests.test_helpers import DeviceTestFixture
 
@@ -714,6 +715,31 @@ class TestDenonAVRDeviceInfo:
 
             release.set()
             await device._advanced_info_task
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "error",
+        [AvrNetworkError("down", "req"), AvrTimoutError("timeout", "req")],
+    )
+    async def test_async_update_status_xml_raises_connection_errors(self, error):
+        """Test that connection errors are not skipped."""
+        fixture = DeviceTestFixture(True)
+        device = fixture.device_info
+        with patch.object(device.api, "async_get_xml", side_effect=error):
+            with pytest.raises(type(error)):
+                await device.async_update_status_xml()
+
+    @pytest.mark.asyncio
+    async def test_async_update_status_xml_skips_request_errors(self):
+        """Test that other request errors skip the URL."""
+        fixture = DeviceTestFixture(True)
+        device = fixture.device_info
+        with patch.object(
+            device.api, "async_get_xml", side_effect=AvrRequestError("error", "req")
+        ) as mock_get:
+            await device.async_update_status_xml()
+
+        assert mock_get.await_count == 2
 
 
 @pytest.mark.parametrize(
