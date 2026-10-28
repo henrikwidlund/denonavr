@@ -9,6 +9,9 @@ This module covers some basic automated tests for the api module.
 
 # pylint: disable=protected-access
 
+import asyncio
+
+import pytest
 
 from denonavr.api import (
     _EVENTS_PRODUCING_DUPLICATES,
@@ -56,3 +59,65 @@ def test_duplicate_event_cache_propagation():
     assert not _should_propagate_event("EV", param2, api._potential_duplicate_events)
     api.clear_duplicate_event_cache()
     assert _should_propagate_event("EV", param1, api._potential_duplicate_events)
+
+
+class _ProtocolFake:
+    """Telnet protocol that records written commands."""
+
+    connected = True
+
+    def __init__(self) -> None:
+        """Create an empty record."""
+        self.written: list[str] = []
+
+    def write(self, data: str) -> None:
+        """Record a command."""
+        self.written.append(data.strip())
+
+
+def _connected_telnet_api() -> DenonAVRTelnetApi:
+    api = DenonAVRTelnetApi()
+    api._connection_enabled = True
+    api._protocol = _ProtocolFake()
+    api._rate_limiter.enabled = False
+    return api
+
+
+@pytest.mark.asyncio
+async def test_background_command_waits_for_user_command(monkeypatch):
+    """Test that background commands are sent after pending user commands."""
+    monkeypatch.setattr("denonavr.api._BACKGROUND_PAUSE_AFTER_COMMAND", 0.05)
+    api = _connected_telnet_api()
+    release = asyncio.Event()
+
+    async def wait_for_confirmation():
+        await release.wait()
+
+    monkeypatch.setattr(api._send_confirmation_event, "wait", wait_for_confirmation)
+    user = asyncio.create_task(api.async_send_commands("MVUP"))
+    await asyncio.sleep(0)
+    background = asyncio.create_task(
+        api.async_send_commands("MV?", skip_confirmation=True, background=True)
+    )
+    await asyncio.sleep(0.01)
+
+    assert api._protocol.written == ["MVUP"]
+
+    release.set()
+    await user
+    await asyncio.sleep(0.01)
+    # Still paused right after the user command
+    assert api._protocol.written == ["MVUP"]
+
+    await background
+    assert api._protocol.written == ["MVUP", "MV?"]
+
+
+@pytest.mark.asyncio
+async def test_background_command_is_sent_without_user_commands():
+    """Test that background commands are sent at once when idle."""
+    api = _connected_telnet_api()
+
+    await api.async_send_commands("MV?", skip_confirmation=True, background=True)
+
+    assert api._protocol.written == ["MV?"]

@@ -879,7 +879,8 @@ class DenonAVRDeviceInfo:
 
         Only available if using Telnet.
         """
-        if not self.telnet_available:
+        # The update after a connect also sends these commands
+        if not self.telnet_available or self.telnet_api.update_running:
             return
 
         commands = [
@@ -899,7 +900,7 @@ class DenonAVRDeviceInfo:
         for command in commands:
             try:
                 await self.telnet_api.async_send_commands(
-                    command, skip_confirmation=True
+                    command, skip_confirmation=True, background=True
                 )
                 await asyncio.sleep(0.075)
             except Exception:  # pylint: disable=broad-except

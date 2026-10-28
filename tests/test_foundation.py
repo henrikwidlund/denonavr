@@ -717,6 +717,22 @@ class TestDenonAVRDeviceInfo:
             await device._advanced_info_task
 
     @pytest.mark.asyncio
+    async def test_advanced_info_update_skipped_while_connect_update_runs(self):
+        """Test that advanced info commands are not sent twice after a connect."""
+        fixture = DeviceTestFixture(True)
+        device = fixture.device_info
+        connect_update = asyncio.create_task(asyncio.Event().wait())
+        device.telnet_api._update_callback_tasks.add(connect_update)
+        try:
+            await fixture.async_execute(
+                device.async_trigger_advanced_audio_video_info_update()
+            )
+        finally:
+            connect_update.cancel()
+
+        fixture.assert_not_called()
+
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "error",
         [AvrNetworkError("down", "req"), AvrTimoutError("timeout", "req")],
