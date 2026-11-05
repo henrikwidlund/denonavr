@@ -1578,8 +1578,16 @@ class DenonAVRDeviceInfo:
         """
         Return the pixel depth input for the device.
 
-        Only available if using Telnet.
+        Only available if using Telnet. Some sources do not indicate a pixel
+        depth, the receiver then sends 0 for the input. If there is an input
+        signal the pixel depth output is returned in that case.
         """
+        if (
+            self._pixel_depth_input == "Unknown"
+            and self._video_hdmi_signal_in is not None
+            and self._pixel_depth_output not in (None, "Unknown")
+        ):
+            return self._pixel_depth_output
         return self._pixel_depth_input
 
     @property
