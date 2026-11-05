@@ -71,6 +71,7 @@ _EVENTS_PRODUCING_DUPLICATES = [
     "INFSIGFRL I",
     "INFSIGFRL O",
     "INFSIGCOS",
+    "INFSIGECI",
     "HDMIDIAGMAXRES",
     "HDMIDIAGERR",
     "HDMIDIAGHDCP23",
@@ -739,6 +740,7 @@ class DenonAVRTelnetApi:
                 "SSINFSIGPIX ?",  # Video Pixel Depth
                 "SSINFSIGFRL ?",  # Video Max FRL
                 "SSINFSIGCOS ?",  # Signal Color Space
+                "SSINFSIGECI ?",  # Signal Extended Colorimetry
                 "PSDIRAC ?",  # Dirac Live Filter
                 "PSREFLEV ?",  # Reference Level
                 "PSDYNVOL ?",  # Dynamic Vol.
