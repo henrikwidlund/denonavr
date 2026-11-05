@@ -790,8 +790,14 @@ class DenonAVRDeviceInfo:
                     key_value[1],
                 )
 
-    async def async_setup(self) -> None:
-        """Ensure that configuration is loaded from receiver asynchronously."""
+    async def async_setup(self, cache_id: Optional[Hashable] = None) -> None:
+        """
+        Ensure that configuration is loaded from receiver asynchronously.
+
+        The requests made here describe the receiver rather than this zone, so
+        every zone of a receiver can be set up under one cache id and have the
+        first zone's requests answer the rest.
+        """
         async with self._setup_lock:
             _LOGGER.debug("Starting device setup")
             # Reduce read timeout during receiver identification
@@ -802,11 +808,11 @@ class DenonAVRDeviceInfo:
                 _LOGGER.debug("Identifying receiver")
                 await self.async_identify_receiver()
                 _LOGGER.debug("Getting device info")
-                await self.async_get_device_info()
+                await self.async_get_device_info(cache_id=cache_id)
             finally:
                 self.api.read_timeout = read_timeout
             _LOGGER.debug("Identifying update method")
-            await self.async_identify_update_method()
+            await self.async_identify_update_method(cache_id=cache_id)
 
             # Add tags for a potential AppCommand.xml update
             self.api.add_appcommand_update_tag(AppCommands.GetAllZonePowerStatus)
@@ -926,15 +932,22 @@ class DenonAVRDeviceInfo:
         # devices and port 8080 devices 2016 and later
         # 2016 models has also some of the XML but not all, try first 2016
         r_types = [AVR_X_2016, AVR_X, AVR]
+        if self.zone != MAIN_ZONE:
+            # The main zone identified the receiver first. Every zone shares one
+            # api object, so start on the port it talks to: the wrong port is
+            # a miss that is never cached
+            r_types.sort(key=lambda r_type: r_type.port != self.api.port)
 
         timeout_errors = 0
         for r_type in r_types:
-            self.api.port = r_type.port
             # This XML is needed to get the sources of the receiver
             try:
-                # Deviceinfo.xml is static and can be cached for the whole time
+                # Deviceinfo.xml is static and can be cached for the whole
+                # time. The document describes the receiver, not the zone, so
+                # the cache id names the api object every zone shares. The port
+                # is an argument so that other zones' requests do not follow it
                 xml = await self.api.async_get_xml(
-                    self.urls.deviceinfo, cache_id=id(self)
+                    self.urls.deviceinfo, port=r_type.port, cache_id=id(self.api)
                 )
             except (AvrTimoutError, AvrNetworkError) as err:
                 _LOGGER.debug(
@@ -968,6 +981,7 @@ class DenonAVRDeviceInfo:
                 is_avr_x = self._is_avr_x(xml)
                 if is_avr_x:
                     self.receiver = r_type
+                    self.api.port = r_type.port
                     _LOGGER.info(
                         "Identified %s receiver using port %s",
                         r_type.type,
@@ -1016,7 +1030,9 @@ class DenonAVRDeviceInfo:
 
         return False
 
-    async def async_identify_update_method(self) -> None:
+    async def async_identify_update_method(
+        self, cache_id: Optional[Hashable] = None
+    ) -> None:
         """
         Identify the correct update method for the receiver asynchronously.
 
@@ -1029,7 +1045,9 @@ class DenonAVRDeviceInfo:
         else:
             try:
                 xml = await self.api.async_post_appcommand(
-                    self.urls.appcommand, (AppCommands.GetFriendlyName,)
+                    self.urls.appcommand,
+                    (AppCommands.GetFriendlyName,),
+                    cache_id=cache_id,
                 )
             except (AvrTimoutError, AvrNetworkError) as err:
                 _LOGGER.debug(
@@ -1047,7 +1065,9 @@ class DenonAVRDeviceInfo:
 
         if not self.use_avr_2016_update:
             try:
-                xml = await self.api.async_get_xml(self.urls.mainzone)
+                xml = await self.api.async_get_xml(
+                    self.urls.mainzone, cache_id=cache_id
+                )
             except (AvrTimoutError, AvrNetworkError) as err:
                 _LOGGER.debug(
                     "Connection error when identifying update method: %s", err
@@ -1081,7 +1101,7 @@ class DenonAVRDeviceInfo:
             _LOGGER.warning("No FriendlyName found, using standard name: Denon AVR")
             self.friendly_name = "Denon AVR"
 
-    async def async_get_device_info(self) -> None:
+    async def async_get_device_info(self, cache_id: Optional[Hashable] = None) -> None:
         """Get device information."""
         port = DESCRIPTION_TYPES[self.receiver.type].port
         command = DESCRIPTION_TYPES[self.receiver.type].url
@@ -1090,7 +1110,11 @@ class DenonAVRDeviceInfo:
         device_info = None
         try:
             res = await self.api.async_get(
-                command, port=port, record_latency=False, skip_rate_limiter=True
+                command,
+                port=port,
+                cache_id=cache_id,
+                record_latency=False,
+                skip_rate_limiter=True,
             )
         except AvrTimoutError as err:
             _LOGGER.debug("Timeout when getting device info: %s", err)
@@ -2820,7 +2844,7 @@ class DenonAVRFoundation:
                 try:
                     start += 1
                     # Check if attribute exists
-                    getattr(self, pattern.update_attribute)
+                    current_value = getattr(self, pattern.update_attribute)
                     # Set new value either from XML attribute or text
                     if pattern.get_xml_attribute is not None:
                         set_value = xml.find(search_strings[i]).get(
@@ -2828,6 +2852,20 @@ class DenonAVRFoundation:
                         )
                     else:
                         set_value = xml.find(search_strings[i]).text
+
+                    if (
+                        not app_command.blank_is_unknown
+                        and set_value is None
+                        and current_value is not None
+                    ):
+                        success += 1
+                        _LOGGER.debug(
+                            "Keeping variable %s at value %s, %s answered blank",
+                            pattern.update_attribute,
+                            current_value,
+                            app_command.cmd_text,
+                        )
+                        continue
 
                     setattr(self, pattern.update_attribute, set_value)
                     success += 1

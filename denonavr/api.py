@@ -141,7 +141,7 @@ class HTTPXAsyncClient:
         """Hash the class using its ID that caching works."""
         return id(self)
 
-    @cache_result
+    @cache_result(unkeyed=("timeout", "read_timeout"))
     @async_handle_receiver_exceptions
     async def async_get(
         self,
@@ -154,7 +154,13 @@ class HTTPXAsyncClient:
         record_latency: bool = True,
         skip_rate_limiter: bool = False,
     ) -> httpx.Response:
-        """Call GET endpoint of Denon AVR receiver asynchronously."""
+        """Call GET endpoint of Denon AVR receiver asynchronously.
+
+        How long the caller is willing to wait says nothing about the
+        document it gets back, so it is left out of the cache key: the
+        receiver identification probes with a short read timeout and every
+        later reader of the same URL is served what it found.
+        """
         client = self._get_client()
         start = time.monotonic()
         if not skip_rate_limiter:
@@ -310,6 +316,7 @@ class DenonAVRApi:
         self,
         request: str,
         *,
+        port: Optional[int] = None,
         cache_id: Hashable = None,
         record_latency: bool = True,
         skip_rate_limiter: bool = False,
@@ -318,6 +325,7 @@ class DenonAVRApi:
         # HTTP GET to endpoint
         res = await self.async_get(
             request,
+            port=port,
             cache_id=cache_id,
             record_latency=record_latency,
             skip_rate_limiter=skip_rate_limiter,

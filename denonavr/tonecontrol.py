@@ -23,6 +23,11 @@ from .foundation import DenonAVRFoundation, convert_string_int_bool
 _LOGGER = logging.getLogger(__name__)
 
 
+def _format_tone_control_level(level: int) -> str:
+    """Format a tone control level the way AppCommand.xml reports it."""
+    return f"{level:+d}dB" if level else "0dB"
+
+
 @attr.s(auto_attribs=True, on_setattr=DENON_ATTR_SETATTR)
 class DenonAVRToneControl(DenonAVRFoundation):
     """This class implements tone control functions of Denon AVR receiver."""
@@ -54,13 +59,19 @@ class DenonAVRToneControl(DenonAVRFoundation):
     # AppCommand.xml interface
     appcommand_attrs = {AppCommands.GetToneControl: None}
 
-    async def async_setup(self) -> None:
-        """Ensure that the instance is initialized."""
+    async def async_setup(self, cache_id: Optional[Hashable] = None) -> None:
+        """
+        Ensure that the instance is initialized.
+
+        The probe below asks the receiver, not the zone - the request carries
+        no zone and the command answers for the whole receiver - so a cache id
+        shared with the other zones' setup spares it a request each.
+        """
         async with self._setup_lock:
             _LOGGER.debug("Starting tone control setup")
 
             # The first update determines if tone control is supported
-            await self.async_update_tone_control()
+            await self.async_update_tone_control(cache_id=cache_id)
 
             # Add tags for a potential AppCommand.xml update
             if self.support_tone_control:
@@ -89,10 +100,10 @@ class DenonAVRToneControl(DenonAVRFoundation):
         key_value = parameter.split()
         if key_value[0] == "BAS":
             self._bass = int(key_value[1]) - 44
-            self._bass_level = f"{int(key_value[1]) - 50}dB"
+            self._bass_level = _format_tone_control_level(int(key_value[1]) - 50)
         elif key_value[0] == "TRE":
             self._treble = int(key_value[1]) - 44
-            self._treble_level = f"{int(key_value[1]) - 50}dB"
+            self._treble_level = _format_tone_control_level(int(key_value[1]) - 50)
 
     async def async_update(
         self, global_update: bool = False, cache_id: Optional[Hashable] = None
@@ -198,11 +209,18 @@ class DenonAVRToneControl(DenonAVRFoundation):
     # Setter #
     ##########
     async def async_enable_tone_control(self) -> None:
-        """Enable tone control to change settings like bass or treble."""
-        if self._tone_control_status is None:
-            raise AvrCommandError(
-                "Cannot enable tone control, Dynamic EQ must be deactivated"
+        """
+        Enable tone control to change settings like bass or treble.
+
+        Note:
+        The receiver silently refuses this while Dynamic Equalizer is active.
+        Dynamic EQ is served by another command and is not readable from here.
+        """
+        if self._support_tone_control is False:
+            _LOGGER.warning(
+                "Cannot enable tone control, the receiver does not support it"
             )
+            return
 
         if self._device.telnet_available:
             telnet_command = self._device.telnet_commands.command_tonecontrol + "ON"
@@ -211,11 +229,19 @@ class DenonAVRToneControl(DenonAVRFoundation):
             await self.async_set_tone_control_command("adjust", 1)
 
     async def async_disable_tone_control(self) -> None:
-        """Disable tone control to change settings like bass or treble."""
-        if self._tone_control_status is None:
-            raise AvrCommandError(
-                "Cannot disable tone control, Dynamic EQ must be deactivated"
+        """
+        Disable tone control to change settings like bass or treble.
+
+        Note:
+        The receiver silently refuses this while Dynamic Equalizer is active.
+        Dynamic EQ is served by another command and is not readable from here.
+        """
+        if self._support_tone_control is False:
+            _LOGGER.warning(
+                "Cannot disable tone control, the receiver does not support it"
             )
+            return
+
         if self._device.telnet_available:
             telnet_command = self._device.telnet_commands.command_tonecontrol + "OFF"
             await self._device.telnet_api.async_send_commands(telnet_command)
@@ -262,6 +288,9 @@ class DenonAVRToneControl(DenonAVRFoundation):
             telnet_command = self._device.telnet_commands.command_bass + "UP"
             await self._device.telnet_api.async_send_commands(telnet_command)
         else:
+            if self.bass is None:
+                _LOGGER.warning("Cannot increase bass, its current level is unknown")
+                return
             await self.async_enable_tone_control()
             await self.async_set_tone_control_command("bassvalue", self.bass + 1)
             await self.async_update()
@@ -282,6 +311,9 @@ class DenonAVRToneControl(DenonAVRFoundation):
             telnet_command = self._device.telnet_commands.command_bass + "DOWN"
             await self._device.telnet_api.async_send_commands(telnet_command)
         else:
+            if self.bass is None:
+                _LOGGER.warning("Cannot decrease bass, its current level is unknown")
+                return
             await self.async_enable_tone_control()
             await self.async_set_tone_control_command("bassvalue", self.bass - 1)
             await self.async_update()
@@ -328,6 +360,9 @@ class DenonAVRToneControl(DenonAVRFoundation):
             telnet_command = self._device.telnet_commands.command_treble + "UP"
             await self._device.telnet_api.async_send_commands(telnet_command)
         else:
+            if self.treble is None:
+                _LOGGER.warning("Cannot increase treble, its current level is unknown")
+                return
             await self.async_enable_tone_control()
             await self.async_set_tone_control_command("treblevalue", self.treble + 1)
             await self.async_update()
@@ -348,6 +383,9 @@ class DenonAVRToneControl(DenonAVRFoundation):
             telnet_command = self._device.telnet_commands.command_treble + "DOWN"
             await self._device.telnet_api.async_send_commands(telnet_command)
         else:
+            if self.treble is None:
+                _LOGGER.warning("Cannot decrease treble, its current level is unknown")
+                return
             await self.async_enable_tone_control()
             await self.async_set_tone_control_command("treblevalue", self.treble - 1)
             await self.async_update()
