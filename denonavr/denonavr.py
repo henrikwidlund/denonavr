@@ -491,6 +491,8 @@ class DenonAVR(DenonAVRFoundation):
         Return the current digital converter mode.
 
         Only available if using Telnet.
+
+        Possible values are: "Auto", "PCM", "DTS"
         """
         return self.input.digital_codec
 
@@ -707,6 +709,9 @@ class DenonAVR(DenonAVRFoundation):
         Return the current picture mode.
 
         Only available if using Telnet and on models with video processing.
+
+        Possible values are: "Off", "Brilliant", "Custom", "Game", "ISF Day",
+        "ISF Night", "Movie", "Standard", "Stream", "Vivid"
         """
         return self._device.picture_mode
 

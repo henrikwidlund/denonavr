@@ -327,6 +327,9 @@ TELNET_SOURCES = {
     "SAT/CBL",
     "MPLAY",
     "GAME",
+    "GAME1",
+    "GAME2",
+    "8K",
     "HDRADIO",
     "NET",
     "PANDORA",
@@ -672,7 +675,7 @@ COMMAND_TACTILE_TRANSDUCER_LEVEL = "/goform/formiPhoneAppDirect.xml?SSTTRLEV%20{
 COMMAND_TACTILE_TRANSDUCER_LPF = (
     "/goform/formiPhoneAppDirect.xml?SSTTRLPF%20{frequency}"
 )
-COMMAND_DELAY = "/goform/formiPhoneAppDirect.xml?PSDELAY%20{delay}"
+COMMAND_DELAY = "/goform/formiPhoneAppDirect.xml?PSDELAY%20{delay:03d}"
 COMMAND_DELAY_UP = "/goform/formiPhoneAppDirect.xml?PSDELAY%20UP"
 COMMAND_DELAY_DOWN = "/goform/formiPhoneAppDirect.xml?PSDELAY%20DOWN"
 COMMAND_AUROMATIC_3D_PRESET = "/goform/formiPhoneAppDirect.xml?PSAUROPR%20{preset}"
@@ -1248,7 +1251,7 @@ DENONAVR_TELNET_COMMANDS = TelnetCommands(
     command_tactile_transducer="SSTTR {mode}",
     command_tactile_transducer_level="SSTTRLEV {mode}",
     command_tactile_transducer_lpf="SSTTRLPF {frequency}",
-    command_delay="PSDELAY {delay}",
+    command_delay="PSDELAY {delay:03d}",
     command_delay_up="PSDELAY UP",
     command_delay_down="PSDELAY DOWN",
     command_auromatic_3d_preset="PSAUROPR {preset}",
@@ -1369,7 +1372,7 @@ ZONE2_TELNET_COMMANDS = TelnetCommands(
     command_tactile_transducer="SSTTR {mode}",
     command_tactile_transducer_level="SSTTRLEV {mode}",
     command_tactile_transducer_lpf="SSTTRLPF {frequency}",
-    command_delay="PSDELAY {delay}",
+    command_delay="PSDELAY {delay:03d}",
     command_delay_up="PSDELAY UP",
     command_delay_down="PSDELAY DOWN",
     command_auromatic_3d_preset="PSAUROPR {preset}",
@@ -1490,7 +1493,7 @@ ZONE3_TELNET_COMMANDS = TelnetCommands(
     command_tactile_transducer="SSTTR {mode}",
     command_tactile_transducer_level="SSTTRLEV {mode}",
     command_tactile_transducer_lpf="SSTTRLPF {frequency}",
-    command_delay="PSDELAY {delay}",
+    command_delay="PSDELAY {delay:03d}",
     command_delay_up="PSDELAY UP",
     command_delay_down="PSDELAY DOWN",
     command_auromatic_3d_preset="PSAUROPR {preset}",
@@ -2059,10 +2062,12 @@ PictureModes = Literal[
 ]
 """Picture Modes."""
 
+# Custom is CSTM on Marantz and CTM on Denon, both are read
 PICTURE_MODE_MAP = {
     "OFF": "Off",
     "BRL": "Brilliant",
     "CSTM": "Custom",
+    "CTM": "Custom",
     "GAM": "Game",
     "DAY": "ISF Day",
     "NGT": "ISF Night",
@@ -2072,7 +2077,13 @@ PICTURE_MODE_MAP = {
     "VVD": "Vivid",
 }
 
-PICTURE_MODE_MAP_REVERSE = {value: key for key, value in PICTURE_MODE_MAP.items()}
+PICTURE_MODE_MAP_REVERSE = {
+    value: key for key, value in reversed(PICTURE_MODE_MAP.items())
+}
+"""Picture mode codes to send, Custom is CSTM (Marantz)."""
+
+PICTURE_MODE_MAP_REVERSE_DENON = {**PICTURE_MODE_MAP_REVERSE, "Custom": "CTM"}
+"""Picture mode codes to send to Denon, Custom is CTM."""
 
 DigitalCodecModes = Literal["Auto", "PCM", "DTS"]
 """Digital Codec Modes."""

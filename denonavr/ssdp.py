@@ -11,7 +11,6 @@ import asyncio
 import logging
 import re
 import socket
-import urllib.parse
 import xml.etree.ElementTree as ET
 from typing import Dict, List, Optional, Set, Tuple
 from urllib.parse import urlparse
@@ -80,55 +79,83 @@ def get_local_ips() -> List[str]:
     return ips
 
 
-async def async_identify_denonavr_receivers() -> List[Dict]:
+async def async_identify_denonavr_receivers(
+    async_client: Optional[httpx.AsyncClient] = None,
+) -> List[Dict]:
     """
     Identify DenonAVR using SSDP and SCPD queries.
 
     Returns a list of dictionaries which includes all discovered Denon AVR
     devices with keys "host", "modelName", "friendlyName", "presentationURL".
+
+    async_client is the HTTP client to use. It is not closed. If not given, a
+    new client is created and closed when the queries are done.
     """
     # Sending SSDP broadcast message to get resource urls from devices
     urls = await async_send_ssdp_broadcast()
 
     # Check which responding device is a DenonAVR device and prepare output
-    receivers = []
+    if async_client is not None:
+        return await _async_evaluate_devices(async_client, urls)
 
     async with httpx.AsyncClient(
         timeout=2.5,
-        limits=httpx.Limits(
-            # Unlikely that you'd have more than 5 receivers
-            max_connections=5
-        ),
+        # Unlikely that you'd have more than 5 receivers
+        limits=httpx.Limits(max_connections=5),
     ) as client:
-        tasks = []
-        for url in urls:
-            tasks.append(_evaluate_single_device(client, url))
-
-        # Process all devices concurrently but limit concurrency for embedded system
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-
-        for result in results:
-            if isinstance(result, dict):  # Skip exceptions
-                receivers.append(result)
-
-    return receivers
+        return await _async_evaluate_devices(client, urls)
 
 
-async def _evaluate_single_device(
+async def _async_evaluate_devices(
+    client: httpx.AsyncClient, urls: Set[str]
+) -> List[Dict]:
+    """Return the AV receivers among the devices at the given urls."""
+    results = await asyncio.gather(
+        *(_async_evaluate_single_device(client, url) for url in urls)
+    )
+    return [receiver for receiver in results if receiver is not None]
+
+
+async def _async_evaluate_single_device(
     client: httpx.AsyncClient, url: str
 ) -> Optional[Dict]:
-    """Evaluate a single device URL for compatibility."""
+    """Return the receiver at the SCPD url, or None if it is not a receiver."""
     try:
-        if not await async_is_av_receiver(
-            urllib.parse.urlparse(url).hostname, client, timeout=2.5
-        ):
+        hostname = urlparse(url).hostname
+        if hostname and not await async_is_av_receiver(hostname, client, timeout=2.5):
             return None
         async with client.stream("GET", url, timeout=5.0) as res:
             res.raise_for_status()
             await res.aread()
-        return evaluate_scpd_xml(url, res.text)
     except httpx.HTTPError:
         return None
+    return evaluate_scpd_xml(url, res.text)
+
+
+async def async_is_av_receiver(
+    ip: str, client: httpx.AsyncClient, timeout: float
+) -> bool:
+    """
+    Check that the device at the IP is not another type of device.
+
+    Returns False only if the device reports a category other than
+    "AV RECEIVER". Older receivers do not report a category, they are accepted.
+    """
+
+    async def _async_get_category(port: int) -> Optional[str]:
+        url = f"http://{ip}:{port}{DEVICEINFO_URL}"
+        try:
+            async with client.stream("GET", url, timeout=timeout) as res:
+                if res.status_code != 200:
+                    return None
+                await res.aread()
+            category = fromstring(res.text).findtext("CategoryName")
+        except (httpx.HTTPError, ParseError, DefusedXmlException):
+            return None
+        return category.strip() if category else None
+
+    categories = await asyncio.gather(*(_async_get_category(p) for p in (80, 8080)))
+    return all(category in (None, "AV RECEIVER") for category in categories)
 
 
 async def async_send_ssdp_broadcast() -> Set[str]:
@@ -241,34 +268,6 @@ def evaluate_scpd_xml(url: str, body: str) -> Optional[Dict]:
             "Error occurred during evaluation of SCPD XML from URI %s: %s", url, err
         )
         return None
-
-
-async def async_is_av_receiver(
-    ip: str, client: httpx.AsyncClient, timeout: float
-) -> bool:
-    """Check if device at given IP is an AV receiver."""
-
-    async def _async_check_is_avr(port: int) -> bool | None:
-        url = f"http://{ip}:{port}{DEVICEINFO_URL}"
-        try:
-            async with client.stream("GET", url, timeout=timeout) as res:
-                if res.status_code != 200:
-                    return None
-                await res.aread()
-                text = res.text
-                try:
-                    root = fromstring(text)
-                    category = root.findtext("CategoryName")
-                    if category:
-                        return category.strip() == "AV RECEIVER"
-                except ParseError:
-                    return None
-        except Exception:  # pylint: disable=broad-exception-caught
-            return None
-
-    tasks = [_async_check_is_avr(port) for port in [80, 8080]]
-    results = await asyncio.gather(*tasks, return_exceptions=True)
-    return any(r is True for r in results)
 
 
 class DenonAVRSSDP(asyncio.DatagramProtocol):

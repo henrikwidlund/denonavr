@@ -757,6 +757,22 @@ class TestDenonAVRDeviceInfo:
 
         assert mock_get.await_count == 2
 
+    def test_sleep_is_int_or_off(self):
+        """Test that the sleep timer is an integer, or OFF."""
+        device = DeviceTestFixture(True).device_info
+        device._auto_sleep_callback("Main", "SLP", "030")
+        assert device.sleep == 30
+        device._auto_sleep_callback("Main", "SLP", "OFF")
+        assert device.sleep == "OFF"
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("sleep", [-1, 0, 121, "ON"])
+    async def test_async_sleep_raises_on_invalid(self, sleep):
+        """Test that async_sleep raises on invalid values."""
+        fixture = DeviceTestFixture(True)
+        with pytest.raises(AvrCommandError):
+            await fixture.async_execute(fixture.device_info.async_sleep(sleep))
+
 
 @pytest.mark.parametrize(
     "channel_status,expected",

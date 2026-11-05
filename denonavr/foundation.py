@@ -50,6 +50,10 @@ from .const import (
     MAIN_ZONE,
     PICTURE_MODE_MAP,
     PICTURE_MODE_MAP_REVERSE,
+    PICTURE_MODE_MAP_REVERSE_DENON,
+    POWER_OFF,
+    POWER_ON,
+    POWER_STANDBY,
     POWER_STATES,
     SETTINGS_MENU_STATES,
     VALID_RECEIVER_TYPES,
@@ -470,6 +474,8 @@ class DenonAVRDeviceInfo:
             "SMI": self._audio_sound_callback,
             "HDMIDIAGMAXRES": self._max_resolution_callback,
             "INFSIGRES": self._video_signal_callback,
+            "SDVIN": self._video_signal_callback,
+            "SDVOUT": self._video_signal_callback,
         }
 
         self._vs_handlers: Dict[str, Callable[[str, str], None]] = {
@@ -664,9 +670,9 @@ class DenonAVRDeviceInfo:
 
     def _auto_lip_sync_callback(self, parameter: str) -> None:
         """Handle a auto lip sync change event."""
-        if parameter.startswith("HOSALS"):
-            self._auto_lip_sync = parameter[5:]
-        elif parameter.startswith("HOS"):
+        if parameter.startswith("HOSALS "):
+            self._auto_lip_sync = parameter[7:]
+        elif parameter.startswith("HOS "):
             self._auto_lip_sync = parameter[4:]
 
     def _video_signal_callback(self, parameter: str) -> None:
@@ -712,10 +718,11 @@ class DenonAVRDeviceInfo:
 
     def _max_frl_callback(self, parameter: str) -> None:
         """Handle a max FRL change event."""
+        # Some receivers send a space after I and O, the value is stripped
         if parameter.startswith("INFSIGFRL I"):
-            self._max_frl_input = parameter[12:]
+            self._max_frl_input = parameter[11:]
         elif parameter.startswith("INFSIGFRL O"):
-            self._max_frl_output = parameter[12:]
+            self._max_frl_output = parameter[11:]
 
     def _colorspace_callback(self, parameter: str) -> None:
         """Handle a colorspace event."""
@@ -727,6 +734,10 @@ class DenonAVRDeviceInfo:
                 return "4:4:4"
             if value == "3":
                 return "RGB"
+            if value == "8":
+                return "4:2:0"
+            if value == "9":
+                return "4:2:2/BT.2020"
             return None
 
         key_value = parameter.split()
@@ -902,7 +913,8 @@ class DenonAVRDeviceInfo:
                 await self.telnet_api.async_send_commands(
                     command, skip_confirmation=True, background=True
                 )
-                await asyncio.sleep(0.075)
+                # The protocol asks for at least 50 ms between commands
+                await asyncio.sleep(0.05)
             except Exception:  # pylint: disable=broad-except
                 _LOGGER.debug(
                     "Failed to send advanced video info command: %s.", command
@@ -1573,23 +1585,30 @@ class DenonAVRDeviceInfo:
         """
         return self._max_frl_output
 
+    @staticmethod
+    def _add_bt2020(colorspace: Optional[str], hdr: Optional[str]) -> Optional[str]:
+        """Add BT.2020 if the receiver did not send it and the signal has HDR."""
+        if colorspace and hdr and not colorspace.endswith("/BT.2020"):
+            return f"{colorspace}/BT.2020"
+        return colorspace
+
     @property
     def colorspace_input(self) -> Optional[str]:
         """
         Return the colorspace input for the device.
 
-        Only available if using Telnet.
+        Only available if using Telnet. Adds "/BT.2020" when the signal has HDR.
         """
-        return self._colorspace_input
+        return self._add_bt2020(self._colorspace_input, self._hdr_input)
 
     @property
     def colorspace_output(self) -> Optional[str]:
         """
         Return the colorspace output for the device.
 
-        Only available if using Telnet.
+        Only available if using Telnet. Adds "/BT.2020" when the signal has HDR.
         """
-        return self._colorspace_output
+        return self._add_bt2020(self._colorspace_output, self._hdr_output)
 
     @property
     def max_resolution(self) -> Optional[str]:
@@ -1606,6 +1625,9 @@ class DenonAVRDeviceInfo:
         Return the current picture mode.
 
         Only available if using Telnet and on models with video processing.
+
+        Possible values are: "Off", "Brilliant", "Custom", "Game", "ISF Day",
+        "ISF Night", "Movie", "Standard", "Stream", "Vivid"
         """
         return self._picture_mode
 
@@ -1652,7 +1674,7 @@ class DenonAVRDeviceInfo:
     async def async_power_on(self) -> None:
         """Turn on receiver."""
         if self.telnet_available:
-            if self._power == "ON":
+            if self._power == POWER_ON:
                 return
 
             await self.telnet_api.async_send_commands(
@@ -1664,7 +1686,7 @@ class DenonAVRDeviceInfo:
     async def async_power_off(self) -> None:
         """Turn off receiver."""
         if self.telnet_available:
-            if self._power == "OFF":
+            if self._power in (POWER_OFF, POWER_STANDBY):
                 return
 
             await self.telnet_api.async_send_commands(
@@ -2157,7 +2179,12 @@ class DenonAVRDeviceInfo:
         if mode not in self._picture_modes:
             raise AvrCommandError("Invalid picture mode")
 
-        raw_mode = PICTURE_MODE_MAP_REVERSE[mode]
+        modes = (
+            PICTURE_MODE_MAP_REVERSE_DENON
+            if self.is_denon
+            else PICTURE_MODE_MAP_REVERSE
+        )
+        raw_mode = modes[mode]
         if self.telnet_available:
             if self._picture_mode == mode:
                 return
@@ -2341,16 +2368,17 @@ class DenonAVRDeviceInfo:
         if delay_time < 0 or delay_time > 300:
             raise AvrCommandError("Invalid delay time value")
 
+        local_delay_time = f"{delay_time:03}"
         if self.telnet_available:
             if self._delay_time == delay_time:
                 return
 
             await self.telnet_api.async_send_commands(
-                self.telnet_commands.command_delay_time.format(value=delay_time)
+                self.telnet_commands.command_delay_time.format(value=local_delay_time)
             )
         else:
             await self.api.async_get_command(
-                self.urls.command_delay_time.format(value=delay_time)
+                self.urls.command_delay_time.format(value=local_delay_time)
             )
 
     async def async_audio_restorer(self, mode: AudioRestorers):
