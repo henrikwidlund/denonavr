@@ -598,6 +598,13 @@ class TestDenonAVRDeviceInfo:
         await fixture.async_execute(device.async_auto_lip_sync_on())
         fixture.assert_not_called()
 
+    def test_auto_lip_sync_callback_ignores_end_marker(self):
+        """Test that the end of the HOS block does not change auto lip sync."""
+        device = DeviceTestFixture(False).device_info
+        device._auto_lip_sync_callback("HOS ON")
+        device._auto_lip_sync_callback("HOS END")
+        assert device.auto_lip_sync is True
+
     @pytest.mark.asyncio
     async def test_async_auto_lip_sync_on_sends_command_when_off(self):
         """Test that async_auto_lip_sync_on sends command if auto lip sync is off."""

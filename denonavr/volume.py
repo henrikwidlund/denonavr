@@ -24,6 +24,8 @@ from .const import (
     STATE_ON,
     SUBWOOFERS_MAP,
     SUBWOOFERS_MAP_REVERSE,
+    ZONE2,
+    ZONE3,
     Channels,
     Subwoofers,
 )
@@ -63,6 +65,13 @@ def convert_volume(value: Union[float, str]) -> float:
     if value is None or value == "--":
         return -80.0
     return float(value)
+
+
+_MAX_VOLUME_EVENTS = {
+    "VCTZMALIM": MAIN_ZONE,
+    "VCTZ2SLIM": ZONE2,
+    "VCTZ3SLIM": ZONE3,
+}
 
 
 @attr.s(auto_attribs=True, on_setattr=DENON_ATTR_SETATTR)
@@ -153,15 +162,18 @@ class DenonAVRVolume(DenonAVRFoundation):
             )
         self._volume = max(min(converted, 18.0), -80.0)
 
-    def _max_volume_callback(self, zone: str, _event: str, parameter: str) -> None:
+    def _max_volume_callback(self, _zone: str, _event: str, parameter: str) -> None:
         """Handle a max volume change event."""
-        if parameter[0:9] != "VCTZMALIM":
+        for prefix, limit_zone in _MAX_VOLUME_EVENTS.items():
+            if parameter.startswith(prefix):
+                break
+        else:
             return
 
-        if self._device.zone != zone:
+        if self._device.zone != limit_zone:
             return
 
-        value = parameter[9:].strip()
+        value = parameter[len(prefix) :].strip()
         if value in ("OFF", ""):
             volume = None
         else:

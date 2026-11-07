@@ -385,3 +385,27 @@ def test_volume_callback(input_str, expected):
     device = DenonAVRVolume(device=fixture.device_info)
     device._volume_callback("Main", "", input_str)
     assert device.volume == expected
+
+
+@pytest.mark.parametrize(
+    "zone, parameter, expected",
+    [
+        ("Main", "VCTZMALIM 70", -10.0),
+        ("Main", "VCTZMALIM OFF", None),
+        ("Zone2", "VCTZ2SLIM 070", -10.0),
+        ("Zone2", "VCTZ2SLIM OFF", None),
+        ("Zone3", "VCTZ3SLIM 070", -10.0),
+        # Limit of another zone is ignored
+        ("Main", "VCTZ2SLIM 070", None),
+        ("Zone2", "VCTZMALIM 70", None),
+        ("Zone2", "VCTZ3SLIM 070", None),
+        ("Zone3", "VCTZ2SLIM 070", None),
+    ],
+)
+def test_max_volume_callback_zones(zone, parameter, expected):
+    """Test that each zone only takes its own volume limit."""
+    fixture = DeviceTestFixture(True)
+    fixture.device_info.zone = zone
+    device = DenonAVRVolume(device=fixture.device_info)
+    device._max_volume_callback("Main", "SS", parameter)
+    assert device._max_volume == expected

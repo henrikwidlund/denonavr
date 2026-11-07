@@ -679,7 +679,7 @@ class DenonAVRDeviceInfo:
         """Handle a auto lip sync change event."""
         if parameter.startswith("HOSALS "):
             self._auto_lip_sync = parameter[7:]
-        elif parameter.startswith("HOS "):
+        elif parameter.startswith("HOS ") and parameter != "HOS END":
             self._auto_lip_sync = parameter[4:]
 
     def _video_signal_callback(self, parameter: str) -> None:
