@@ -279,6 +279,7 @@ class DenonAVRDeviceInfo:
     use_avr_2016_update: Optional[bool] = attr.ib(
         converter=attr.converters.optional(bool), default=None
     )
+    poll_advanced_info: bool = attr.ib(converter=bool, default=False)
     _power: Optional[str] = attr.ib(
         converter=attr.converters.optional(str), default=None
     )
@@ -890,7 +891,9 @@ class DenonAVRDeviceInfo:
         else:
             await self.async_update_status_xml(cache_id=cache_id)
 
-        self._schedule_advanced_audio_video_info_update()
+        # The receiver pushes these values itself after the first query
+        if self.poll_advanced_info:
+            self._schedule_advanced_audio_video_info_update()
 
         _LOGGER.debug("Finished device update")
 

@@ -693,6 +693,7 @@ class TestDenonAVRDeviceInfo:
         device = fixture.device_info
         device._is_setup = True
         device.use_avr_2016_update = False
+        device.poll_advanced_info = True
         release = asyncio.Event()
 
         async def advanced_info_update():
@@ -722,6 +723,35 @@ class TestDenonAVRDeviceInfo:
 
             release.set()
             await device._advanced_info_task
+
+    @pytest.mark.asyncio
+    async def test_async_update_does_not_poll_advanced_info_by_default(self):
+        """Test that async_update sends no advanced info commands by default."""
+        fixture = DeviceTestFixture(True)
+        device = fixture.device_info
+        device._is_setup = True
+        device.use_avr_2016_update = False
+
+        with (
+            patch.object(
+                type(device),
+                "telnet_available",
+                new_callable=PropertyMock,
+                return_value=True,
+            ),
+            patch.object(device, "async_update_status_xml", new_callable=AsyncMock),
+            patch.object(
+                device,
+                "async_trigger_advanced_audio_video_info_update",
+                new_callable=AsyncMock,
+            ) as mock_advanced,
+        ):
+            await device.async_update()
+            await asyncio.sleep(0)
+
+        assert device.poll_advanced_info is False
+        assert device._advanced_info_task is None
+        mock_advanced.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_advanced_info_update_skipped_while_connect_update_runs(self):

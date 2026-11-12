@@ -78,7 +78,7 @@ def sound_mode_rev_map_factory(instance: "DenonAVRSoundMode") -> Dict[str, str]:
     mode_map_rev = {}
     for matched_mode, sublist in mode_map:
         for raw_mode in sublist:
-            mode_map_rev[convert_sound_mode(raw_mode)] = matched_mode
+            mode_map_rev[convert_sound_mode(raw_mode.upper())] = matched_mode
     return mode_map_rev
 
 

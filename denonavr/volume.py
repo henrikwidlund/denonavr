@@ -67,6 +67,22 @@ def convert_volume(value: Union[float, str]) -> float:
     return float(value)
 
 
+def convert_telnet_volume(volume: float, half_step: bool = True) -> str:
+    """
+    Convert a volume in dB to the telnet wire format.
+
+    A half step is the whole part plus "5", the whole part has two digits.
+    Without half_step the volume is rounded to a whole dB.
+    """
+    absolute = volume + 80
+    if not half_step:
+        absolute = int(absolute + 0.5)
+    whole = int(absolute)
+    if absolute == whole:
+        return f"{whole:02d}"
+    return f"{whole:02d}5"
+
+
 _MAX_VOLUME_EVENTS = {
     "VCTZMALIM": MAIN_ZONE,
     "VCTZ2SLIM": ZONE2,
@@ -439,9 +455,18 @@ class DenonAVRVolume(DenonAVRFoundation):
                 _LOGGER.debug("Volume already set for receiver, skipping.")
                 return
 
+            half_step = self._device.zone == MAIN_ZONE
+            if not half_step and volume % 1:
+                _LOGGER.warning(
+                    "Zone %s does not accept half steps, rounding volume %s"
+                    " to a whole dB.",
+                    self._device.zone,
+                    volume,
+                )
+
             await self._device.telnet_api.async_send_commands(
                 self._device.telnet_commands.command_set_volume.format(
-                    volume=int(volume + 80)
+                    volume=convert_telnet_volume(volume, half_step=half_step)
                 )
             )
         else:

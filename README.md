@@ -50,6 +50,8 @@ await d.async_telnet_connect()
 >>> d.register_callback("ALL", update_callback)
 ```
 
+With telnet, the receiver sends changes of the advanced audio and video info itself. `async_update()` does not query them again. To query them on every update, use `DenonAVR(host, poll_advanced_info=True)`. You can also call `async_trigger_advanced_audio_video_info_update()` at any time.
+
 ### Power & Input
 ```
 >>> await d.async_power_on()

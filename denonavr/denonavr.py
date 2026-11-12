@@ -81,6 +81,10 @@ class DenonAVR(DenonAVRFoundation):
     :param use_rate_limiter: If True (default) requests to the receiver are
         rate limited. Set to False to disable rate limiting entirely.
     :type use_rate_limiter: bool
+
+    :param poll_advanced_info: If True the advanced audio and video info is
+        queried on every update. Default False: the receiver sends changes itself.
+    :type poll_advanced_info: bool
     """
 
     _host: str = attr.ib(converter=str, on_setattr=[*DENON_ATTR_SETATTR, set_api_host])
@@ -106,6 +110,7 @@ class DenonAVR(DenonAVRFoundation):
         on_setattr=[*DENON_ATTR_SETATTR, set_api_use_rate_limiter],
         default=True,
     )
+    _poll_advanced_info: bool = attr.ib(converter=bool, default=False)
     _zones: Dict[str, "DenonAVR"] = attr.ib(
         validator=attr.validators.deep_mapping(
             attr.validators.in_(VALID_ZONES),
@@ -155,6 +160,8 @@ class DenonAVR(DenonAVRFoundation):
         self._host = self._host
         self._timeout = self._timeout
         self._use_rate_limiter = self._use_rate_limiter
+        if self._poll_advanced_info:
+            self._device.poll_advanced_info = True
 
         # Add own instance to zone dictionary
         self._zones[self._device.zone] = self
@@ -178,6 +185,7 @@ class DenonAVR(DenonAVRFoundation):
                 timeout=self._timeout,
                 show_all_inputs=self._show_all_inputs,
                 use_rate_limiter=self._use_rate_limiter,
+                poll_advanced_info=self._poll_advanced_info,
             )
             self._zones[zone] = zone_inst
 
